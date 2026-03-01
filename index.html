@@ -1,100 +1,67 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alerte JLM</title>
+    <title>JLM Alerte</title>
     <style>
-        /* Optimisé pour écran OLED (noir = économie batterie) */
-        body { font-family: sans-serif; text-align: center; margin: 0; background: #000; color: #fff; height: 100vh; display: flex; flex-direction: column; justify-content: center; transition: background 0.3s; }
-        .t { font-size: 2em; font-weight: bold; }
-        .c { font-size: 4em; margin: 20px 0; font-family: monospace; }
-        #l { font-size: 0.8em; opacity: 0.6; position: fixed; bottom: 20px; width: 100%; }
-        /* Couleurs d'alerte */
-        .safe { background: #1a1a1a; } /* Gris sombre au lieu de vert pour la discrétion */
-        .danger { background: #ff0000; color: #fff; }
-        .wait { background: #ff8c00; color: #fff; }
+        body { font-family: sans-serif; text-align: center; margin: 0; background: #000; color: #fff; height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+        .danger { background: #ff0000; }
+        .wait { background: #ff8c00; }
+        h1 { font-size: 3em; }
+        #timer { font-size: 5em; font-weight: bold; }
     </style>
 </head>
-<body id="b" class="safe">
-
-    <div id="status" class="t">INITIALISATION...</div>
-    <div id="timer" class="c">--:--</div>
-    <div id="l">Vérification en cours...</div>
+<body id="b">
+    <h1 id="s">VÉRIFICATION...</h1>
+    <div id="timer"></div>
+    <div id="log" style="position:fixed; bottom:10px; width:100%; font-size:0.7em;"></div>
 
     <script>
         const CITY = "ירושלים";
-        // Proxy de secours plus rapide
-        const URL = "https://www.oref.org.il/WarningMessages/alert/alerts.json";
-        const PROXY = "https://api.allorigins.win/get?url=";
-        
-        let isD = false;
-        let countdown = null;
+        const URL = "https://www.oref.org.il/WarningMessages/History/AlertsHistory.json";
+        let isDanger = false;
 
-        async function check() {
-            const log = document.getElementById('l');
+        async function update() {
             try {
-                // nocache indispensable pour le temps réel
-                const r = await fetch(PROXY + encodeURIComponent(URL + "?v=" + Date.now()));
-                if (!r.ok) throw 0;
-                const d = await r.json();
+                // Requête directe sans intermédiaire
+                const r = await fetch(URL + "?t=" + Date.now());
+                const data = await r.json();
                 
-                // Analyse du contenu (cas vide = pas d'alerte)
-                const data = d.contents ? JSON.parse(d.contents) : null;
-                const active = data && data.data && data.data.includes(CITY);
+                const active = data.some(a => a.data.includes(CITY));
 
-                if (active && !isD) {
-                    startD();
-                } else if (!active && isD) {
-                    startW();
-                } else if (!active && !isD && !countdown) {
-                    setSafe();
+                if (active && !isDanger) {
+                    isDanger = true;
+                    document.getElementById('b').className = "danger";
+                    document.getElementById('s').innerText = "À L'ABRI !";
+                    document.getElementById('timer').innerText = "";
+                } else if (!active && isDanger) {
+                    startCountdown();
+                } else if (!active && !isDanger) {
+                    document.getElementById('b').className = "";
+                    document.getElementById('s').innerText = "CIEL DÉGAGÉ";
+                    document.getElementById('timer').innerText = "";
                 }
-                log.innerText = "Dernière synchro : " + new Date().toLocaleTimeString();
+                document.getElementById('log').innerText = "MàJ: " + new Date().toLocaleTimeString();
             } catch (e) {
-                log.innerText = "Erreur réseau (Le serveur bloque peut-être)";
+                document.getElementById('log').innerText = "Blocage navigateur (CORS). Activez l'extension.";
             }
         }
 
-        function startD() {
-            isD = true;
-            clearInterval(countdown);
-            countdown = null;
-            document.getElementById('b').className = "danger";
-            document.getElementById('status').innerText = "⚠️ ALERTE : ABRI !";
-            document.getElementById('timer').innerText = "VITE";
-        }
-
-        function startW() {
-            isD = false;
+        function startCountdown() {
+            isDanger = false;
             document.getElementById('b').className = "wait";
-            document.getElementById('status').innerText = "ATTENTE (DÉBRIS)";
-            let s = 600; // 10 minutes
-            if(countdown) clearInterval(countdown);
-            countdown = setInterval(() => {
+            document.getElementById('s').innerText = "ATTENTE SÉCURITÉ";
+            let s = 600;
+            const t = setInterval(() => {
                 s--;
-                let m = Math.floor(s/60), sec = s%60;
-                document.getElementById('timer').innerText = `${m}:${sec < 10 ? '0' : ''}${sec}`;
-                if(s <= 0) setSafe();
+                document.getElementById('timer').innerText = Math.floor(s/60) + ":" + (s%60).toString().padStart(2,'0');
+                if (s <= 0) { clearInterval(t); update(); }
             }, 1000);
         }
 
-        function setSafe() {
-            isD = false;
-            clearInterval(countdown);
-            countdown = null;
-            document.getElementById('b').className = "safe";
-            document.getElementById('status').innerText = "CIEL DÉGAGÉ";
-            document.getElementById('timer').innerText = "OK";
-        }
-
-        // Rafraîchissement automatique toutes les 3 secondes
-        setInterval(check, 3000);
-        check();
-
-        // Le "Refresh en glissant" est automatique sur Chrome/Safari mobile 
-        // dès que la page peut défiler. On force un petit scroll pour l'activer.
-        window.onpageshow = () => { document.body.style.height = "101vh"; };
+        setInterval(update, 3000);
+        update();
     </script>
 </body>
 </html>
