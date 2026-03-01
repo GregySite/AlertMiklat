@@ -1,23 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JLM DIRECT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alertes Jérusalem</title>
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; }
-        /* On force l'affichage du flux officiel dans une fenêtre invisible */
-        iframe {
-            width: 100vw;
-            height: 100vh;
-            border: none;
-            /* Zoom pour voir les alertes en gros sur mobile */
-            transform: scale(1.5);
-            transform-origin: top center;
-        }
+        body { margin: 0; padding: 0; background: #000; color: #fff; font-family: sans-serif; text-align: center; }
+        .container { padding-top: 20px; }
+        h2 { font-size: 1.2rem; opacity: 0.7; }
     </style>
 </head>
 <body>
-    <iframe src="https://www.oref.org.il/en/alerts-history"></iframe>
+
+    <div class="container">
+        <h2>ALERTES OFFICIELLES</h2>
+        <script src="https://www.oref.org.il/General/Alerts/Alerts.js"></script>
+        
+        <div id="oref_alerts"></div>
+
+        <script>
+            // On configure le widget pour qu'il s'affiche simplement
+            if (typeof OrefAlerts !== 'undefined') {
+                OrefAlerts.init({
+                    container: '#oref_alerts',
+                    width: '100%',
+                    height: '500px',
+                    lang: 'he' // 'he' est le plus rapide pour les mises à jour
+                });
+            }
+        </script>
+    </div>
+
+    <p style="font-size: 0.8rem; margin-top: 50px;">
+        Le widget s'actualise automatiquement en temps réel.
+    </p>
+
 </body>
 </html>
