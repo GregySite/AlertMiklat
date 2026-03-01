@@ -1,116 +1,118 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="he">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alerte Directe Jérusalem</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jérusalem Alert</title>
     <style>
-        body { font-family: sans-serif; text-align: center; margin: 0; padding: 20px; transition: background 0.5s; background: #2c3e50; color: white; height: 100vh; display: flex; flex-direction: column; justify-content: center; }
-        .status { font-size: 2.5em; font-weight: bold; margin-bottom: 10px; }
-        .timer { font-size: 4em; font-weight: bold; margin: 20px 0; font-family: monospace; }
-        .info { font-size: 1.1em; opacity: 0.9; }
-        #last-check { position: absolute; bottom: 10px; width: 100%; font-size: 0.7em; opacity: 0.5; left: 0; }
+        body { 
+            margin: 0; font-family: system-ui, -apple-system, sans-serif;
+            background: #121212; color: white; height: 100vh;
+            display: flex; flex-direction: column; transition: background 0.5s;
+        }
+        #main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .city { font-size: 1.5rem; opacity: 0.8; margin-bottom: 10px; }
+        .status { font-size: 2.5rem; font-weight: 900; line-height: 1.1; padding: 0 20px; }
+        .timer { font-size: 5rem; font-weight: bold; font-family: monospace; margin: 20px 0; }
+        #footer { padding: 20px; font-size: 0.8rem; opacity: 0.5; text-align: center; }
         
-        /* États visuels */
-        .safe { background-color: #27ae60; }
-        .danger { background-color: #c0392b; animation: pulse 1s infinite; }
-        .waiting { background-color: #d35400; }
+        /* États */
+        .bg-safe { background-color: #1b5e20; }
+        .bg-danger { background-color: #b71c1c; animation: flash 1s infinite; }
+        .bg-wait { background-color: #e65100; }
 
-        @keyframes pulse { 0% {opacity: 1;} 50% {opacity: 0.7;} 100% {opacity: 1;} }
+        @keyframes flash { 0% {opacity: 1} 50% {opacity: 0.7} 100% {opacity: 1} }
     </style>
 </head>
-<body class="safe" id="main-body">
+<body class="bg-safe">
 
-    <div id="status-text" class="status">VÉRIFICATION...</div>
-    <div id="timer-display" class="timer"></div>
-    <div id="instruction" class="info">Initialisation du flux direct...</div>
-    
-    <div id="last-check">En attente de données...</div>
+    <div id="main">
+        <div class="city">ירושלים (Jérusalem)</div>
+        <div id="status" class="status">CONNEXION...</div>
+        <div id="timer" class="timer"></div>
+    </div>
+
+    <div id="footer">
+        Dernière mise à jour : <span id="sync">--:--:--</span>
+        <br><small>Glissez vers le bas pour forcer</small>
+    </div>
 
     <script>
-        const CITY = "ירושלים"; 
-        const OREF_URL = "https://www.oref.org.il/WarningMessages/History/AlertsHistory.json";
-        
-        let countdownInterval = null;
-        let isCurrentlyInDanger = false;
+        const CITY = "ירושלים";
+        // Proxy hybride pour mobile (plus résistant au blocage)
+        const URL_TARGET = "https://www.oref.org.il/WarningMessages/History/AlertsHistory.json";
+        const PROXY = "https://thingproxy.freeboard.io/fetch/"; 
 
-        async function checkAlerts() {
-            const log = document.getElementById('last-check');
+        let isDanger = false;
+        let countdown = null;
+
+        async function check() {
             try {
-                // Requête directe vers Pikoud HaOref
-                const response = await fetch(OREF_URL + "?t=" + Date.now(), {
-                    cache: 'no-store'
-                });
+                // Ajout d'un paramètre aléatoire pour éviter le cache opérateur
+                const fetchUrl = PROXY + URL_TARGET + "?t=" + Date.now();
+                const response = await fetch(fetchUrl);
                 
-                if (!response.ok) throw new Error("Accès refusé");
-
+                if (!response.ok) throw new Error();
+                
                 const data = await response.json();
                 
-                // Recherche de la ville dans les alertes récentes
-                const alertFound = data.some(alert => alert.data && alert.data.includes(CITY));
+                // On vérifie si la ville est dans le flux
+                const alertActive = data.some(a => a.data && a.data.includes(CITY));
 
-                if (alertFound && !isCurrentlyInDanger) {
-                    setDanger();
-                } else if (!alertFound && isCurrentlyInDanger) {
-                    startSafetyCountdown();
-                } else if (!alertFound && !isCurrentlyInDanger && !countdownInterval) {
+                if (alertActive && !isDanger) {
+                    triggerDanger();
+                } else if (!alertActive && isDanger) {
+                    triggerWait();
+                } else if (!alertActive && !isDanger && !countdown) {
                     setSafe();
                 }
 
-                log.innerText = "Dernière synchro : " + new Date().toLocaleTimeString();
-            } catch (error) {
-                // Si l'erreur CORS se produit, le message s'affichera ici
-                log.innerText = "Erreur de connexion (CORS ou Réseau)";
+                document.getElementById('sync').innerText = new Date().toLocaleTimeString();
+            } catch (e) {
+                document.getElementById('sync').innerText = "Erreur de flux (Re-tentative...)";
             }
         }
 
-        function setDanger() {
-            isCurrentlyInDanger = true;
-            if (countdownInterval) clearInterval(countdownInterval);
-            countdownInterval = null;
-            
-            document.getElementById('main-body').className = "danger";
-            document.getElementById('status-text').innerText = "⚠️ ALERTE : À L'ABRI !";
-            document.getElementById('timer-display').innerText = "VITE";
-            document.getElementById('instruction').innerText = "Rejoignez l'espace protégé immédiatement.";
+        function triggerDanger() {
+            isDanger = true;
+            if (countdown) clearInterval(countdown);
+            document.body.className = "bg-danger";
+            document.getElementById('status').innerText = "⚠️ ALERTE : À L'ABRI !";
+            document.getElementById('timer').innerText = "VITE";
         }
 
-        function startSafetyCountdown() {
-            isCurrentlyInDanger = false;
-            document.getElementById('main-body').className = "waiting";
-            document.getElementById('status-text').innerText = "SÉCURITÉ DÉBRIS";
-            document.getElementById('instruction').innerText = "Restez à l'abri jusqu'à la fin du décompte.";
+        function triggerWait() {
+            isDanger = false;
+            document.body.className = "bg-wait";
+            document.getElementById('status').innerText = "SÉCURITÉ DÉBRIS";
             
-            let secondsLeft = 600; // 10 minutes réglementaires
+            let seconds = 600; // 10 minutes
+            if (countdown) clearInterval(countdown);
             
-            if (countdownInterval) clearInterval(countdownInterval);
-            countdownInterval = setInterval(() => {
-                secondsLeft--;
-                const mins = Math.floor(secondsLeft / 60);
-                const secs = secondsLeft % 60;
-                document.getElementById('timer-display').innerText = 
-                    `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-
-                if (secondsLeft <= 0) {
-                    setSafe();
-                }
+            countdown = setInterval(() => {
+                seconds--;
+                let m = Math.floor(seconds / 60);
+                let s = seconds % 60;
+                document.getElementById('timer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+                if (seconds <= 0) setSafe();
             }, 1000);
         }
 
         function setSafe() {
-            isCurrentlyInDanger = false;
-            if (countdownInterval) clearInterval(countdownInterval);
-            countdownInterval = null;
-            
-            document.getElementById('main-body').className = "safe";
-            document.getElementById('status-text').innerText = "CIEL DÉGAGÉ";
-            document.getElementById('timer-display').innerText = "OK";
-            document.getElementById('instruction').innerText = "Aucune alerte en cours à Jérusalem.";
+            isDanger = false;
+            if (countdown) clearInterval(countdown);
+            countdown = null;
+            document.body.className = "bg-safe";
+            document.getElementById('status').innerText = "CIEL DÉGAGÉ";
+            document.getElementById('timer').innerText = "RAS";
         }
 
-        // Vérification toutes les 3 secondes (compromis batterie/réactivité)
-        setInterval(checkAlerts, 3000);
-        checkAlerts();
+        // Cycle de 3 secondes (idéal smartphone)
+        setInterval(check, 3000);
+        check();
+
+        // Support du rafraîchissement natif
+        window.addEventListener('touchstart', function() {}, {passive: true});
     </script>
 </body>
 </html>
