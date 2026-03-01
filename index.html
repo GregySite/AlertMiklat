@@ -2,72 +2,22 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>JLM ALERT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JLM DIRECT</title>
     <style>
-        body { margin: 0; font-family: sans-serif; background: #000; color: #fff; height: 100vh; display: flex; flex-direction: column; justify-content: center; text-align: center; transition: 0.3s; }
-        #s { font-size: 2.2rem; font-weight: 900; }
-        #t { font-size: 5rem; font-weight: bold; margin: 15px 0; }
-        #l { position: fixed; bottom: 15px; width: 100%; font-size: 0.7rem; opacity: 0.5; }
-        .safe { background: #1b5e20; }
-        .danger { background: #b71c1c; animation: b 0.5s infinite; }
-        .wait { background: #e65100; }
-        @keyframes b { 0%{opacity:1} 50%{opacity:0.6} 100%{opacity:1} }
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; }
+        /* On force l'affichage du flux officiel dans une fenêtre invisible */
+        iframe {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            /* Zoom pour voir les alertes en gros sur mobile */
+            transform: scale(1.5);
+            transform-origin: top center;
+        }
     </style>
 </head>
-<body class="safe" id="b">
-
-    <div style="opacity:0.6">JÉRUSALEM</div>
-    <div id="s">VÉRIFICATION...</div>
-    <div id="t">--:--</div>
-    <div id="l">Connexion en cours...</div>
-
-    <script>
-        const CITY = "ירושלים";
-        let isD = false, countdown = null;
-
-        async function check() {
-            const log = document.getElementById('l');
-            try {
-                // Utilisation d'un pont (Bridge) qui simule exactement ce que fait la bibliothèque d'Elad Nava
-                const r = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent("https://www.oref.org.il/WarningMessages/History/AlertsHistory.json?v=" + Date.now()));
-                const j = await r.json();
-                const data = JSON.parse(j.contents);
-
-                const active = data && data.length > 0 && data[0].data.includes(CITY);
-
-                if (active && !isD) {
-                    isD = true; clearInterval(countdown);
-                    document.getElementById('b').className = "danger";
-                    document.getElementById('s').innerText = "⚠️ À L'ABRI !";
-                    document.getElementById('t').innerText = "VITE";
-                } else if (!active && isD) {
-                    isD = false; startW();
-                } else if (!active && !isD && !countdown) {
-                    document.getElementById('b').className = "safe";
-                    document.getElementById('s').innerText = "CIEL DÉGAGÉ";
-                    document.getElementById('t').innerText = "OK";
-                }
-                log.innerText = "Dernière synchro : " + new Date().toLocaleTimeString();
-            } catch (e) {
-                log.innerText = "Tentative de reconnexion...";
-            }
-        }
-
-        function startW() {
-            document.getElementById('b').className = "wait";
-            document.getElementById('s').innerText = "SÉCURITÉ (DEBRIS)";
-            let s = 600;
-            countdown = setInterval(() => {
-                s--;
-                document.getElementById('t').innerText = Math.floor(s/60) + ":" + (s%60).toString().padStart(2,'0');
-                if (s <= 0) { clearInterval(countdown); countdown = null; check(); }
-            }, 1000);
-        }
-
-        // On interroge toutes les 2 secondes (très réactif comme l'API d'Elad Nava)
-        setInterval(check, 2500);
-        check();
-    </script>
+<body>
+    <iframe src="https://www.oref.org.il/en/alerts-history"></iframe>
 </body>
 </html>
