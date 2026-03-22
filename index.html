@@ -181,16 +181,15 @@
 
   <!-- HEADER -->
   <header>
-    <div class="logo">🛡️ Miklat<span>Alert</span></div>
+    <div class="logo"><span style="font-weight:900;">alert</span><span style="font-weight:200;opacity:0.6;">miklat</span></div>
     <div class="header-right">
-      <!-- LANG SWITCHER -->
       <div class="lang-switcher">
         <button class="lang-btn active" onclick="setLang('fr')">FR</button>
         <button class="lang-btn" onclick="setLang('he')">עב</button>
         <button class="lang-btn" onclick="setLang('en')">EN</button>
       </div>
-      <span id="header-status-txt" style="font-size:11px;color:var(--muted);font-family:var(--mono);">…</span>
-      <div class="status-dot" id="status-dot"></div>
+      <span id="header-status-txt" style="font-size:11px;color:var(--muted);font-family:var(--mono);"></span>
+      <div class="status-dot offline" id="status-dot"></div>
     </div>
   </header>
 
@@ -667,15 +666,15 @@ async function fetchAlerts() {
   const dot = document.getElementById('status-dot');
   const txt = document.getElementById('header-status-txt');
   const t = T[currentLang];
-  if (!CONFIG.proxyUrl) { dot.className='status-dot offline'; txt.textContent=t.noProxy; return; }
+  if (!CONFIG.proxyUrl) { dot.className='status-dot offline'; txt.textContent=T[currentLang].noProxy; return; }
   try {
     const res = await fetch(CONFIG.proxyUrl, { cache:'no-store' });
     if (!res.ok) throw new Error('HTTP '+res.status);
     const data = await res.json();
-    dot.className='status-dot'; txt.textContent=t.online;
+    dot.className='status-dot'; txt.textContent=T[currentLang].online;
     processAlerts(data);
   } catch(e) {
-    dot.className='status-dot offline'; txt.textContent=t.offline;
+    dot.className='status-dot offline'; txt.textContent=T[currentLang].offline;
     console.warn('Fetch error:', e);
   }
 }
