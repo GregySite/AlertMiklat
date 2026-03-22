@@ -551,53 +551,32 @@ function processAlerts(data) {
   const allCities = CONFIG.zones === '__ALL__';
   const zones = allCities ? [] : CONFIG.zones.split(',').map(z => z.trim().toLowerCase());
 
-  // Vérifie les alertes actives (cat != 13 et != 14)
-  let hasActiveAlert = false;
-  let hasPreAlert = false;
-  let hasEnd = false;
+  // Nouvelle structure: { recent: [{time, cities:[], threat, groupId}] }
+  const recent = data?.recent || [];
+
+  let hasAlert = false;
   let matchedZone = null;
 
-  // --- Alertes actives (sirène) ---
-  if (data?.alerts && Array.isArray(data.alerts)) {
-    for (const g of data.alerts) {
-      const cat = g.cat || g.category || 0;
-      const alertZones = g.alerts || g.cities || [];
-      for (const zone of alertZones) {
-        if (allCities || zones.some(z => zone.toLowerCase().includes(z))) {
-          if (cat === 14) hasPreAlert = true;
-          else if (cat === 13) hasEnd = true;
-          else { hasActiveAlert = true; matchedZone = zone; }
-        }
-      }
+  for (const alert of recent) {
+    const cities = alert.cities || [];
+    const matched = allCities
+      ? cities.length > 0
+      : cities.some(c => zones.some(z => c.toLowerCase().includes(z)));
+    if (matched) {
+      hasAlert = true;
+      matchedZone = cities[0] || '?';
+      break;
     }
   }
 
-  // --- Notifications (end/pre_alert) ---
-  if (data?.updates && Array.isArray(data.updates)) {
-    for (const u of data.updates) {
-      const cat = u.cat || u.category || 0;
-      const uZones = u.alerts || u.cities || u.areas || [];
-      const zoneMatch = allCities || uZones.length === 0 || uZones.some(z => zones.some(k => z.toLowerCase().includes(k)));
-      if (zoneMatch) {
-        if (cat === 13) hasEnd = true;
-        if (cat === 14) hasPreAlert = true;
-      }
-    }
-  }
-
-  // --- Machine d'état ---
-  // Ne jamais rétrograder un état plus grave
-  if (hasEnd && (state === 'alert' || state === 'waiting')) {
-    setPhase('safe');
-  } else if (hasActiveAlert && state !== 'alert') {
-    showLastAlert(matchedZone || '?');
+  if (hasAlert && state !== 'alert' && state !== 'waiting') {
+    showLastAlert(matchedZone);
     setPhase('alert');
-  } else if (hasPreAlert && state === 'idle') {
-    setPhase('pre-alert');
+  } else if (!hasAlert && state === 'pre-alert') {
+    setPhase('idle');
   }
-  // waiting → on ne fait rien, on attend le end ou le reset manuel
-  // safe → on ne fait rien, le reset est manuel
 }
+
 
 // ─── PHASE ────────────────────────────────────────────────────────────────────
 function setPhase(phase) {
