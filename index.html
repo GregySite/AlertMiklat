@@ -12,341 +12,184 @@
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <style>
   :root {
-    --bg: #0a0a0f;
-    --surface: #12121a;
-    --border: #1e1e2e;
-    --text: #e8e8f0;
-    --muted: #6b6b8a;
-    --accent: #4f6ef7;
-    --green: #22d07a;
-    --yellow: #f7c84f;
-    --red: #f74f4f;
-    --orange: #f79a4f;
-    --glow-red: rgba(247,79,79,0.25);
-    --glow-green: rgba(34,208,122,0.25);
-    --glow-yellow: rgba(247,200,79,0.25);
-    --radius: 16px;
-    --font: 'Rubik', sans-serif;
-    --mono: 'Share Tech Mono', monospace;
-    --safe-duration: 600; /* seconds = 10 minutes, configurable */
-    --poll-interval: 15; /* seconds */
+    --bg: #0a0a0f; --surface: #12121a; --border: #1e1e2e;
+    --text: #e8e8f0; --muted: #6b6b8a; --accent: #4f6ef7;
+    --green: #22d07a; --yellow: #f7c84f; --red: #f74f4f; --orange: #f79a4f;
+    --glow-red: rgba(247,79,79,0.25); --glow-green: rgba(34,208,122,0.25); --glow-yellow: rgba(247,200,79,0.25);
+    --radius: 16px; --font: 'Rubik', sans-serif; --mono: 'Share Tech Mono', monospace;
   }
-
   * { margin:0; padding:0; box-sizing:border-box; }
-
   body {
-    font-family: var(--font);
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow-x: hidden;
-    position: relative;
+    font-family: var(--font); background: var(--bg); color: var(--text);
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    overflow-x:hidden; position:relative;
   }
-
-  /* Background grid */
   body::before {
-    content:'';
-    position:fixed; inset:0;
-    background-image:
-      linear-gradient(rgba(79,110,247,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(79,110,247,0.04) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events:none;
-    z-index:0;
+    content:''; position:fixed; inset:0;
+    background-image: linear-gradient(rgba(79,110,247,0.04) 1px,transparent 1px), linear-gradient(90deg,rgba(79,110,247,0.04) 1px,transparent 1px);
+    background-size:40px 40px; pointer-events:none; z-index:0;
   }
-
   #app { position:relative; z-index:1; width:100%; max-width:480px; padding:20px 16px 40px; }
 
   /* HEADER */
   header {
     display:flex; align-items:center; justify-content:space-between;
-    margin-bottom:24px;
-    padding: 12px 16px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    margin-bottom:24px; padding:12px 16px;
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
   }
   .logo { font-size:20px; font-weight:900; letter-spacing:-0.5px; }
-  .logo span { color: var(--accent); }
+  .logo span { color:var(--accent); }
+  .header-right { display:flex; align-items:center; gap:10px; }
+
+  /* LANG SWITCHER */
+  .lang-switcher {
+    display:flex; gap:4px; background:var(--border); border-radius:999px; padding:3px;
+  }
+  .lang-btn {
+    border:none; background:none; color:var(--muted); font-family:var(--mono);
+    font-size:11px; padding:3px 8px; border-radius:999px; cursor:pointer;
+    transition:all 0.2s; font-weight:600; letter-spacing:0.5px;
+  }
+  .lang-btn.active { background:var(--accent); color:white; }
+
   .status-dot {
     width:10px; height:10px; border-radius:50%;
-    background: var(--green);
-    box-shadow: 0 0 8px var(--green);
-    animation: pulse-dot 2s infinite;
+    background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse-dot 2s infinite;
   }
-  .status-dot.offline { background: var(--muted); box-shadow:none; animation:none; }
-  .status-dot.alert { background: var(--red); box-shadow:0 0 12px var(--red); }
-  @keyframes pulse-dot {
-    0%,100%{ opacity:1; transform:scale(1); }
-    50%{ opacity:0.5; transform:scale(0.8); }
-  }
+  .status-dot.offline { background:var(--muted); box-shadow:none; animation:none; }
+  .status-dot.alert { background:var(--red); box-shadow:0 0 12px var(--red); }
+  @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.8);} }
 
-  /* MAIN PHASE CARD */
+  /* PHASE CARD */
   .phase-card {
-    border-radius: var(--radius);
-    padding: 28px 24px;
-    margin-bottom: 16px;
-    border: 1.5px solid var(--border);
-    background: var(--surface);
-    transition: all 0.4s ease;
-    position: relative;
-    overflow: hidden;
+    border-radius:var(--radius); padding:28px 24px; margin-bottom:16px;
+    border:1.5px solid var(--border); background:var(--surface);
+    transition:all 0.4s ease; position:relative; overflow:hidden;
   }
   .phase-card::before {
-    content:'';
-    position:absolute; inset:0;
-    opacity:0;
-    transition: opacity 0.4s;
-    pointer-events:none;
+    content:''; position:absolute; inset:0; opacity:0;
+    transition:opacity 0.4s; pointer-events:none;
   }
+  .phase-card.idle { border-color:var(--border); }
+  .phase-icon { font-size:56px; text-align:center; margin-bottom:16px; display:block; }
+  .phase-title { font-size:26px; font-weight:900; text-align:center; letter-spacing:-0.5px; margin-bottom:8px; }
 
-  /* IDLE */
-  .phase-card.idle { border-color: var(--border); }
-  .phase-icon { font-size: 56px; text-align:center; margin-bottom:16px; display:block; }
-  .phase-title {
-    font-size: 26px; font-weight:900; text-align:center;
-    letter-spacing:-0.5px; margin-bottom:8px;
-  }
-  .phase-subtitle { text-align:center; color:var(--muted); font-size:14px; font-weight:300; }
+  .phase-card.pre-alert { border-color:var(--yellow); background:linear-gradient(135deg,#12121a 0%,#1a1700 100%); }
+  .phase-card.pre-alert::before { background:radial-gradient(ellipse at center,var(--glow-yellow),transparent 70%); opacity:1; }
+  .phase-card.pre-alert .phase-title { color:var(--yellow); }
 
-  /* PRE-ALERT */
-  .phase-card.pre-alert {
-    border-color: var(--yellow);
-    background: linear-gradient(135deg, #12121a 0%, #1a1700 100%);
-  }
-  .phase-card.pre-alert::before {
-    background: radial-gradient(ellipse at center, var(--glow-yellow), transparent 70%);
-    opacity:1;
-  }
-  .phase-card.pre-alert .phase-title { color: var(--yellow); }
+  .phase-card.alert-active { border-color:var(--red); background:linear-gradient(135deg,#12121a 0%,#1a0000 100%); animation:card-pulse 1s ease-in-out infinite; }
+  .phase-card.alert-active::before { background:radial-gradient(ellipse at center,var(--glow-red),transparent 70%); opacity:1; }
+  .phase-card.alert-active .phase-title { color:var(--red); }
+  @keyframes card-pulse { 0%,100%{box-shadow:0 0 0 0 var(--glow-red);} 50%{box-shadow:0 0 30px 8px var(--glow-red);} }
 
-  /* ALERT */
-  .phase-card.alert-active {
-    border-color: var(--red);
-    background: linear-gradient(135deg, #12121a 0%, #1a0000 100%);
-    animation: card-pulse 1s ease-in-out infinite;
-  }
-  .phase-card.alert-active::before {
-    background: radial-gradient(ellipse at center, var(--glow-red), transparent 70%);
-    opacity:1;
-  }
-  .phase-card.alert-active .phase-title { color: var(--red); }
-  @keyframes card-pulse {
-    0%,100%{ box-shadow: 0 0 0 0 var(--glow-red); }
-    50%{ box-shadow: 0 0 30px 8px var(--glow-red); }
-  }
+  .phase-card.safe { border-color:var(--green); background:linear-gradient(135deg,#12121a 0%,#001a0a 100%); }
+  .phase-card.safe::before { background:radial-gradient(ellipse at center,var(--glow-green),transparent 70%); opacity:1; }
+  .phase-card.safe .phase-title { color:var(--green); }
 
-  /* SAFE */
-  .phase-card.safe {
-    border-color: var(--green);
-    background: linear-gradient(135deg, #12121a 0%, #001a0a 100%);
-  }
-  .phase-card.safe::before {
-    background: radial-gradient(ellipse at center, var(--glow-green), transparent 70%);
-    opacity:1;
-  }
-  .phase-card.safe .phase-title { color: var(--green); }
-
-  /* MULTILANG */
-  .lang-block {
-    display:flex; flex-direction:column; gap:4px;
-    align-items:center; margin-top:12px;
-  }
-  .lang-line { font-size:13px; color:var(--muted); font-weight:300; }
-  .lang-line.rtl { direction:rtl; font-size:14px; }
-  .lang-line.main { font-size:16px; font-weight:700; color:var(--text); }
+  /* MSG BLOCK */
+  .msg-block { text-align:center; margin-top:12px; }
+  .msg-main { font-size:17px; font-weight:700; color:var(--text); line-height:1.4; }
+  .msg-main[dir="rtl"] { font-size:18px; }
+  .msg-sub { font-size:12px; color:var(--muted); margin-top:6px; font-style:italic; }
 
   /* TIMER */
-  .timer-container {
-    margin: 20px 0 8px;
-    display:flex; flex-direction:column; align-items:center; gap:12px;
-  }
-  .timer-display {
-    font-family: var(--mono);
-    font-size: 64px;
-    font-weight:400;
-    line-height:1;
-    letter-spacing: 2px;
-    color: var(--text);
-    transition: color 0.3s;
-  }
-  .timer-display.warning { color: var(--orange); }
-  .timer-display.safe-color { color: var(--green); }
+  .timer-container { margin:20px 0 8px; display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .timer-display { font-family:var(--mono); font-size:64px; font-weight:400; line-height:1; letter-spacing:2px; color:var(--text); transition:color 0.3s; }
+  .timer-display.warning { color:var(--orange); }
+  .timer-display.safe-color { color:var(--green); }
+  .progress-track { width:100%; height:8px; background:var(--border); border-radius:4px; overflow:hidden; }
+  .progress-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--red),var(--orange)); transition:width 1s linear,background 0.5s; width:0%; }
+  .progress-fill.done { background:var(--green); }
+  .timer-label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; font-family:var(--mono); }
 
-  .progress-track {
-    width:100%; height:8px;
-    background: var(--border);
-    border-radius:4px; overflow:hidden;
-  }
-  .progress-fill {
-    height:100%; border-radius:4px;
-    background: linear-gradient(90deg, var(--red), var(--orange));
-    transition: width 1s linear, background 0.5s;
-    width:0%;
-  }
-  .progress-fill.counting { }
-  .progress-fill.done { background: var(--green); }
-
-  .timer-label {
-    font-size:12px; color:var(--muted); text-transform:uppercase;
-    letter-spacing:2px; font-family:var(--mono);
-  }
-
-  /* LOCATION BADGE */
+  /* LOCATION */
   .location-badge {
     display:inline-flex; align-items:center; gap:8px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius:999px;
-    padding: 8px 16px;
-    font-size:13px; font-weight:500;
-    margin-bottom:16px;
-    width:100%;
-    justify-content:center;
+    background:var(--surface); border:1px solid var(--border); border-radius:999px;
+    padding:8px 16px; font-size:13px; font-weight:500;
+    margin-bottom:16px; width:100%; justify-content:center;
   }
   .location-badge .dot { width:8px;height:8px;border-radius:50%;background:var(--accent); }
 
   /* LAST ALERT */
-  .last-alert-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom:16px;
-  }
+  .last-alert-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; }
   .last-alert-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; font-family:var(--mono); }
   .last-alert-content { font-size:13px; line-height:1.6; }
   .last-alert-time { font-size:11px; color:var(--muted); margin-top:4px; font-family:var(--mono); }
 
   /* SETTINGS */
-  .settings-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding:16px;
-    margin-bottom:16px;
-  }
+  .settings-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; }
   .settings-title {
-    font-size:11px; color:var(--muted); text-transform:uppercase;
-    letter-spacing:2px; margin-bottom:14px; font-family:var(--mono);
-    display:flex; align-items:center; justify-content:space-between; cursor:pointer;
+    font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px;
+    margin-bottom:0; font-family:var(--mono); display:flex; align-items:center;
+    justify-content:space-between; cursor:pointer;
   }
-  .settings-title .chevron { transition: transform 0.3s; }
-  .settings-title .chevron.open { transform: rotate(180deg); }
-  .settings-body { display:none; }
+  .settings-body { display:none; margin-top:14px; }
   .settings-body.open { display:block; }
+  .chevron { transition:transform 0.3s; }
+  .chevron.open { transform:rotate(180deg); }
 
-  .setting-row {
-    display:flex; align-items:center; justify-content:space-between;
-    padding: 10px 0;
-    border-bottom:1px solid var(--border);
-  }
+  .setting-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); }
   .setting-row:last-child { border-bottom:none; }
   .setting-label { font-size:13px; font-weight:500; }
   .setting-desc { font-size:11px; color:var(--muted); margin-top:2px; }
 
-  /* Toggle */
-  .toggle {
-    width:44px; height:24px; border-radius:12px;
-    background: var(--border); position:relative; cursor:pointer;
-    transition: background 0.3s; flex-shrink:0; border:none; outline:none;
-  }
-  .toggle::after {
-    content:''; position:absolute; top:3px; left:3px;
-    width:18px; height:18px; border-radius:50%;
-    background: var(--muted); transition: all 0.3s;
-  }
-  .toggle.on { background: var(--accent); }
-  .toggle.on::after { left:23px; background: white; }
+  .toggle { width:44px;height:24px;border-radius:12px;background:var(--border);position:relative;cursor:pointer;transition:background 0.3s;flex-shrink:0;border:none;outline:none; }
+  .toggle::after { content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:all 0.3s; }
+  .toggle.on { background:var(--accent); }
+  .toggle.on::after { left:23px; background:white; }
 
-  /* Number input */
-  .number-input {
-    display:flex; align-items:center; gap:8px;
-  }
-  .num-btn {
-    width:28px;height:28px;border-radius:6px;
-    background:var(--border); border:none; color:var(--text);
-    font-size:16px; cursor:pointer; display:flex;align-items:center;justify-content:center;
-    transition: background 0.2s;
-  }
-  .num-btn:hover { background: var(--accent); }
-  .num-val { font-family:var(--mono); font-size:14px; min-width:32px; text-align:center; }
+  .number-input { display:flex;align-items:center;gap:8px; }
+  .num-btn { width:28px;height:28px;border-radius:6px;background:var(--border);border:none;color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s; }
+  .num-btn:hover { background:var(--accent); }
+  .num-val { font-family:var(--mono);font-size:14px;min-width:32px;text-align:center; }
 
   /* TEST BUTTONS */
-  .test-row { display:flex; gap:8px; margin-bottom:16px; }
-  .test-btn {
-    flex:1; padding:10px; border-radius:10px;
-    border: 1px solid var(--border); background: var(--surface);
-    color: var(--text); font-family:var(--font); font-size:12px;
-    font-weight:600; cursor:pointer; transition: all 0.2s;
-    letter-spacing:0.5px;
-  }
-  .test-btn:hover { transform: translateY(-1px); }
-  .test-btn.y { border-color:var(--yellow); color:var(--yellow); }
-  .test-btn.r { border-color:var(--red); color:var(--red); }
-  .test-btn.g { border-color:var(--green); color:var(--green); }
+  .test-row { display:flex;gap:8px;margin-bottom:16px; }
+  .test-btn { flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:0.5px; }
+  .test-btn:hover { transform:translateY(-1px); }
+  .test-btn.y { border-color:var(--yellow);color:var(--yellow); }
+  .test-btn.r { border-color:var(--red);color:var(--red); }
+  .test-btn.g { border-color:var(--green);color:var(--green); }
 
-  /* NOTIF PERMISSION */
-  .notif-bar {
-    display:none; align-items:center; gap:10px;
-    background: rgba(79,110,247,0.1);
-    border:1px solid var(--accent);
-    border-radius:10px; padding:12px 14px;
-    margin-bottom:16px; font-size:13px;
-  }
+  /* NOTIF */
+  .notif-bar { display:none;align-items:center;gap:10px;background:rgba(79,110,247,0.1);border:1px solid var(--accent);border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:13px; }
   .notif-bar.show { display:flex; }
-  .notif-bar button {
-    margin-left:auto; background:var(--accent); color:white;
-    border:none; border-radius:6px; padding:6px 12px;
-    font-size:12px; font-weight:600; cursor:pointer; font-family:var(--font);
-    white-space:nowrap;
-  }
+  .notif-bar button { margin-left:auto;background:var(--accent);color:white;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);white-space:nowrap; }
 
-  /* FOOTER */
-  footer {
-    margin-top:24px; text-align:center;
-    font-size:11px; color:var(--muted); font-family:var(--mono);
-    line-height:1.8;
-  }
+  footer { margin-top:24px;text-align:center;font-size:11px;color:var(--muted);font-family:var(--mono);line-height:1.8; }
   footer a { color:var(--muted); }
 
-  /* FULLSCREEN ALERT OVERLAY */
-  #alert-overlay {
-    display:none; position:fixed; inset:0; z-index:100;
-    background: rgba(180,0,0,0.12);
-  
-    animation: flash-bg 0.5s ease-in-out infinite alternate;
-  }
+  #alert-overlay { display:none;position:fixed;inset:0;z-index:100;background:rgba(180,0,0,0.12);pointer-events:none;animation:flash-bg 0.5s ease-in-out infinite alternate; }
   #alert-overlay.show { display:block; }
-  @keyframes flash-bg {
-    from { background: rgba(180,0,0,0.08); }
-    to   { background: rgba(180,0,0,0.22); }
-  }
+  @keyframes flash-bg { from{background:rgba(180,0,0,0.06);} to{background:rgba(180,0,0,0.18);} }
 
-  /* RESPONSIVE */
-  @media (max-width:380px) {
-    .timer-display { font-size:52px; }
-    .phase-icon { font-size:44px; }
-  }
+  @media(max-width:380px) { .timer-display{font-size:52px;} .phase-icon{font-size:44px;} }
 
-  /* Scroll smooth */
-  html { scroll-behavior: smooth; }
+  /* RTL support for Hebrew */
+  body.rtl { direction: rtl; }
+  body.rtl .header-right { flex-direction: row-reverse; }
+  body.rtl .location-badge { flex-direction: row-reverse; }
+  body.rtl .setting-row { flex-direction: row-reverse; }
+  body.rtl .settings-title { flex-direction: row-reverse; }
 </style>
 </head>
 <body>
-
 <div id="alert-overlay"></div>
-
 <div id="app">
 
   <!-- HEADER -->
   <header>
     <div class="logo">🛡️ Miklat<span>Alert</span></div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <span id="header-status-txt" style="font-size:11px;color:var(--muted);font-family:var(--mono);">connexion…</span>
+    <div class="header-right">
+      <!-- LANG SWITCHER -->
+      <div class="lang-switcher">
+        <button class="lang-btn active" onclick="setLang('fr')">FR</button>
+        <button class="lang-btn" onclick="setLang('he')">עב</button>
+        <button class="lang-btn" onclick="setLang('en')">EN</button>
+      </div>
+      <span id="header-status-txt" style="font-size:11px;color:var(--muted);font-family:var(--mono);">…</span>
       <div class="status-dot" id="status-dot"></div>
     </div>
   </header>
@@ -354,24 +197,22 @@
   <!-- LOCATION -->
   <div class="location-badge">
     <div class="dot"></div>
-    <span id="location-label">Jérusalem Sud</span>
+    <span id="t-location">Jérusalem Sud</span>
     <span style="margin-left:auto;font-size:11px;color:var(--muted);font-family:var(--mono);" id="next-poll-txt"></span>
   </div>
 
-  <!-- NOTIFICATION BAR -->
+  <!-- NOTIF BAR -->
   <div class="notif-bar" id="notif-bar">
-    <span>🔔 Activer les notifications pour les alertes en arrière-plan</span>
-    <button onclick="requestNotif()">Activer</button>
+    <span id="t-notif-msg">🔔 Activer les notifications pour les alertes en arrière-plan</span>
+    <button onclick="requestNotif()" id="t-notif-btn">Activer</button>
   </div>
 
-  <!-- MAIN PHASE CARD -->
+  <!-- PHASE CARD -->
   <div class="phase-card idle" id="phase-card">
     <span class="phase-icon" id="phase-icon">🕊️</span>
     <div class="phase-title" id="phase-title">Calme</div>
-    <div class="lang-block">
-      <div class="lang-line main" id="phase-fr">Aucune alerte en cours</div>
-      <div class="lang-line rtl" id="phase-he">אין התרעות כרגע</div>
-      <div class="lang-line" id="phase-en">No active alerts</div>
+    <div class="msg-block">
+      <div class="msg-main" id="phase-msg">Aucune alerte en cours</div>
     </div>
 
     <div class="timer-container" id="timer-container" style="display:none;">
@@ -383,7 +224,7 @@
 
   <!-- LAST ALERT -->
   <div class="last-alert-card" id="last-alert-card" style="display:none;">
-    <div class="last-alert-title">⚡ Dernière alerte</div>
+    <div class="last-alert-title" id="t-last-alert-title">⚡ Dernière alerte</div>
     <div class="last-alert-content" id="last-alert-content"></div>
     <div class="last-alert-time" id="last-alert-time"></div>
   </div>
@@ -391,24 +232,24 @@
   <!-- SETTINGS -->
   <div class="settings-card">
     <div class="settings-title" onclick="toggleSettings()">
-      ⚙️ &nbsp;Paramètres
+      <span>⚙️ &nbsp;<span id="t-settings">Paramètres</span></span>
       <span class="chevron" id="chevron">▼</span>
     </div>
     <div class="settings-body" id="settings-body">
 
       <div class="setting-row">
         <div>
-          <div class="setting-label">Zone surveillée</div>
-          <div class="setting-desc">Mots-clés dans le nom de la zone</div>
+          <div class="setting-label" id="t-zone-label">Zone surveillée</div>
+          <div class="setting-desc" id="t-zone-desc">Mots-clés dans le nom de la zone</div>
         </div>
-        <input id="zone-input" value="ירושלים דרום,Jerusalem South,גוש עציון" 
+        <input id="zone-input" value="ירושלים דרום,Jerusalem South,גוש עציון"
           style="background:var(--border);border:none;color:var(--text);border-radius:6px;padding:6px 8px;font-family:var(--mono);font-size:11px;width:160px;text-align:right;"/>
       </div>
 
       <div class="setting-row">
         <div>
-          <div class="setting-label">Durée au miklat</div>
-          <div class="setting-desc">Après l'alerte (minutes)</div>
+          <div class="setting-label" id="t-dur-label">Durée au miklat</div>
+          <div class="setting-desc" id="t-dur-desc">Après l'alerte (minutes)</div>
         </div>
         <div class="number-input">
           <button class="num-btn" onclick="adjustDuration(-1)">−</button>
@@ -419,8 +260,8 @@
 
       <div class="setting-row">
         <div>
-          <div class="setting-label">Fréquence de vérification</div>
-          <div class="setting-desc">Toutes les N secondes</div>
+          <div class="setting-label" id="t-poll-label">Fréquence de vérification</div>
+          <div class="setting-desc" id="t-poll-desc">Toutes les N secondes</div>
         </div>
         <div class="number-input">
           <button class="num-btn" onclick="adjustPoll(-5)">−</button>
@@ -431,58 +272,140 @@
 
       <div class="setting-row">
         <div>
-          <div class="setting-label">Vibration</div>
-          <div class="setting-desc">Vibre lors des alertes</div>
+          <div class="setting-label" id="t-vib-label">Vibration</div>
+          <div class="setting-desc" id="t-vib-desc">Vibre lors des alertes</div>
         </div>
         <button class="toggle on" id="toggle-vibration" onclick="toggleOption('vibration')"></button>
       </div>
 
       <div class="setting-row">
         <div>
-          <div class="setting-label">Son d'alerte</div>
-          <div class="setting-desc">Bip d'alerte dans le navigateur</div>
+          <div class="setting-label" id="t-snd-label">Son d'alerte</div>
+          <div class="setting-desc" id="t-snd-desc">Bip d'alerte dans le navigateur</div>
         </div>
         <button class="toggle on" id="toggle-sound" onclick="toggleOption('sound')"></button>
       </div>
 
       <div class="setting-row">
         <div>
-          <div class="setting-label">URL du proxy Cloudflare</div>
-          <div class="setting-desc">Ton Worker CF</div>
+          <div class="setting-label" id="t-proxy-label">URL du proxy Cloudflare</div>
+          <div class="setting-desc" id="t-proxy-desc">Ton Worker CF</div>
         </div>
-        <input id="proxy-url" 
-          placeholder="https://miklat.XXX.workers.dev"
+        <input id="proxy-url" placeholder="https://miklat.XXX.workers.dev"
           style="background:var(--border);border:none;color:var(--text);border-radius:6px;padding:6px 8px;font-family:var(--mono);font-size:11px;width:160px;text-align:right;"/>
       </div>
 
-    </div><!-- settings-body -->
-  </div><!-- settings-card -->
+    </div>
+  </div>
 
-  <!-- TEST BUTTONS -->
-  <div style="text-align:center; margin-bottom:8px;">
+  <!-- TEST TOGGLE -->
+  <div style="text-align:center;margin-bottom:8px;">
     <button onclick="toggleTests()" id="toggle-test-btn"
-      style="background:none;border:1px solid var(--border);color:var(--muted);
-      border-radius:999px;padding:5px 14px;font-size:11px;cursor:pointer;
-      font-family:var(--mono);letter-spacing:1px;transition:all 0.2s;">
-      🧪 tests
+      style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:999px;padding:5px 14px;font-size:11px;cursor:pointer;font-family:var(--mono);letter-spacing:1px;transition:all 0.2s;">
+      🧪 <span id="t-test-btn">tests</span>
     </button>
   </div>
   <div class="test-row" id="test-row" style="display:none;">
-    <button class="test-btn y" onclick="simulatePhase('pre-alert')">⚠️ Pré-alerte</button>
-    <button class="test-btn r" onclick="simulatePhase('alert')">🚨 ALERTE</button>
-    <button class="test-btn g" onclick="simulatePhase('safe')">✅ Sortie</button>
+    <button class="test-btn y" onclick="simulatePhase('pre-alert')" id="t-btn-pre">⚠️ Pré-alerte</button>
+    <button class="test-btn r" onclick="simulatePhase('alert')" id="t-btn-alert">🚨 ALERTE</button>
+    <button class="test-btn g" onclick="simulatePhase('safe')" id="t-btn-safe">✅ Sortie</button>
   </div>
 
-  <!-- FOOTER -->
   <footer>
     Polling: tzevaadom.co.il via Cloudflare Worker<br/>
-    Source: <a href="https://github.com/yourusername/miklat-alert" target="_blank">GitHub</a>
-    &nbsp;·&nbsp; v1.0
+    <a href="https://github.com/gregysite/AlertJeru" target="_blank">GitHub</a> · v1.1
   </footer>
-
-</div><!-- app -->
+</div>
 
 <script>
+// ─── TRANSLATIONS ─────────────────────────────────────────────────────────────
+const T = {
+  fr: {
+    location: 'Jérusalem Sud',
+    notifMsg: '🔔 Activer les notifications pour les alertes en arrière-plan',
+    notifBtn: 'Activer',
+    settings: 'Paramètres',
+    zoneLabel: 'Zone surveillée', zoneDesc: 'Mots-clés dans le nom de la zone',
+    durLabel: 'Durée au miklat', durDesc: 'Après l\'alerte (minutes)',
+    pollLabel: 'Fréquence de vérification', pollDesc: 'Toutes les N secondes',
+    vibLabel: 'Vibration', vibDesc: 'Vibre lors des alertes',
+    sndLabel: 'Son d\'alerte', sndDesc: 'Bip d\'alerte dans le navigateur',
+    proxyLabel: 'URL du proxy Cloudflare', proxyDesc: 'Ton Worker CF',
+    testBtn: 'tests', testHide: 'masquer tests',
+    btnPre: '⚠️ Pré-alerte', btnAlert: '🚨 ALERTE', btnSafe: '✅ Sortie',
+    lastAlert: '⚡ Dernière alerte',
+    online: 'en ligne', offline: 'erreur réseau', noProxy: 'proxy non configuré',
+    phases: {
+      idle:      { title: 'Calme',            msg: 'Aucune alerte en cours' },
+      'pre-alert':{ title: 'Pré-alerte',      msg: 'Préparez-vous — dirigez-vous vers le miklat' },
+      alert:     { title: '🚨 ALERTE 🚨',     msg: 'Entrez MAINTENANT dans le miklat !' },
+      safe:      { title: 'Vous pouvez sortir', msg: 'La menace est passée — sortie autorisée' },
+    },
+    timerLabel: 'temps restant au miklat',
+    timerAlmost: 'presque fini…',
+    notifPre: ['⚠️ Pré-alerte — Direction le miklat', 'Préparez-vous à vous abriter'],
+    notifAlert: ['🚨 ALERTE — Entrez au miklat !', 'Mettez-vous à l\'abri immédiatement'],
+    notifSafe: ['✅ Sortie autorisée', 'Vous pouvez quitter le miklat'],
+    dir: 'ltr',
+  },
+  he: {
+    location: 'ירושלים דרום',
+    notifMsg: '🔔 אפשר התראות לקבלת אזעקות ברקע',
+    notifBtn: 'אפשר',
+    settings: 'הגדרות',
+    zoneLabel: 'אזור מעקב', zoneDesc: 'מילות מפתח בשם האזור',
+    durLabel: 'זמן במקלט', durDesc: 'אחרי האזעקה (דקות)',
+    pollLabel: 'תדירות בדיקה', pollDesc: 'כל N שניות',
+    vibLabel: 'רטט', vibDesc: 'רוטט בזמן אזעקה',
+    sndLabel: 'צליל אזעקה', sndDesc: 'צפצוף בדפדפן',
+    proxyLabel: 'כתובת ה-Proxy', proxyDesc: 'Cloudflare Worker שלך',
+    testBtn: 'בדיקות', testHide: 'הסתר בדיקות',
+    btnPre: '⚠️ טרום-אזעקה', btnAlert: '🚨 אזעקה', btnSafe: '✅ יציאה',
+    lastAlert: '⚡ אזעקה אחרונה',
+    online: 'מחובר', offline: 'שגיאת רשת', noProxy: 'Proxy לא מוגדר',
+    phases: {
+      idle:       { title: 'שקט',          msg: 'אין התרעות כרגע' },
+      'pre-alert':{ title: 'טרום-אזעקה',   msg: 'התכוננו — פנו למקלט' },
+      alert:      { title: '🚨 אזעקה 🚨',  msg: '!היכנסו למקלט עכשיו' },
+      safe:       { title: 'ניתן לצאת',    msg: 'הסכנה חלפה — ניתן לצאת מהמקלט' },
+    },
+    timerLabel: 'זמן שנותר במקלט',
+    timerAlmost: '…כמעט גמרנו',
+    notifPre: ['⚠️ טרום-אזעקה — פנו למקלט', 'התכוננו להתמגן'],
+    notifAlert: ['🚨 אזעקה — היכנסו למקלט !', 'התמגנו מיד'],
+    notifSafe: ['✅ ניתן לצאת', 'ניתן לצאת מהמקלט'],
+    dir: 'rtl',
+  },
+  en: {
+    location: 'Jerusalem South',
+    notifMsg: '🔔 Enable notifications for background alerts',
+    notifBtn: 'Enable',
+    settings: 'Settings',
+    zoneLabel: 'Monitored zone', zoneDesc: 'Keywords in zone name',
+    durLabel: 'Shelter duration', durDesc: 'After alert (minutes)',
+    pollLabel: 'Check frequency', pollDesc: 'Every N seconds',
+    vibLabel: 'Vibration', vibDesc: 'Vibrate on alerts',
+    sndLabel: 'Alert sound', sndDesc: 'Browser beep on alert',
+    proxyLabel: 'Cloudflare proxy URL', proxyDesc: 'Your CF Worker URL',
+    testBtn: 'tests', testHide: 'hide tests',
+    btnPre: '⚠️ Pre-alert', btnAlert: '🚨 ALERT', btnSafe: '✅ All clear',
+    lastAlert: '⚡ Last alert',
+    online: 'online', offline: 'network error', noProxy: 'proxy not set',
+    phases: {
+      idle:       { title: 'All clear',      msg: 'No active alerts' },
+      'pre-alert':{ title: 'Pre-alert',      msg: 'Get ready — head to the shelter' },
+      alert:      { title: '🚨 ALERT 🚨',   msg: 'Enter the shelter NOW!' },
+      safe:       { title: 'You may exit',   msg: 'Threat has passed — you may leave the shelter' },
+    },
+    timerLabel: 'time remaining in shelter',
+    timerAlmost: 'almost done…',
+    notifPre: ['⚠️ Pre-alert — Head to shelter', 'Get ready to take cover'],
+    notifAlert: ['🚨 ALERT — Enter shelter now!', 'Take cover immediately'],
+    notifSafe: ['✅ All clear', 'You may leave the shelter'],
+    dir: 'ltr',
+  }
+};
+
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 const CONFIG = {
   proxyUrl: localStorage.getItem('proxyUrl') || 'https://miklat-alert.gregyman.workers.dev/',
@@ -491,22 +414,86 @@ const CONFIG = {
   pollIntervalSec: parseInt(localStorage.getItem('pollIntervalSec') || '15'),
   vibration: localStorage.getItem('vibration') !== 'false',
   sound: localStorage.getItem('sound') !== 'false',
+  lang: localStorage.getItem('lang') || 'fr',
 };
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
-let state = 'idle'; // idle | pre-alert | alert | safe
+let state = 'idle';
 let timerInterval = null;
 let pollInterval = null;
 let timerRemaining = 0;
 let nextPollIn = 0;
 let audioCtx = null;
+let currentLang = CONFIG.lang;
+
+// ─── LANG ─────────────────────────────────────────────────────────────────────
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('lang', lang);
+  const t = T[lang];
+
+  // HTML dir
+  document.documentElement.lang = lang;
+  document.body.classList.toggle('rtl', lang === 'he');
+
+  // Buttons
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+
+  // Static strings
+  document.getElementById('t-location').textContent = t.location;
+  document.getElementById('t-notif-msg').textContent = t.notifMsg;
+  document.getElementById('t-notif-btn').textContent = t.notifBtn;
+  document.getElementById('t-settings').textContent = t.settings;
+  document.getElementById('t-zone-label').textContent = t.zoneLabel;
+  document.getElementById('t-zone-desc').textContent = t.zoneDesc;
+  document.getElementById('t-dur-label').textContent = t.durLabel;
+  document.getElementById('t-dur-desc').textContent = t.durDesc;
+  document.getElementById('t-poll-label').textContent = t.pollLabel;
+  document.getElementById('t-poll-desc').textContent = t.pollDesc;
+  document.getElementById('t-vib-label').textContent = t.vibLabel;
+  document.getElementById('t-vib-desc').textContent = t.vibDesc;
+  document.getElementById('t-snd-label').textContent = t.sndLabel;
+  document.getElementById('t-snd-desc').textContent = t.sndDesc;
+  document.getElementById('t-proxy-label').textContent = t.proxyLabel;
+  document.getElementById('t-proxy-desc').textContent = t.proxyDesc;
+  document.getElementById('t-last-alert-title').textContent = t.lastAlert;
+  document.getElementById('t-btn-pre').textContent = t.btnPre;
+  document.getElementById('t-btn-alert').textContent = t.btnAlert;
+  document.getElementById('t-btn-safe').textContent = t.btnSafe;
+  document.getElementById('timer-label').textContent = t.timerLabel;
+
+  // Test btn label
+  const testRow = document.getElementById('test-row');
+  const isTestVisible = testRow.style.display !== 'none';
+  document.getElementById('t-test-btn').textContent = isTestVisible ? t.testHide : t.testBtn;
+
+  // Re-render current phase text
+  applyPhaseText(state);
+
+  // Status text
+  const dot = document.getElementById('status-dot');
+  const txt = document.getElementById('header-status-txt');
+  if (dot.classList.contains('offline')) txt.textContent = t.offline;
+  else txt.textContent = t.online;
+}
+
+function applyPhaseText(phase) {
+  const t = T[currentLang];
+  const p = t.phases[phase] || t.phases.idle;
+  document.getElementById('phase-title').textContent = p.title;
+  const msgEl = document.getElementById('phase-msg');
+  msgEl.textContent = p.msg;
+  msgEl.setAttribute('dir', t.dir);
+}
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 window.addEventListener('load', () => {
   loadSettings();
+  setLang(currentLang);
   checkNotifPermission();
   startPolling();
-  updateNextPollDisplay();
+  setInterval(() => { nextPollIn = Math.max(0, nextPollIn-1); document.getElementById('next-poll-txt').textContent = `↻ ${nextPollIn}s`; }, 1000);
 });
 
 function loadSettings() {
@@ -518,195 +505,108 @@ function loadSettings() {
   setToggleUI('toggle-sound', CONFIG.sound);
 }
 
-// ─── SETTINGS PANEL ───────────────────────────────────────────────────────────
+// ─── SETTINGS ─────────────────────────────────────────────────────────────────
 function toggleSettings() {
-  const body = document.getElementById('settings-body');
-  const chev = document.getElementById('chevron');
-  body.classList.toggle('open');
-  chev.classList.toggle('open');
+  document.getElementById('settings-body').classList.toggle('open');
+  document.getElementById('chevron').classList.toggle('open');
 }
-
-function adjustDuration(delta) {
-  CONFIG.durationSec = Math.max(60, Math.min(1800, CONFIG.durationSec + delta * 60));
+function adjustDuration(d) {
+  CONFIG.durationSec = Math.max(60, Math.min(1800, CONFIG.durationSec + d*60));
   localStorage.setItem('durationSec', CONFIG.durationSec);
-  document.getElementById('duration-val').textContent = CONFIG.durationSec / 60;
+  document.getElementById('duration-val').textContent = CONFIG.durationSec/60;
 }
-
-function adjustPoll(delta) {
-  CONFIG.pollIntervalSec = Math.max(5, Math.min(120, CONFIG.pollIntervalSec + delta));
+function adjustPoll(d) {
+  CONFIG.pollIntervalSec = Math.max(5, Math.min(120, CONFIG.pollIntervalSec + d));
   localStorage.setItem('pollIntervalSec', CONFIG.pollIntervalSec);
-  document.getElementById('poll-val').textContent = CONFIG.pollIntervalSec + 's';
+  document.getElementById('poll-val').textContent = CONFIG.pollIntervalSec+'s';
   restartPolling();
 }
-
 function toggleOption(key) {
   CONFIG[key] = !CONFIG[key];
   localStorage.setItem(key, CONFIG[key]);
-  setToggleUI('toggle-' + key, CONFIG[key]);
+  setToggleUI('toggle-'+key, CONFIG[key]);
 }
-
-function setToggleUI(id, val) {
-  const el = document.getElementById(id);
-  el.classList.toggle('on', val);
-}
-
-document.getElementById('zone-input').addEventListener('change', e => {
-  CONFIG.zones = e.target.value;
-  localStorage.setItem('zones', CONFIG.zones);
-});
-document.getElementById('proxy-url').addEventListener('change', e => {
-  CONFIG.proxyUrl = e.target.value;
-  localStorage.setItem('proxyUrl', CONFIG.proxyUrl);
-});
+function setToggleUI(id, val) { document.getElementById(id).classList.toggle('on', val); }
+document.getElementById('zone-input').addEventListener('change', e => { CONFIG.zones=e.target.value; localStorage.setItem('zones',CONFIG.zones); });
+document.getElementById('proxy-url').addEventListener('change', e => { CONFIG.proxyUrl=e.target.value; localStorage.setItem('proxyUrl',CONFIG.proxyUrl); });
 
 // ─── POLLING ──────────────────────────────────────────────────────────────────
 function startPolling() {
   fetchAlerts();
-  pollInterval = setInterval(() => {
-    fetchAlerts();
-  }, CONFIG.pollIntervalSec * 1000);
-
-  // Next poll countdown
-  setInterval(() => {
-    nextPollIn = Math.max(0, nextPollIn - 1);
-    updateNextPollDisplay();
-  }, 1000);
+  pollInterval = setInterval(fetchAlerts, CONFIG.pollIntervalSec*1000);
 }
-
-function restartPolling() {
-  clearInterval(pollInterval);
-  startPolling();
-}
-
-function updateNextPollDisplay() {
-  document.getElementById('next-poll-txt').textContent = `↻ ${nextPollIn}s`;
-}
+function restartPolling() { clearInterval(pollInterval); startPolling(); }
 
 async function fetchAlerts() {
   nextPollIn = CONFIG.pollIntervalSec;
   const dot = document.getElementById('status-dot');
   const txt = document.getElementById('header-status-txt');
-
-  if (!CONFIG.proxyUrl) {
-    dot.className = 'status-dot offline';
-    txt.textContent = 'proxy non configuré';
-    return;
-  }
-
+  const t = T[currentLang];
+  if (!CONFIG.proxyUrl) { dot.className='status-dot offline'; txt.textContent=t.noProxy; return; }
   try {
-    const res = await fetch(CONFIG.proxyUrl, { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const res = await fetch(CONFIG.proxyUrl, { cache:'no-store' });
+    if (!res.ok) throw new Error('HTTP '+res.status);
     const data = await res.json();
-    dot.className = 'status-dot';
-    txt.textContent = 'en ligne';
+    dot.className='status-dot'; txt.textContent=t.online;
     processAlerts(data);
   } catch(e) {
-    dot.className = 'status-dot offline';
-    txt.textContent = 'erreur réseau';
+    dot.className='status-dot offline'; txt.textContent=t.offline;
     console.warn('Fetch error:', e);
   }
 }
 
-// ─── ALERT PROCESSING ─────────────────────────────────────────────────────────
 function processAlerts(data) {
-  // tzevaadom returns: { alerts: [{alerts: ["zone name", ...], ...}] }
-  // or null/empty when no active alerts
-  const zones = CONFIG.zones.split(',').map(z => z.trim().toLowerCase());
-
-  let matched = null;
-  let allAlerts = [];
-
-  if (data && data.alerts && Array.isArray(data.alerts)) {
-    for (const alertGroup of data.alerts) {
-      if (alertGroup.alerts && Array.isArray(alertGroup.alerts)) {
-        for (const zone of alertGroup.alerts) {
+  const zones = CONFIG.zones.split(',').map(z=>z.trim().toLowerCase());
+  let matched=null, allAlerts=[];
+  if (data?.alerts && Array.isArray(data.alerts)) {
+    for (const g of data.alerts) {
+      if (g.alerts && Array.isArray(g.alerts)) {
+        for (const zone of g.alerts) {
           allAlerts.push(zone);
-          if (zones.some(z => zone.toLowerCase().includes(z))) {
-            matched = zone;
-          }
+          if (zones.some(z=>zone.toLowerCase().includes(z))) matched=zone;
         }
       }
     }
   }
-
-  if (matched && state !== 'alert' && state !== 'safe') {
-    triggerAlert(matched);
-  } else if (!matched && allAlerts.length === 0 && state === 'pre-alert') {
-    setPhase('idle');
-  }
+  if (matched && state!=='alert' && state!=='safe') triggerAlert(matched);
+  else if (!matched && allAlerts.length===0 && state==='pre-alert') setPhase('idle');
 }
 
-// ─── PHASE MANAGEMENT ─────────────────────────────────────────────────────────
+// ─── PHASE ────────────────────────────────────────────────────────────────────
 function triggerAlert(zone) {
   showLastAlert(zone);
   setPhase('pre-alert');
-  setTimeout(() => {
-    if (state === 'pre-alert') setPhase('alert');
-  }, 3000);
+  setTimeout(() => { if (state==='pre-alert') setPhase('alert'); }, 3000);
 }
 
 function setPhase(phase) {
   state = phase;
+  const t = T[currentLang];
   const card = document.getElementById('phase-card');
-  const icon = document.getElementById('phase-icon');
-  const title = document.getElementById('phase-title');
-  const fr = document.getElementById('phase-fr');
-  const he = document.getElementById('phase-he');
-  const en = document.getElementById('phase-en');
   const timerBox = document.getElementById('timer-container');
   const overlay = document.getElementById('alert-overlay');
-
-  // Remove all phase classes
   card.className = 'phase-card';
   overlay.classList.remove('show');
   clearInterval(timerInterval);
 
-  if (phase === 'idle') {
-    card.classList.add('idle');
-    icon.textContent = '🕊️';
-    title.textContent = 'Calme';
-    fr.textContent = 'Aucune alerte en cours';
-    he.textContent = 'אין התרעות כרגע';
-    en.textContent = 'No active alerts';
-    timerBox.style.display = 'none';
-    document.getElementById('status-dot').className = 'status-dot';
+  applyPhaseText(phase);
+  document.getElementById('phase-icon').textContent = {idle:'🕊️','pre-alert':'⚠️',alert:'🚨',safe:'✅'}[phase];
 
-  } else if (phase === 'pre-alert') {
-    card.classList.add('pre-alert');
-    icon.textContent = '⚠️';
-    title.textContent = 'Pré-alerte';
-    fr.textContent = 'Préparez-vous — dirigez-vous vers le miklat';
-    he.textContent = 'התכוננו — פנו למקלט';
-    en.textContent = 'Get ready — head to the shelter';
-    timerBox.style.display = 'none';
-    buzz('pre');
-    notify('⚠️ Pré-alerte — Direction le miklat', 'Préparez-vous à vous abriter');
-
-  } else if (phase === 'alert') {
-    card.classList.add('alert-active');
-    icon.textContent = '🚨';
-    title.textContent = '! אזעקה — ALERTE !';
-    fr.textContent = 'Entrez MAINTENANT dans le miklat !';
-    he.textContent = '!היכנסו למקלט עכשיו';
-    en.textContent = 'Enter the shelter NOW!';
-    timerBox.style.display = 'flex';
+  if (phase==='idle') {
+    card.classList.add('idle'); timerBox.style.display='none';
+    document.getElementById('status-dot').className='status-dot';
+  } else if (phase==='pre-alert') {
+    card.classList.add('pre-alert'); timerBox.style.display='none';
+    buzz('pre'); notify(...t.notifPre);
+  } else if (phase==='alert') {
+    card.classList.add('alert-active'); timerBox.style.display='flex';
     overlay.classList.add('show');
-    document.getElementById('status-dot').className = 'status-dot alert';
-    buzz('alert');
-    notify('🚨 ALERTE — Entrez au miklat !', 'Mettez-vous à l\'abri immédiatement');
-    startTimer();
-
-  } else if (phase === 'safe') {
-    card.classList.add('safe');
-    icon.textContent = '✅';
-    title.textContent = 'Vous pouvez sortir';
-    fr.textContent = 'La menace est passée — sortie autorisée';
-    he.textContent = 'ניתן לצאת — הסכנה חלפה';
-    en.textContent = 'All clear — you may exit';
-    timerBox.style.display = 'none';
-    document.getElementById('status-dot').className = 'status-dot';
-    buzz('safe');
-    notify('✅ Sortie autorisée', 'Vous pouvez quitter le miklat');
+    document.getElementById('status-dot').className='status-dot alert';
+    buzz('alert'); notify(...t.notifAlert); startTimer();
+  } else if (phase==='safe') {
+    card.classList.add('safe'); timerBox.style.display='none';
+    document.getElementById('status-dot').className='status-dot';
+    buzz('safe'); notify(...t.notifSafe);
   }
 }
 
@@ -715,126 +615,71 @@ function startTimer() {
   const display = document.getElementById('timer-display');
   const fill = document.getElementById('progress-fill');
   const label = document.getElementById('timer-label');
-  fill.className = 'progress-fill counting';
-  fill.style.background = 'linear-gradient(90deg, var(--red), var(--orange))';
-
+  fill.className='progress-fill'; fill.style.background='linear-gradient(90deg,var(--red),var(--orange))';
   function tick() {
-    const m = Math.floor(timerRemaining / 60);
-    const s = timerRemaining % 60;
-    display.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    const pct = ((CONFIG.durationSec - timerRemaining) / CONFIG.durationSec) * 100;
-    fill.style.width = pct + '%';
-
-    if (timerRemaining <= 60) {
-      display.className = 'timer-display warning';
-      label.textContent = 'presque fini…';
-    } else {
-      display.className = 'timer-display';
-    }
-
-    if (timerRemaining <= 0) {
+    const m=Math.floor(timerRemaining/60), s=timerRemaining%60;
+    display.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    fill.style.width = ((CONFIG.durationSec-timerRemaining)/CONFIG.durationSec*100)+'%';
+    const t=T[currentLang];
+    display.className = timerRemaining<=60 ? 'timer-display warning' : 'timer-display';
+    label.textContent = timerRemaining<=60 ? t.timerAlmost : t.timerLabel;
+    if (timerRemaining<=0) {
       clearInterval(timerInterval);
-      fill.className = 'progress-fill done';
-      fill.style.width = '100%';
-      fill.style.background = 'var(--green)';
-      display.className = 'timer-display safe-color';
-      display.textContent = '00:00';
-      setTimeout(() => setPhase('safe'), 800);
-      return;
+      fill.className='progress-fill done'; fill.style.width='100%'; fill.style.background='var(--green)';
+      display.className='timer-display safe-color'; display.textContent='00:00';
+      setTimeout(()=>setPhase('safe'),800); return;
     }
     timerRemaining--;
   }
-
-  tick();
-  timerInterval = setInterval(tick, 1000);
+  tick(); timerInterval=setInterval(tick,1000);
 }
 
-// ─── LAST ALERT ───────────────────────────────────────────────────────────────
 function showLastAlert(zone) {
-  const card = document.getElementById('last-alert-card');
-  card.style.display = 'block';
-  document.getElementById('last-alert-content').textContent = '📍 ' + zone;
-  document.getElementById('last-alert-time').textContent = new Date().toLocaleTimeString('fr-FR');
+  document.getElementById('last-alert-card').style.display='block';
+  document.getElementById('last-alert-content').textContent='📍 '+zone;
+  document.getElementById('last-alert-time').textContent=new Date().toLocaleTimeString();
 }
 
 // ─── AUDIO / VIBRATION ────────────────────────────────────────────────────────
-function getAudioCtx() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  return audioCtx;
-}
-
+function getAudioCtx() { if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
 function buzz(type) {
-  if (CONFIG.vibration && navigator.vibrate) {
-    if (type === 'alert') navigator.vibrate([300,100,300,100,300,100,1000]);
-    else if (type === 'pre') navigator.vibrate([200,100,200]);
-    else if (type === 'safe') navigator.vibrate([500]);
+  if (CONFIG.vibration&&navigator.vibrate) {
+    if(type==='alert') navigator.vibrate([300,100,300,100,300,100,1000]);
+    else if(type==='pre') navigator.vibrate([200,100,200]);
+    else if(type==='safe') navigator.vibrate([500]);
   }
-  if (!CONFIG.sound) return;
+  if(!CONFIG.sound) return;
   try {
-    const ctx = getAudioCtx();
-    const patterns = {
-      pre:   [[440,0.15],[523,0.15],[659,0.3]],
-      alert: [[880,0.1],[880,0.1],[880,0.1],[440,0.3],[880,0.5]],
-      safe:  [[523,0.2],[659,0.2],[784,0.4]],
-    };
-    let t = ctx.currentTime;
-    for (const [freq, dur] of (patterns[type] || [])) {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.frequency.value = freq;
-      osc.type = type === 'alert' ? 'sawtooth' : 'sine';
-      gain.gain.setValueAtTime(0.3, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
-      osc.start(t); osc.stop(t + dur);
-      t += dur + 0.05;
+    const ctx=getAudioCtx();
+    const patterns={pre:[[440,.15],[523,.15],[659,.3]],alert:[[880,.1],[880,.1],[880,.1],[440,.3],[880,.5]],safe:[[523,.2],[659,.2],[784,.4]]};
+    let t=ctx.currentTime;
+    for(const[freq,dur] of (patterns[type]||[])){
+      const osc=ctx.createOscillator(),gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.frequency.value=freq; osc.type=type==='alert'?'sawtooth':'sine';
+      gain.gain.setValueAtTime(0.3,t); gain.gain.exponentialRampToValueAtTime(0.001,t+dur);
+      osc.start(t);osc.stop(t+dur); t+=dur+0.05;
     }
-  } catch(e) { console.warn('Audio:', e); }
+  } catch(e){console.warn('Audio:',e);}
 }
 
 // ─── NOTIFICATIONS ────────────────────────────────────────────────────────────
-function checkNotifPermission() {
-  if ('Notification' in window && Notification.permission === 'default') {
-    document.getElementById('notif-bar').classList.add('show');
-  }
-}
+function checkNotifPermission() { if('Notification'in window&&Notification.permission==='default') document.getElementById('notif-bar').classList.add('show'); }
+function requestNotif() { Notification.requestPermission().then(p=>{ if(p==='granted') document.getElementById('notif-bar').classList.remove('show'); }); }
+function notify(title,body) { if('Notification'in window&&Notification.permission==='granted') new Notification(title,{body,icon:'🛡️',requireInteraction:true}); }
 
-function requestNotif() {
-  Notification.requestPermission().then(p => {
-    if (p === 'granted') document.getElementById('notif-bar').classList.remove('show');
-  });
-}
-
-function notify(title, body) {
-  if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification(title, { body, icon: '🛡️', badge: '🛡️', requireInteraction: true });
-  }
-}
-
-// ─── TOGGLE TESTS ─────────────────────────────────────────────────────────────
+// ─── TESTS ────────────────────────────────────────────────────────────────────
 function toggleTests() {
-  const row = document.getElementById('test-row');
-  const btn = document.getElementById('toggle-test-btn');
-  const visible = row.style.display !== 'none';
-  row.style.display = visible ? 'none' : 'flex';
-  btn.textContent = visible ? '🧪 tests' : '🙈 masquer tests';
+  const row=document.getElementById('test-row');
+  const visible=row.style.display!=='none';
+  row.style.display=visible?'none':'flex';
+  document.getElementById('t-test-btn').textContent=visible?T[currentLang].testBtn:T[currentLang].testHide;
 }
-
-// ─── SIMULATE (TESTS) ─────────────────────────────────────────────────────────
 function simulatePhase(phase) {
-  if (phase === 'pre-alert') {
-    showLastAlert('TEST — ירושלים דרום / Jérusalem Sud');
-    setPhase('pre-alert');
-    setTimeout(() => { if (state === 'pre-alert') setPhase('alert'); }, 3000);
-  } else if (phase === 'alert') {
-    showLastAlert('TEST — ירושלים דרום / Jérusalem Sud');
-    setPhase('alert');
-  } else if (phase === 'safe') {
-    setPhase('safe');
-    setTimeout(() => setPhase('idle'), 5000);
-  }
+  if(phase==='pre-alert'){ showLastAlert('TEST — ירושלים דרום / Jérusalem Sud / Jerusalem South'); setPhase('pre-alert'); setTimeout(()=>{if(state==='pre-alert')setPhase('alert');},3000); }
+  else if(phase==='alert'){ showLastAlert('TEST — ירושלים דרום / Jérusalem Sud / Jerusalem South'); setPhase('alert'); }
+  else if(phase==='safe'){ setPhase('safe'); setTimeout(()=>setPhase('idle'),5000); }
 }
 </script>
-
 </body>
 </html>
