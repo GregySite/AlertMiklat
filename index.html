@@ -702,11 +702,23 @@ function requestNotif() { Notification.requestPermission().then(p => { if (p==='
 function notify(title, body) { if ('Notification' in window && Notification.permission==='granted') new Notification(title, {body, icon:'🛡️', requireInteraction:true}); }
 
 // ─── TESTS ────────────────────────────────────────────────────────────────────
+
+
+  if (phase==='pre-alert') { setPhase('pre-alert'); }
+  else if (phase==='alert') { showLastAlert('TEST — ירושלים דרום / Jérusalem Sud'); setPhase('alert'); }
+  else if (phase==='safe') { setPhase('safe'); }
+}
+
 function toggleTests() {
   const row = document.getElementById('test-row');
   const visible = row.style.display !== 'none';
   row.style.display = visible ? 'none' : 'flex';
   document.getElementById('t-test-btn').textContent = visible ? T[currentLang].testBtn : T[currentLang].testHide;
+  // Fermeture → stop le test en cours et retour au calme
+  if (visible) {
+    clearInterval(timerInterval);
+    setPhase('idle');
+  }
 }
 function simulatePhase(phase) {
   if (phase==='pre-alert') { setPhase('pre-alert'); }
