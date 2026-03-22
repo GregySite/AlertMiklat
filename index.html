@@ -237,13 +237,20 @@
     </div>
     <div class="settings-body" id="settings-body">
 
-      <div class="setting-row">
+      <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
         <div>
           <div class="setting-label" id="t-zone-label">Zone surveillée</div>
-          <div class="setting-desc" id="t-zone-desc">Mots-clés dans le nom de la zone</div>
+          <div class="setting-desc" id="t-zone-desc">Tapez pour chercher une ville</div>
         </div>
-        <input id="zone-input" value="ירושלים דרום,Jerusalem South,גוש עציון"
-          style="background:var(--border);border:none;color:var(--text);border-radius:6px;padding:6px 8px;font-family:var(--mono);font-size:11px;width:160px;text-align:right;"/>
+        <div style="position:relative;width:100%;">
+          <input id="zone-search" placeholder="Chercher une ville…" autocomplete="off"
+            style="background:var(--border);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:8px 10px;font-family:var(--font);font-size:13px;width:100%;outline:none;transition:border 0.2s;"
+            oninput="filterCities(this.value)" onfocus="showCityDropdown()" onblur="hideCityDropdown()"/>
+          <div id="city-dropdown"
+            style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--accent);border-radius:8px;z-index:50;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.4);">
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--accent);font-family:var(--mono);" id="zone-current-display"></div>
       </div>
 
       <div class="setting-row">
@@ -311,10 +318,7 @@
     <button class="test-btn g" onclick="simulatePhase('safe')" id="t-btn-safe">✅ Sortie</button>
   </div>
 
-  <footer>
-    Polling: tzevaadom.co.il via Cloudflare Worker<br/>
-    <a href="https://github.com/gregysite/AlertJeru" target="_blank">GitHub</a> · v1.1
-  </footer>
+
 </div>
 
 <script>
@@ -463,6 +467,14 @@ function setLang(lang) {
   document.getElementById('t-btn-safe').textContent = t.btnSafe;
   document.getElementById('timer-label').textContent = t.timerLabel;
 
+  // Refresh city search input label in new lang
+  const savedKeys = CONFIG.zones;
+  const cityMatch = CITIES.find(c => c.keys === savedKeys);
+  if (cityMatch) {
+    document.getElementById('zone-search').value = cityMatch[lang] || cityMatch.fr;
+    document.getElementById('t-location').textContent = cityMatch[lang] || cityMatch.fr;
+  }
+
   // Test btn label
   const testRow = document.getElementById('test-row');
   const isTestVisible = testRow.style.display !== 'none';
@@ -527,7 +539,119 @@ function toggleOption(key) {
   setToggleUI('toggle-'+key, CONFIG[key]);
 }
 function setToggleUI(id, val) { document.getElementById(id).classList.toggle('on', val); }
-document.getElementById('zone-input').addEventListener('change', e => { CONFIG.zones=e.target.value; localStorage.setItem('zones',CONFIG.zones); });
+// ─── CITY AUTOCOMPLETE ────────────────────────────────────────────────────────
+// List of Israeli cities/zones as known by tzevaadom
+const CITIES = [
+  { fr:'Tel Aviv',        he:'תל אביב',           en:'Tel Aviv',          keys:'תל אביב,Tel Aviv' },
+  { fr:'Jérusalem',       he:'ירושלים',            en:'Jerusalem',         keys:'ירושלים,Jerusalem' },
+  { fr:'Jérusalem Sud',   he:'ירושלים דרום',       en:'Jerusalem South',   keys:'ירושלים דרום,Jerusalem South,גוש עציון' },
+  { fr:'Jérusalem Nord',  he:'ירושלים צפון',       en:'Jerusalem North',   keys:'ירושלים צפון,Jerusalem North' },
+  { fr:'Haïfa',           he:'חיפה',               en:'Haifa',             keys:'חיפה,Haifa' },
+  { fr:'Beer Sheva',      he:'באר שבע',            en:'Beer Sheva',        keys:'באר שבע,Beer Sheva,Be\'er Sheva' },
+  { fr:'Ashdod',          he:'אשדוד',              en:'Ashdod',            keys:'אשדוד,Ashdod' },
+  { fr:'Ashkelon',        he:'אשקלון',             en:'Ashkelon',          keys:'אשקלון,Ashkelon' },
+  { fr:'Netanya',         he:'נתניה',              en:'Netanya',           keys:'נתניה,Netanya' },
+  { fr:'Rishon LeZion',   he:'ראשון לציון',        en:'Rishon LeZion',     keys:'ראשון לציון,Rishon LeZion' },
+  { fr:'Petah Tikva',     he:'פתח תקווה',          en:'Petah Tikva',       keys:'פתח תקווה,Petah Tikva' },
+  { fr:'Rehovot',         he:'רחובות',             en:'Rehovot',           keys:'רחובות,Rehovot' },
+  { fr:'Bat Yam',         he:'בת ים',              en:'Bat Yam',           keys:'בת ים,Bat Yam' },
+  { fr:'Holon',           he:'חולון',              en:'Holon',             keys:'חולון,Holon' },
+  { fr:'Herzliya',        he:'הרצליה',             en:'Herzliya',          keys:'הרצליה,Herzliya' },
+  { fr:'Raanana',         he:'רעננה',              en:'Ra\'anana',         keys:'רעננה,Raanana,Ra\'anana' },
+  { fr:'Modiin',          he:'מודיעין',            en:'Modiin',            keys:'מודיעין,Modiin,Modi\'in' },
+  { fr:'Eilat',           he:'אילת',               en:'Eilat',             keys:'אילת,Eilat' },
+  { fr:'Tibériade',       he:'טבריה',              en:'Tiberias',          keys:'טבריה,Tiberias' },
+  { fr:'Nazareth',        he:'נצרת',               en:'Nazareth',          keys:'נצרת,Nazareth' },
+  { fr:'Gush Dan',        he:'גוש דן',             en:'Gush Dan',          keys:'גוש דן,Gush Dan' },
+  { fr:'Gaza (env.)',     he:'עוטף עזה',           en:'Gaza Envelope',     keys:'עוטף עזה,Gaza Envelope,שדרות,Sderot' },
+  { fr:'Sdérot',          he:'שדרות',              en:'Sderot',            keys:'שדרות,Sderot' },
+  { fr:'Kiryat Shmona',   he:'קריית שמונה',        en:'Kiryat Shmona',     keys:'קריית שמונה,Kiryat Shmona' },
+  { fr:'Nahariya',        he:'נהריה',              en:'Nahariya',          keys:'נהריה,Nahariya' },
+  { fr:'Acre (Akko)',     he:'עכו',                en:'Akko',              keys:'עכו,Akko,Acre' },
+  { fr:'Ramla',           he:'רמלה',               en:'Ramla',             keys:'רמלה,Ramla' },
+  { fr:'Lod',             he:'לוד',                en:'Lod',               keys:'לוד,Lod' },
+  { fr:'Kfar Saba',       he:'כפר סבא',            en:'Kfar Saba',         keys:'כפר סבא,Kfar Saba' },
+  { fr:'Gush Etzion',     he:'גוש עציון',          en:'Gush Etzion',       keys:'גוש עציון,Gush Etzion' },
+  { fr:'Vallée de Hula',  he:'עמק החולה',          en:'Hula Valley',       keys:'עמק החולה,Hula Valley' },
+  { fr:'Nord (général)',  he:'הצפון',              en:'The North',         keys:'הצפון,North' },
+  { fr:'Sud (général)',   he:'הדרום',              en:'The South',         keys:'הדרום,South' },
+];
+
+let dropdownTimeout = null;
+
+function filterCities(val) {
+  const q = val.trim().toLowerCase();
+  const dd = document.getElementById('city-dropdown');
+  if (!q) { dd.style.display='none'; return; }
+  const matches = CITIES.filter(c =>
+    c.fr.toLowerCase().includes(q) ||
+    c.he.includes(q) ||
+    c.en.toLowerCase().includes(q) ||
+    c.keys.toLowerCase().includes(q)
+  );
+  if (!matches.length) { dd.style.display='none'; return; }
+  dd.innerHTML = matches.map(c => `
+    <div class="city-option" onmousedown="selectCity(event)"
+      data-keys="${c.keys}" data-fr="${c.fr}" data-he="${c.he}" data-en="${c.en}"
+      style="padding:10px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px;">
+      <span style="font-weight:600;">${c[currentLang] || c.fr}</span>
+      <span style="font-size:11px;color:var(--muted);direction:rtl;">${c.he}</span>
+    </div>
+  `).join('');
+  dd.style.display='block';
+}
+
+function selectCity(e) {
+  e.preventDefault();
+  const opt = e.currentTarget;
+  const keys = opt.dataset.keys;
+  const name = { fr: opt.dataset.fr, he: opt.dataset.he, en: opt.dataset.en };
+
+  // Update config
+  CONFIG.zones = keys;
+  localStorage.setItem('zones', keys);
+
+  // Update location badge (top)
+  document.getElementById('t-location').textContent = name[currentLang] || name.fr;
+
+  // Update search input display
+  document.getElementById('zone-search').value = name[currentLang] || name.fr;
+
+  // Update current display
+  document.getElementById('zone-current-display').textContent = '📍 ' + keys;
+
+  // Also update T so lang switch keeps it
+  T.fr.location = name.fr;
+  T.he.location = name.he;
+  T.en.location = name.en;
+
+  // Hide dropdown
+  document.getElementById('city-dropdown').style.display='none';
+}
+
+function showCityDropdown() {
+  const val = document.getElementById('zone-search').value;
+  if (val.trim()) filterCities(val);
+}
+
+function hideCityDropdown() {
+  // Small delay so mousedown on option fires first
+  dropdownTimeout = setTimeout(() => {
+    document.getElementById('city-dropdown').style.display='none';
+  }, 200);
+}
+
+// Init zone search display
+window.addEventListener('load', () => {
+  // Show current city name in search box
+  const savedKeys = CONFIG.zones;
+  const match = CITIES.find(c => c.keys === savedKeys);
+  if (match) {
+    document.getElementById('zone-search').value = match[currentLang] || match.fr;
+  }
+  document.getElementById('zone-current-display').textContent = savedKeys ? '📍 ' + savedKeys : '';
+});
+
 document.getElementById('proxy-url').addEventListener('change', e => { CONFIG.proxyUrl=e.target.value; localStorage.setItem('proxyUrl',CONFIG.proxyUrl); });
 
 // ─── POLLING ──────────────────────────────────────────────────────────────────
