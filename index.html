@@ -27,11 +27,9 @@
   header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
   .logo { font-size:20px; letter-spacing:-0.5px; }
   .header-right { display:flex; align-items:center; gap:10px; }
-
   .lang-switcher { display:flex; gap:4px; background:var(--border); border-radius:999px; padding:3px; }
   .lang-btn { border:none; background:none; color:var(--muted); font-family:var(--mono); font-size:11px; padding:3px 8px; border-radius:999px; cursor:pointer; transition:all 0.2s; font-weight:600; }
   .lang-btn.active { background:var(--accent); color:white; }
-
   .status-dot { width:10px; height:10px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse-dot 2s infinite; }
   .status-dot.offline { background:var(--muted); box-shadow:none; animation:none; }
   .status-dot.alert { background:var(--red); box-shadow:0 0 12px var(--red); }
@@ -62,6 +60,8 @@
   .phase-card.safe { border-color:var(--green); background:linear-gradient(135deg,#12121a 0%,#001a0a 100%); }
   .phase-card.safe::before { background:radial-gradient(ellipse at center,var(--glow-green),transparent 70%); opacity:1; }
   .phase-card.safe .phase-title { color:var(--green); }
+  .phase-card.waiting { border-color:var(--muted); background:linear-gradient(135deg,#12121a 0%,#0a0a0f 100%); }
+  .phase-card.waiting .phase-title { color:var(--muted); }
 
   .timer-container { margin:20px 0 8px; display:flex; flex-direction:column; align-items:center; gap:12px; }
   .timer-display { font-family:var(--mono); font-size:64px; font-weight:400; line-height:1; letter-spacing:2px; color:var(--text); transition:color 0.3s; }
@@ -71,6 +71,9 @@
   .progress-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--red),var(--orange)); transition:width 1s linear,background 0.5s; width:0%; }
   .progress-fill.done { background:var(--green); }
   .timer-label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; font-family:var(--mono); }
+
+  .reset-btn { margin-top:16px; background:none; border:1px solid var(--muted); color:var(--muted); border-radius:999px; padding:8px 20px; font-family:var(--font); font-size:13px; cursor:pointer; transition:all 0.2s; display:block; width:100%; }
+  .reset-btn:hover { border-color:var(--accent); color:var(--accent); }
 
   .last-alert-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; }
   .last-alert-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; font-family:var(--mono); }
@@ -107,15 +110,12 @@
   .city-option:hover { background:rgba(79,110,247,0.1); }
   .city-option:last-child { border-bottom:none; }
 
-  .proxy-input { background:var(--border); border:none; color:var(--text); border-radius:6px; padding:6px 8px; font-family:var(--mono); font-size:11px; width:100%; outline:none; margin-top:6px; }
-
   .test-row { display:flex; gap:8px; margin-bottom:16px; }
   .test-btn { flex:1; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:var(--font); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; }
   .test-btn:hover { transform:translateY(-1px); }
   .test-btn.y { border-color:var(--yellow); color:var(--yellow); }
   .test-btn.r { border-color:var(--red); color:var(--red); }
   .test-btn.g { border-color:var(--green); color:var(--green); }
-
   .toggle-test-btn { background:none; border:1px solid var(--border); color:var(--muted); border-radius:999px; padding:5px 14px; font-size:11px; cursor:pointer; font-family:var(--mono); letter-spacing:1px; transition:all 0.2s; display:block; margin:0 auto 8px; }
 
   #alert-overlay { display:none; position:fixed; inset:0; z-index:100; background:rgba(180,0,0,0.12); pointer-events:none; animation:flash-bg 0.5s ease-in-out infinite alternate; }
@@ -123,12 +123,10 @@
   @keyframes flash-bg { from{background:rgba(180,0,0,0.06);} to{background:rgba(180,0,0,0.18);} }
 
   footer { margin-top:24px; text-align:center; font-size:11px; color:var(--muted); font-family:var(--mono); }
-
   body.rtl .header-right { flex-direction:row-reverse; }
   body.rtl .location-badge { flex-direction:row-reverse; }
   body.rtl .setting-row { flex-direction:row-reverse; }
   body.rtl .setting-row.col { flex-direction:column; align-items:flex-start; }
-
   @media(max-width:380px) { .timer-display{font-size:52px;} .phase-icon{font-size:44px;} }
 </style>
 </head>
@@ -171,6 +169,8 @@
       <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
       <div class="timer-label" id="timer-label">temps restant au miklat</div>
     </div>
+    <!-- Bouton reset affiché après expiration du chrono -->
+    <button class="reset-btn" id="reset-btn" style="display:none;" onclick="resetToIdle()" id="t-reset-btn">↺ Retour au calme</button>
   </div>
 
   <div class="last-alert-card" id="last-alert-card" style="display:none;">
@@ -201,8 +201,8 @@
 
       <div class="setting-row">
         <div>
-          <div class="setting-label" id="t-dur-label">Durée au miklat</div>
-          <div class="setting-desc" id="t-dur-desc">Après l'alerte (minutes)</div>
+          <div class="setting-label" id="t-dur-label">Durée max au miklat</div>
+          <div class="setting-desc" id="t-dur-desc">Filet de sécurité (minutes)</div>
         </div>
         <div class="number-input">
           <button class="num-btn" onclick="adjustDuration(-1)">−</button>
@@ -239,13 +239,6 @@
         <button class="toggle on" id="toggle-sound" onclick="toggleOption('sound')"></button>
       </div>
 
-      <div class="setting-row col">
-        <div>
-          <div class="setting-label" id="t-proxy-label">URL du proxy Cloudflare</div>
-          <div class="setting-desc" id="t-proxy-desc">Ton Worker CF</div>
-        </div>
-        <input id="proxy-url" class="proxy-input" placeholder="https://miklat.XXX.workers.dev"/>
-      </div>
 
     </div>
   </div>
@@ -267,25 +260,26 @@ const T = {
     notifMsg:'🔔 Activer les notifications pour les alertes en arrière-plan', notifBtn:'Activer',
     settings:'Paramètres',
     zoneLabel:'Zone surveillée', zoneDesc:'Tapez pour chercher une ville',
-    durLabel:'Durée au miklat', durDesc:'Après l\'alerte (minutes)',
+    durLabel:'Durée max au miklat', durDesc:'Filet de sécurité (minutes)',
     pollLabel:'Fréquence de vérification', pollDesc:'Toutes les N secondes',
     vibLabel:'Vibration', vibDesc:'Vibre lors des alertes',
-    sndLabel:'Son d\'alerte', sndDesc:'Bip d\'alerte dans le navigateur',
-    proxyLabel:'URL du proxy Cloudflare', proxyDesc:'Ton Worker CF',
+    sndLabel:"Son d'alerte", sndDesc:'Bip dans le navigateur',
     testBtn:'tests', testHide:'masquer tests',
     btnPre:'⚠️ Pré-alerte', btnAlert:'🚨 ALERTE', btnSafe:'✅ Sortie',
     lastAlert:'⚡ Dernière alerte',
     online:'en ligne', offline:'erreur réseau', noProxy:'proxy non configuré',
+    resetBtn:'↺ Retour au calme',
     phases:{
-      idle:{title:'Calme', msg:'Aucune alerte en cours'},
-      'pre-alert':{title:'Pré-alerte', msg:'Préparez-vous — dirigez-vous vers le miklat'},
-      alert:{title:'🚨 ALERTE 🚨', msg:'Entrez MAINTENANT dans le miklat !'},
-      safe:{title:'Vous pouvez sortir', msg:'La menace est passée — sortie autorisée'},
+      idle:        {title:'Calme',              msg:'Aucune alerte en cours'},
+      'pre-alert': {title:'Pré-alerte',         msg:'Préparez-vous — dirigez-vous vers le miklat'},
+      alert:       {title:'🚨 ALERTE 🚨',       msg:'Entrez MAINTENANT dans le miklat !'},
+      safe:        {title:'Vous pouvez sortir', msg:'La menace est passée — sortie autorisée'},
+      waiting:     {title:'En attente…',        msg:'Chrono terminé — attendez la confirmation tzevaadom'},
     },
     timerLabel:'temps restant au miklat', timerAlmost:'presque fini…',
-    notifPre:['⚠️ Pré-alerte — Direction le miklat','Préparez-vous à vous abriter'],
-    notifAlert:['🚨 ALERTE — Entrez au miklat !','Mettez-vous à l\'abri immédiatement'],
-    notifSafe:['✅ Sortie autorisée','Vous pouvez quitter le miklat'],
+    notifPre:   ['⚠️ Pré-alerte','Dirigez-vous vers le miklat'],
+    notifAlert: ['🚨 ALERTE — Entrez au miklat !','Mettez-vous à l\'abri immédiatement'],
+    notifSafe:  ['✅ Sortie autorisée','Vous pouvez quitter le miklat'],
     dir:'ltr',
   },
   he: {
@@ -293,25 +287,26 @@ const T = {
     notifMsg:'🔔 אפשר התראות לקבלת אזעקות ברקע', notifBtn:'אפשר',
     settings:'הגדרות',
     zoneLabel:'אזור מעקב', zoneDesc:'הקלד לחיפוש עיר',
-    durLabel:'זמן במקלט', durDesc:'אחרי האזעקה (דקות)',
+    durLabel:'זמן מקסימלי במקלט', durDesc:'רשת ביטחון (דקות)',
     pollLabel:'תדירות בדיקה', pollDesc:'כל N שניות',
     vibLabel:'רטט', vibDesc:'רוטט בזמן אזעקה',
     sndLabel:'צליל אזעקה', sndDesc:'צפצוף בדפדפן',
-    proxyLabel:'כתובת ה-Proxy', proxyDesc:'Cloudflare Worker שלך',
     testBtn:'בדיקות', testHide:'הסתר בדיקות',
     btnPre:'⚠️ טרום-אזעקה', btnAlert:'🚨 אזעקה', btnSafe:'✅ יציאה',
     lastAlert:'⚡ אזעקה אחרונה',
     online:'מחובר', offline:'שגיאת רשת', noProxy:'Proxy לא מוגדר',
+    resetBtn:'↺ חזרה לשקט',
     phases:{
-      idle:{title:'שקט', msg:'אין התרעות כרגע'},
-      'pre-alert':{title:'טרום-אזעקה', msg:'התכוננו — פנו למקלט'},
-      alert:{title:'🚨 אזעקה 🚨', msg:'!היכנסו למקלט עכשיו'},
-      safe:{title:'ניתן לצאת', msg:'הסכנה חלפה — ניתן לצאת מהמקלט'},
+      idle:        {title:'שקט',         msg:'אין התרעות כרגע'},
+      'pre-alert': {title:'טרום-אזעקה',  msg:'התכוננו — פנו למקלט'},
+      alert:       {title:'🚨 אזעקה 🚨', msg:'!היכנסו למקלט עכשיו'},
+      safe:        {title:'ניתן לצאת',   msg:'הסכנה חלפה — ניתן לצאת מהמקלט'},
+      waiting:     {title:'ממתין…',      msg:'הטיימר הסתיים — ממתין לאישור tzevaadom'},
     },
     timerLabel:'זמן שנותר במקלט', timerAlmost:'…כמעט גמרנו',
-    notifPre:['⚠️ טרום-אזעקה — פנו למקלט','התכוננו להתמגן'],
-    notifAlert:['🚨 אזעקה — היכנסו למקלט !','התמגנו מיד'],
-    notifSafe:['✅ ניתן לצאת','ניתן לצאת מהמקלט'],
+    notifPre:   ['⚠️ טרום-אזעקה','פנו למקלט'],
+    notifAlert: ['🚨 אזעקה — היכנסו למקלט !','התמגנו מיד'],
+    notifSafe:  ['✅ ניתן לצאת','ניתן לצאת מהמקלט'],
     dir:'rtl',
   },
   en: {
@@ -319,25 +314,26 @@ const T = {
     notifMsg:'🔔 Enable notifications for background alerts', notifBtn:'Enable',
     settings:'Settings',
     zoneLabel:'Monitored zone', zoneDesc:'Type to search a city',
-    durLabel:'Shelter duration', durDesc:'After alert (minutes)',
+    durLabel:'Max shelter duration', durDesc:'Safety fallback (minutes)',
     pollLabel:'Check frequency', pollDesc:'Every N seconds',
     vibLabel:'Vibration', vibDesc:'Vibrate on alerts',
     sndLabel:'Alert sound', sndDesc:'Browser beep on alert',
-    proxyLabel:'Cloudflare proxy URL', proxyDesc:'Your CF Worker URL',
     testBtn:'tests', testHide:'hide tests',
     btnPre:'⚠️ Pre-alert', btnAlert:'🚨 ALERT', btnSafe:'✅ All clear',
     lastAlert:'⚡ Last alert',
     online:'online', offline:'network error', noProxy:'proxy not set',
+    resetBtn:'↺ Reset to calm',
     phases:{
-      idle:{title:'All clear', msg:'No active alerts'},
-      'pre-alert':{title:'Pre-alert', msg:'Get ready — head to the shelter'},
-      alert:{title:'🚨 ALERT 🚨', msg:'Enter the shelter NOW!'},
-      safe:{title:'You may exit', msg:'Threat has passed — you may leave the shelter'},
+      idle:        {title:'All clear',     msg:'No active alerts'},
+      'pre-alert': {title:'Pre-alert',     msg:'Get ready — head to the shelter'},
+      alert:       {title:'🚨 ALERT 🚨',  msg:'Enter the shelter NOW!'},
+      safe:        {title:'You may exit',  msg:'Threat has passed — you may leave the shelter'},
+      waiting:     {title:'Waiting…',      msg:'Timer ended — waiting for tzevaadom confirmation'},
     },
     timerLabel:'time remaining in shelter', timerAlmost:'almost done…',
-    notifPre:['⚠️ Pre-alert — Head to shelter','Get ready to take cover'],
-    notifAlert:['🚨 ALERT — Enter shelter now!','Take cover immediately'],
-    notifSafe:['✅ All clear','You may leave the shelter'],
+    notifPre:   ['⚠️ Pre-alert','Head to the shelter'],
+    notifAlert: ['🚨 ALERT — Enter shelter now!','Take cover immediately'],
+    notifSafe:  ['✅ All clear','You may leave the shelter'],
     dir:'ltr',
   }
 };
@@ -358,20 +354,20 @@ const CITIES = [
   {fr:'Bat Yam',he:'בת ים',en:'Bat Yam',keys:'בת ים,Bat Yam'},
   {fr:'Holon',he:'חולון',en:'Holon',keys:'חולון,Holon'},
   {fr:'Herzliya',he:'הרצליה',en:'Herzliya',keys:'הרצליה,Herzliya'},
-  {fr:'Raanana',he:'רעננה',en:"Ra'anana",keys:"רעננה,Raanana,Ra'anana"},
-  {fr:'Modiin',he:'מודיעין',en:'Modiin',keys:"מודיעין,Modiin,Modi'in"},
+  {fr:'Raanana',he:'רעננה',en:"Ra'anana",keys:"רעננה,Raanana"},
+  {fr:'Modiin',he:'מודיעין',en:'Modiin',keys:'מודיעין,Modiin'},
   {fr:'Eilat',he:'אילת',en:'Eilat',keys:'אילת,Eilat'},
   {fr:'Tibériade',he:'טבריה',en:'Tiberias',keys:'טבריה,Tiberias'},
   {fr:'Nazareth',he:'נצרת',en:'Nazareth',keys:'נצרת,Nazareth'},
   {fr:'Sdérot',he:'שדרות',en:'Sderot',keys:'שדרות,Sderot'},
   {fr:'Kiryat Shmona',he:'קריית שמונה',en:'Kiryat Shmona',keys:'קריית שמונה,Kiryat Shmona'},
   {fr:'Nahariya',he:'נהריה',en:'Nahariya',keys:'נהריה,Nahariya'},
-  {fr:'Akko',he:'עכו',en:'Akko',keys:'עכו,Akko,Acre'},
+  {fr:'Akko',he:'עכו',en:'Akko',keys:'עכו,Akko'},
   {fr:'Ramla',he:'רמלה',en:'Ramla',keys:'רמלה,Ramla'},
   {fr:'Lod',he:'לוד',en:'Lod',keys:'לוד,Lod'},
   {fr:'Kfar Saba',he:'כפר סבא',en:'Kfar Saba',keys:'כפר סבא,Kfar Saba'},
   {fr:'Gush Etzion',he:'גוש עציון',en:'Gush Etzion',keys:'גוש עציון,Gush Etzion'},
-  {fr:'Gaza (env.)',he:'עוטף עזה',en:'Gaza Envelope',keys:'עוטף עזה,Gaza Envelope,שדרות,Sderot'},
+  {fr:'Gaza (env.)',he:'עוטף עזה',en:'Gaza Envelope',keys:'עוטף עזה,Gaza Envelope'},
   {fr:'Vallée de Hula',he:'עמק החולה',en:'Hula Valley',keys:'עמק החולה,Hula Valley'},
 ];
 
@@ -398,26 +394,22 @@ let faviconFlash = null;
 function setFavicon(phase) {
   clearInterval(faviconFlash);
   const link = document.getElementById('favicon-link');
-  const favicons = {
-    idle:      makeFavicon('#22d07a','✓'),
-    'pre-alert': makeFavicon('#f7c84f','!'),
-    alert:     makeFavicon('#f74f4f','!'),
-    safe:      makeFavicon('#22d07a','✓'),
-  };
   if (phase === 'alert') {
     let toggle = true;
     faviconFlash = setInterval(() => {
-      link.href = toggle ? makeFavicon('#f74f4f','!') : makeFavicon('#0a0a0f','!');
+      link.href = makeFavicon(toggle ? '#f74f4f' : '#0a0a0f', '!');
       toggle = !toggle;
     }, 600);
   } else {
-    link.href = favicons[phase] || favicons.idle;
+    const map = {idle:'#22d07a,✓','pre-alert':'#f7c84f,!',safe:'#22d07a,✓',waiting:'#6b6b8a,?'};
+    const [bg,sym] = (map[phase]||map.idle).split(',');
+    link.href = makeFavicon(bg, sym);
   }
 }
-
-function makeFavicon(bg, symbol) {
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='15' fill='${bg}'/><text x='16' y='22' font-size='18' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>${symbol}</text></svg>`;
-  return 'data:image/svg+xml,' + encodeURIComponent(svg);
+function makeFavicon(bg, sym) {
+  return 'data:image/svg+xml,' + encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='15' fill='${bg}'/><text x='16' y='22' font-size='18' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'>${sym}</text></svg>`
+  );
 }
 
 // ─── LANG ─────────────────────────────────────────────────────────────────────
@@ -442,13 +434,12 @@ function setLang(lang) {
   document.getElementById('t-vib-desc').textContent = t.vibDesc;
   document.getElementById('t-snd-label').textContent = t.sndLabel;
   document.getElementById('t-snd-desc').textContent = t.sndDesc;
-  document.getElementById('t-proxy-label').textContent = t.proxyLabel;
-  document.getElementById('t-proxy-desc').textContent = t.proxyDesc;
   document.getElementById('t-last-alert-title').textContent = t.lastAlert;
   document.getElementById('t-btn-pre').textContent = t.btnPre;
   document.getElementById('t-btn-alert').textContent = t.btnAlert;
   document.getElementById('t-btn-safe').textContent = t.btnSafe;
   document.getElementById('timer-label').textContent = t.timerLabel;
+  document.getElementById('reset-btn').textContent = t.resetBtn;
   const isTestVisible = document.getElementById('test-row').style.display !== 'none';
   document.getElementById('t-test-btn').textContent = isTestVisible ? t.testHide : t.testBtn;
   const cityMatch = CITIES.find(c => c.keys === CONFIG.zones);
@@ -459,8 +450,6 @@ function setLang(lang) {
     document.getElementById('t-location').textContent = t.location;
   }
   applyPhaseText(state);
-  const dot = document.getElementById('status-dot');
-  document.getElementById('header-status-txt').textContent = dot.classList.contains('offline') ? t.offline : (dot.classList.contains('alert') ? t.online : t.online);
 }
 
 function applyPhaseText(phase) {
@@ -475,7 +464,6 @@ function applyPhaseText(phase) {
 window.addEventListener('load', () => {
   document.getElementById('duration-val').textContent = CONFIG.durationSec / 60;
   document.getElementById('poll-val').textContent = CONFIG.pollIntervalSec + 's';
-  document.getElementById('proxy-url').value = CONFIG.proxyUrl;
   setToggleUI('toggle-vibration', CONFIG.vibration);
   setToggleUI('toggle-sound', CONFIG.sound);
   const cityMatch = CITIES.find(c => c.keys === CONFIG.zones);
@@ -509,57 +497,34 @@ function adjustPoll(d) {
   document.getElementById('poll-val').textContent = CONFIG.pollIntervalSec + 's';
   restartPolling();
 }
-function toggleOption(key) {
-  CONFIG[key] = !CONFIG[key];
-  localStorage.setItem(key, CONFIG[key]);
-  setToggleUI('toggle-' + key, CONFIG[key]);
-}
+function toggleOption(key) { CONFIG[key] = !CONFIG[key]; localStorage.setItem(key, CONFIG[key]); setToggleUI('toggle-' + key, CONFIG[key]); }
 function setToggleUI(id, val) { document.getElementById(id).classList.toggle('on', val); }
-document.getElementById('proxy-url').addEventListener('change', e => {
-  CONFIG.proxyUrl = e.target.value;
-  localStorage.setItem('proxyUrl', CONFIG.proxyUrl);
-});
 
 // ─── CITY AUTOCOMPLETE ────────────────────────────────────────────────────────
 function filterCities(val) {
   const q = val.trim().toLowerCase();
   const dd = document.getElementById('city-dropdown');
   if (!q) { dd.style.display = 'none'; return; }
-  const matches = CITIES.filter(c =>
-    c.fr.toLowerCase().includes(q) || c.he.includes(q) ||
-    c.en.toLowerCase().includes(q) || c.keys.toLowerCase().includes(q)
-  );
+  const matches = CITIES.filter(c => c.fr.toLowerCase().includes(q) || c.he.includes(q) || c.en.toLowerCase().includes(q) || c.keys.toLowerCase().includes(q));
   if (!matches.length) { dd.style.display = 'none'; return; }
-  dd.innerHTML = matches.map(c => `
-    <div class="city-option" onmousedown="selectCity(event)"
-      data-keys="${c.keys}" data-fr="${c.fr}" data-he="${c.he}" data-en="${c.en}">
-      <span style="font-weight:600;">${c[currentLang] || c.fr}</span>
-      <span style="font-size:11px;color:var(--muted);direction:rtl;">${c.he}</span>
-    </div>`).join('');
+  dd.innerHTML = matches.map(c => `<div class="city-option" onmousedown="selectCity(event)" data-keys="${c.keys}" data-fr="${c.fr}" data-he="${c.he}" data-en="${c.en}"><span style="font-weight:600;">${c[currentLang]||c.fr}</span><span style="font-size:11px;color:var(--muted);direction:rtl;">${c.he}</span></div>`).join('');
   dd.style.display = 'block';
 }
 function selectCity(e) {
   e.preventDefault();
   const opt = e.currentTarget;
-  const keys = opt.dataset.keys;
-  CONFIG.zones = keys;
-  localStorage.setItem('zones', keys);
-  T.fr.location = opt.dataset.fr;
-  T.he.location = opt.dataset.he;
-  T.en.location = opt.dataset.en;
+  CONFIG.zones = opt.dataset.keys; localStorage.setItem('zones', CONFIG.zones);
+  T.fr.location = opt.dataset.fr; T.he.location = opt.dataset.he; T.en.location = opt.dataset.en;
   document.getElementById('t-location').textContent = opt.dataset[currentLang] || opt.dataset.fr;
   document.getElementById('zone-search').value = opt.dataset[currentLang] || opt.dataset.fr;
-  document.getElementById('zone-current-display').textContent = '📍 ' + keys;
+  document.getElementById('zone-current-display').textContent = '📍 ' + CONFIG.zones;
   document.getElementById('city-dropdown').style.display = 'none';
 }
 function showCityDropdown() { filterCities(document.getElementById('zone-search').value); }
 function hideCityDropdown() { setTimeout(() => { document.getElementById('city-dropdown').style.display = 'none'; }, 200); }
 
 // ─── POLLING ──────────────────────────────────────────────────────────────────
-function startPolling() {
-  fetchAlerts();
-  pollInterval = setInterval(fetchAlerts, CONFIG.pollIntervalSec * 1000);
-}
+function startPolling() { fetchAlerts(); pollInterval = setInterval(fetchAlerts, CONFIG.pollIntervalSec * 1000); }
 function restartPolling() { clearInterval(pollInterval); startPolling(); }
 
 async function fetchAlerts() {
@@ -580,42 +545,74 @@ async function fetchAlerts() {
   }
 }
 
+// ─── ALERT PROCESSING ─────────────────────────────────────────────────────────
 function processAlerts(data) {
   const zones = CONFIG.zones.split(',').map(z => z.trim().toLowerCase());
-  let matched = null, allAlerts = [];
+
+  // Vérifie les alertes actives (cat != 13 et != 14)
+  let hasActiveAlert = false;
+  let hasPreAlert = false;
+  let hasEnd = false;
+  let matchedZone = null;
+
+  // --- Alertes actives (sirène) ---
   if (data?.alerts && Array.isArray(data.alerts)) {
     for (const g of data.alerts) {
-      if (g.alerts && Array.isArray(g.alerts)) {
-        for (const zone of g.alerts) {
-          allAlerts.push(zone);
-          if (zones.some(z => zone.toLowerCase().includes(z))) matched = zone;
+      const cat = g.cat || g.category || 0;
+      const alertZones = g.alerts || g.cities || [];
+      for (const zone of alertZones) {
+        if (zones.some(z => zone.toLowerCase().includes(z))) {
+          if (cat === 14) hasPreAlert = true;
+          else if (cat === 13) hasEnd = true;
+          else { hasActiveAlert = true; matchedZone = zone; }
         }
       }
     }
   }
-  if (matched && state !== 'alert' && state !== 'safe') triggerAlert(matched);
-  else if (!matched && allAlerts.length === 0 && state === 'pre-alert') setPhase('idle');
+
+  // --- Notifications (end/pre_alert) ---
+  if (data?.updates && Array.isArray(data.updates)) {
+    for (const u of data.updates) {
+      const cat = u.cat || u.category || 0;
+      const uZones = u.alerts || u.cities || u.areas || [];
+      const zoneMatch = uZones.length === 0 || uZones.some(z => zones.some(k => z.toLowerCase().includes(k)));
+      if (zoneMatch) {
+        if (cat === 13) hasEnd = true;
+        if (cat === 14) hasPreAlert = true;
+      }
+    }
+  }
+
+  // --- Machine d'état ---
+  // Ne jamais rétrograder un état plus grave
+  if (hasEnd && (state === 'alert' || state === 'waiting')) {
+    setPhase('safe');
+  } else if (hasActiveAlert && state !== 'alert') {
+    showLastAlert(matchedZone || '?');
+    setPhase('alert');
+  } else if (hasPreAlert && state === 'idle') {
+    setPhase('pre-alert');
+  }
+  // waiting → on ne fait rien, on attend le end ou le reset manuel
+  // safe → on ne fait rien, le reset est manuel
 }
 
 // ─── PHASE ────────────────────────────────────────────────────────────────────
-function triggerAlert(zone) {
-  showLastAlert(zone);
-  setPhase('pre-alert');
-  setTimeout(() => { if (state === 'pre-alert') setPhase('alert'); }, 3000);
-}
-
 function setPhase(phase) {
   state = phase;
   const t = T[currentLang];
   const card = document.getElementById('phase-card');
   const timerBox = document.getElementById('timer-container');
   const overlay = document.getElementById('alert-overlay');
+  const resetBtn = document.getElementById('reset-btn');
   card.className = 'phase-card';
   overlay.classList.remove('show');
   clearInterval(timerInterval);
+  resetBtn.style.display = 'none';
   applyPhaseText(phase);
   setFavicon(phase);
-  document.getElementById('phase-icon').textContent = {idle:'🕊️','pre-alert':'⚠️',alert:'🚨',safe:'✅'}[phase];
+  document.getElementById('phase-icon').textContent = {idle:'🕊️','pre-alert':'⚠️',alert:'🚨',safe:'✅',waiting:'⏳'}[phase] || '🕊️';
+
   if (phase === 'idle') {
     card.classList.add('idle'); timerBox.style.display = 'none';
     document.getElementById('status-dot').className = 'status-dot';
@@ -631,8 +628,17 @@ function setPhase(phase) {
     card.classList.add('safe'); timerBox.style.display = 'none';
     document.getElementById('status-dot').className = 'status-dot';
     buzz('safe'); notify(...t.notifSafe);
+    // Reset auto vers idle après 30s
+    setTimeout(() => { if (state === 'safe') resetToIdle(); }, 30000);
+  } else if (phase === 'waiting') {
+    card.classList.add('waiting'); timerBox.style.display = 'none';
+    document.getElementById('status-dot').className = 'status-dot';
+    resetBtn.style.display = 'block';
+    resetBtn.textContent = t.resetBtn;
   }
 }
+
+function resetToIdle() { setPhase('idle'); }
 
 function startTimer() {
   timerRemaining = CONFIG.durationSec;
@@ -652,7 +658,9 @@ function startTimer() {
       clearInterval(timerInterval);
       fill.className = 'progress-fill done'; fill.style.width = '100%'; fill.style.background = 'var(--green)';
       display.className = 'timer-display safe-color'; display.textContent = '00:00';
-      setTimeout(() => setPhase('safe'), 800); return;
+      // Chrono fini → on attend la confirmation tzevaadom (état "waiting")
+      setTimeout(() => { if (state === 'alert') setPhase('waiting'); }, 800);
+      return;
     }
     timerRemaining--;
   }
@@ -666,12 +674,12 @@ function showLastAlert(zone) {
 }
 
 // ─── AUDIO / VIBRATION ────────────────────────────────────────────────────────
-function getAudioCtx() { if (!audioCtx) audioCtx = new(window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
+function getAudioCtx() { if (!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
 function buzz(type) {
   if (CONFIG.vibration && navigator.vibrate) {
-    if (type === 'alert') navigator.vibrate([300,100,300,100,300,100,1000]);
-    else if (type === 'pre') navigator.vibrate([200,100,200]);
-    else if (type === 'safe') navigator.vibrate([500]);
+    if (type==='alert') navigator.vibrate([300,100,300,100,300,100,1000]);
+    else if (type==='pre') navigator.vibrate([200,100,200]);
+    else if (type==='safe') navigator.vibrate([500]);
   }
   if (!CONFIG.sound) return;
   try {
@@ -679,19 +687,19 @@ function buzz(type) {
     const patterns = {pre:[[440,.15],[523,.15],[659,.3]],alert:[[880,.1],[880,.1],[880,.1],[440,.3],[880,.5]],safe:[[523,.2],[659,.2],[784,.4]]};
     let t = ctx.currentTime;
     for (const [freq,dur] of (patterns[type]||[])) {
-      const osc = ctx.createOscillator(), gain = ctx.createGain();
+      const osc=ctx.createOscillator(), gain=ctx.createGain();
       osc.connect(gain); gain.connect(ctx.destination);
-      osc.frequency.value = freq; osc.type = type === 'alert' ? 'sawtooth' : 'sine';
-      gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.001, t+dur);
-      osc.start(t); osc.stop(t+dur); t += dur + 0.05;
+      osc.frequency.value=freq; osc.type=type==='alert'?'sawtooth':'sine';
+      gain.gain.setValueAtTime(0.3,t); gain.gain.exponentialRampToValueAtTime(0.001,t+dur);
+      osc.start(t); osc.stop(t+dur); t+=dur+0.05;
     }
-  } catch(e) {}
+  } catch(e){}
 }
 
 // ─── NOTIFICATIONS ────────────────────────────────────────────────────────────
-function checkNotifPermission() { if ('Notification' in window && Notification.permission === 'default') document.getElementById('notif-bar').classList.add('show'); }
-function requestNotif() { Notification.requestPermission().then(p => { if (p === 'granted') document.getElementById('notif-bar').classList.remove('show'); }); }
-function notify(title, body) { if ('Notification' in window && Notification.permission === 'granted') new Notification(title, {body, icon:'🛡️', requireInteraction:true}); }
+function checkNotifPermission() { if ('Notification' in window && Notification.permission==='default') document.getElementById('notif-bar').classList.add('show'); }
+function requestNotif() { Notification.requestPermission().then(p => { if (p==='granted') document.getElementById('notif-bar').classList.remove('show'); }); }
+function notify(title, body) { if ('Notification' in window && Notification.permission==='granted') new Notification(title, {body, icon:'🛡️', requireInteraction:true}); }
 
 // ─── TESTS ────────────────────────────────────────────────────────────────────
 function toggleTests() {
@@ -701,9 +709,9 @@ function toggleTests() {
   document.getElementById('t-test-btn').textContent = visible ? T[currentLang].testBtn : T[currentLang].testHide;
 }
 function simulatePhase(phase) {
-  if (phase === 'pre-alert') { showLastAlert('TEST — ירושלים דרום / Jérusalem Sud'); setPhase('pre-alert'); setTimeout(() => { if (state==='pre-alert') setPhase('alert'); }, 3000); }
-  else if (phase === 'alert') { showLastAlert('TEST — ירושלים דרום / Jérusalem Sud'); setPhase('alert'); }
-  else if (phase === 'safe') { setPhase('safe'); setTimeout(() => setPhase('idle'), 5000); }
+  if (phase==='pre-alert') { setPhase('pre-alert'); }
+  else if (phase==='alert') { showLastAlert('TEST — ירושלים דרום / Jérusalem Sud'); setPhase('alert'); }
+  else if (phase==='safe') { setPhase('safe'); }
 }
 </script>
 </body>
