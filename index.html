@@ -342,8 +342,12 @@ const CITIES = [
   {fr:'⚡ Toutes les villes', he:'⚡ כל הערים', en:'⚡ All cities', keys:'__ALL__'},
   {fr:'Tel Aviv',he:'תל אביב',en:'Tel Aviv',keys:'תל אביב,Tel Aviv'},
   {fr:'Jérusalem',he:'ירושלים',en:'Jerusalem',keys:'ירושלים,Jerusalem'},
-  {fr:'Jérusalem Sud',he:'ירושלים דרום',en:'Jerusalem South',keys:'ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון,גוש עציון,Jerusalem South'},
-  {fr:'Jérusalem Nord',he:'ירושלים צפון',en:'Jerusalem North',keys:'ירושלים צפון,Jerusalem North'},
+  {fr:'Jérusalem Sud',he:'ירושלים דרום',en:'Jerusalem South',keys:'ירושלים - דרום,גוש עציון'},
+  {fr:'Jérusalem Centre',he:'ירושלים מרכז',en:'Jerusalem Center',keys:'ירושלים - מרכז'},
+  {fr:'Jérusalem Est',he:'ירושלים מזרח',en:'Jerusalem East',keys:'ירושלים - מזרח'},
+  {fr:'Jérusalem Ouest',he:'ירושלים מערב',en:'Jerusalem West',keys:'ירושלים - מערב'},
+  {fr:'Jérusalem (toute)',he:'ירושלים כולה',en:'Jerusalem (all)',keys:'ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון'},
+  {fr:'Jérusalem Nord',he:'ירושלים צפון',en:'Jerusalem North',keys:'ירושלים - צפון'},
   {fr:'Haïfa',he:'חיפה',en:'Haifa',keys:'חיפה,Haifa'},
   {fr:'Beer Sheva',he:'באר שבע',en:'Beer Sheva',keys:'באר שבע,Beer Sheva'},
   {fr:'Ashdod',he:'אשדוד',en:'Ashdod',keys:'אשדוד,Ashdod'},
@@ -374,7 +378,7 @@ const CITIES = [
 
 const CONFIG = {
   proxyUrl: localStorage.getItem('proxyUrl') || 'https://miklat-alert.gregyman.workers.dev/',
-  zones: localStorage.getItem('zones') || 'ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון,גוש עציון',
+  zones: localStorage.getItem('zones') || 'ירושלים - דרום,גוש עציון',
   durationSec: parseInt(localStorage.getItem('durationSec') || '600'),
   pollIntervalSec: parseInt(localStorage.getItem('pollIntervalSec') || '15'),
   vibration: localStorage.getItem('vibration') !== 'false',
