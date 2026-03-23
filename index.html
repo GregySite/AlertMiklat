@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" dir="ltr">
+<html lang="fr">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
@@ -139,19 +139,28 @@
   body.rtl .location-badge { flex-direction:row-reverse; }
   body.rtl #next-poll-txt { margin-left:0; margin-right:auto; }
   body.rtl .settings-title { flex-direction:row-reverse; }
-  body.rtl .setting-row { flex-direction:row-reverse; }
-  body.rtl .setting-row.col { flex-direction:column; align-items:flex-start; }
-  body.rtl .setting-label { text-align:right; width:100%; }
-  body.rtl .setting-desc { text-align:right; width:100%; }
+  /* Paramètres RTL: texte à droite, contrôle à gauche */
+  body.rtl .setting-row {
+    flex-direction:row-reverse;
+  }
+  body.rtl .setting-row > div:first-child {
+    text-align:right;
+    flex:1;
+  }
+  body.rtl .setting-row.col { flex-direction:column; align-items:flex-end; }
+  body.rtl .setting-row.col > div:first-child { width:100%; text-align:right; }
+  body.rtl .setting-label { text-align:right; }
+  body.rtl .setting-desc  { text-align:right; }
+  /* Contrôles numériques: − val + gardent l'ordre LTR */
   body.rtl .number-input { direction:ltr; }
   body.rtl .notif-bar { flex-direction:row-reverse; }
   body.rtl .notif-bar button { margin-left:0; margin-right:auto; }
   body.rtl .history-item { flex-direction:row-reverse; }
   body.rtl .history-title { text-align:right; }
-  body.rtl .history-city { text-align:right; }
-  body.rtl .last-alert-title { text-align:right; }
+  body.rtl .history-city  { text-align:right; }
+  body.rtl .last-alert-title   { text-align:right; }
   body.rtl .last-alert-content { text-align:right; }
-  body.rtl .last-alert-time { text-align:right; }
+  body.rtl .last-alert-time    { text-align:right; }
   body.rtl footer { direction:rtl; }
   @media(max-width:380px) { .timer-display{font-size:48px;} .phase-icon{font-size:44px;} }
 </style>
@@ -766,6 +775,7 @@ function setLang(lang) {
   localStorage.setItem('lang', lang);
   const t = T[lang];
   document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
   document.body.classList.toggle('rtl', lang === 'he');
   document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
   document.querySelector('.lang-btn[onclick="setLang(\'' + lang + '\')"]').classList.add('active');
