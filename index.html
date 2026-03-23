@@ -140,16 +140,19 @@
   body.rtl #next-poll-txt { margin-left:0; margin-right:auto; }
   body.rtl .settings-title { flex-direction:row-reverse; }
   body.rtl .setting-row { flex-direction:row-reverse; }
-  body.rtl .setting-row.col { flex-direction:column; align-items:flex-end; }
-  body.rtl .setting-label { text-align:right; }
-  body.rtl .setting-desc  { text-align:right; }
+  body.rtl .setting-row.col { flex-direction:column; align-items:flex-start; }
+  body.rtl .setting-label { text-align:right; width:100%; }
+  body.rtl .setting-desc { text-align:right; width:100%; }
+  body.rtl .number-input { direction:ltr; }
   body.rtl .notif-bar { flex-direction:row-reverse; }
   body.rtl .notif-bar button { margin-left:0; margin-right:auto; }
   body.rtl .history-item { flex-direction:row-reverse; }
   body.rtl .history-title { text-align:right; }
+  body.rtl .history-city { text-align:right; }
   body.rtl .last-alert-title { text-align:right; }
-  body.rtl .last-alert-content { text-align:right; direction:rtl; }
-
+  body.rtl .last-alert-content { text-align:right; }
+  body.rtl .last-alert-time { text-align:right; }
+  body.rtl footer { direction:rtl; }
   @media(max-width:380px) { .timer-display{font-size:48px;} .phase-icon{font-size:44px;} }
 </style>
 </head>
