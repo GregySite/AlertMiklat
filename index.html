@@ -30,19 +30,19 @@
   .lang-switcher { display:flex; gap:4px; background:var(--border); border-radius:999px; padding:3px; }
   .lang-btn { border:none; background:none; color:var(--muted); font-family:var(--mono); font-size:11px; padding:3px 8px; border-radius:999px; cursor:pointer; transition:all 0.2s; font-weight:600; }
   .lang-btn.active { background:var(--accent); color:white; }
-  .status-dot { width:10px; height:10px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse-dot 2s infinite; }
+  .status-dot { width:10px; height:10px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse-dot 2s infinite; flex-shrink:0; }
   .status-dot.offline { background:var(--muted); box-shadow:none; animation:none; }
-  .status-dot.alert { background:var(--red); box-shadow:0 0 12px var(--red); }
+  .status-dot.alerting { background:var(--red); box-shadow:0 0 12px var(--red); }
   @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.8);} }
 
   .location-badge { display:inline-flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:8px 16px; font-size:13px; font-weight:500; margin-bottom:16px; width:100%; justify-content:center; }
-  .location-badge .dot { width:8px; height:8px; border-radius:50%; background:var(--accent); }
+  .location-badge .dot { width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0; }
 
   .notif-bar { display:none; align-items:center; gap:10px; background:rgba(79,110,247,0.1); border:1px solid var(--accent); border-radius:10px; padding:12px 14px; margin-bottom:16px; font-size:13px; }
   .notif-bar.show { display:flex; }
   .notif-bar button { margin-left:auto; background:var(--accent); color:white; border:none; border-radius:6px; padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; font-family:var(--font); white-space:nowrap; }
 
-  .phase-card { border-radius:var(--radius); padding:28px 24px; margin-bottom:16px; border:1.5px solid var(--border); background:var(--surface); transition:all 0.4s ease; position:relative; overflow:hidden; }
+  .phase-card { border-radius:var(--radius); padding:28px 24px; margin-bottom:16px; border:1.5px solid var(--border); background:var(--surface); transition:border-color 0.4s, background 0.4s; position:relative; overflow:hidden; }
   .phase-card::before { content:''; position:absolute; inset:0; opacity:0; transition:opacity 0.4s; pointer-events:none; }
   .phase-icon { font-size:56px; text-align:center; margin-bottom:16px; display:block; }
   .phase-title { font-size:26px; font-weight:900; text-align:center; letter-spacing:-0.5px; margin-bottom:8px; }
@@ -60,7 +60,7 @@
   .phase-card.safe { border-color:var(--green); background:linear-gradient(135deg,#12121a 0%,#001a0a 100%); }
   .phase-card.safe::before { background:radial-gradient(ellipse at center,var(--glow-green),transparent 70%); opacity:1; }
   .phase-card.safe .phase-title { color:var(--green); }
-  .phase-card.waiting { border-color:var(--muted); background:linear-gradient(135deg,#12121a 0%,#0a0a0f 100%); }
+  .phase-card.waiting { border-color:var(--muted); }
   .phase-card.waiting .phase-title { color:var(--muted); }
 
   .timer-container { margin:20px 0 8px; display:flex; flex-direction:column; align-items:center; gap:12px; }
@@ -68,9 +68,11 @@
   .timer-display.warning { color:var(--orange); }
   .timer-display.safe-color { color:var(--green); }
   .progress-track { width:100%; height:8px; background:var(--border); border-radius:4px; overflow:hidden; }
-  .progress-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--red),var(--orange)); transition:width 1s linear,background 0.5s; width:0%; }
+  .progress-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--red),var(--orange)); transition:width 1s linear, background 0.5s; width:0%; }
   .progress-fill.done { background:var(--green); }
-  .timer-label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; font-family:var(--mono); }
+  .timer-label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; font-family:var(--mono); text-align:center; }
+
+  .alert-info { font-size:11px; color:var(--muted); text-align:center; margin-top:4px; font-family:var(--mono); }
 
   .reset-btn { margin-top:16px; background:none; border:1px solid var(--muted); color:var(--muted); border-radius:999px; padding:8px 20px; font-family:var(--font); font-size:13px; cursor:pointer; transition:all 0.2s; display:block; width:100%; }
   .reset-btn:hover { border-color:var(--accent); color:var(--accent); }
@@ -86,23 +88,19 @@
   .settings-body.open { display:block; }
   .chevron { transition:transform 0.3s; display:inline-block; }
   .chevron.open { transform:rotate(180deg); }
-
   .setting-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); }
   .setting-row:last-child { border-bottom:none; }
   .setting-row.col { flex-direction:column; align-items:flex-start; gap:8px; }
   .setting-label { font-size:13px; font-weight:500; }
   .setting-desc { font-size:11px; color:var(--muted); margin-top:2px; }
-
   .toggle { width:44px; height:24px; border-radius:12px; background:var(--border); position:relative; cursor:pointer; transition:background 0.3s; flex-shrink:0; border:none; outline:none; }
   .toggle::after { content:''; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:var(--muted); transition:all 0.3s; }
   .toggle.on { background:var(--accent); }
   .toggle.on::after { left:23px; background:white; }
-
   .number-input { display:flex; align-items:center; gap:8px; }
   .num-btn { width:28px; height:28px; border-radius:6px; background:var(--border); border:none; color:var(--text); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
   .num-btn:hover { background:var(--accent); }
   .num-val { font-family:var(--mono); font-size:14px; min-width:32px; text-align:center; }
-
   .city-input { background:var(--border); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:8px 10px; font-family:var(--font); font-size:13px; width:100%; outline:none; transition:border 0.2s; }
   .city-input:focus { border-color:var(--accent); }
   .city-dropdown { display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; background:var(--surface); border:1px solid var(--accent); border-radius:8px; z-index:50; max-height:200px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
@@ -127,7 +125,7 @@
   body.rtl .location-badge { flex-direction:row-reverse; }
   body.rtl .setting-row { flex-direction:row-reverse; }
   body.rtl .setting-row.col { flex-direction:column; align-items:flex-start; }
-  @media(max-width:380px) { .timer-display{font-size:52px;} .phase-icon{font-size:44px;} }
+  @media(max-width:380px) { .timer-display{font-size:48px;} .phase-icon{font-size:44px;} }
 </style>
 </head>
 <body>
@@ -168,9 +166,9 @@
       <div class="timer-display" id="timer-display">10:00</div>
       <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
       <div class="timer-label" id="timer-label">temps restant au miklat</div>
+      <div class="alert-info" id="alert-info"></div>
     </div>
-    <!-- Bouton reset affiché après expiration du chrono -->
-    <button class="reset-btn" id="reset-btn" style="display:none;" onclick="resetToIdle()" id="t-reset-btn">↺ Retour au calme</button>
+    <button class="reset-btn" id="reset-btn" style="display:none;" onclick="resetToIdle()">↺ Retour au calme</button>
   </div>
 
   <div class="last-alert-card" id="last-alert-card" style="display:none;">
@@ -234,11 +232,10 @@
       <div class="setting-row">
         <div>
           <div class="setting-label" id="t-snd-label">Son d'alerte</div>
-          <div class="setting-desc" id="t-snd-desc">Bip d'alerte dans le navigateur</div>
+          <div class="setting-desc" id="t-snd-desc">Bip dans le navigateur</div>
         </div>
         <button class="toggle on" id="toggle-sound" onclick="toggleOption('sound')"></button>
       </div>
-
 
     </div>
   </div>
@@ -254,12 +251,16 @@
 </div>
 
 <script>
+// ═══════════════════════════════════════════════════════════════════════════════
+// ALERTMIKLAT — Logique principale
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ─── TRADUCTIONS ──────────────────────────────────────────────────────────────
 const T = {
   fr: {
     location:'Jérusalem Sud',
     notifMsg:'🔔 Activer les notifications pour les alertes en arrière-plan', notifBtn:'Activer',
-    settings:'Paramètres',
-    zoneLabel:'Zone surveillée', zoneDesc:'Tapez pour chercher une ville',
+    settings:'Paramètres', zoneLabel:'Zone surveillée', zoneDesc:'Tapez pour chercher une ville',
     durLabel:'Durée max au miklat', durDesc:'Filet de sécurité (minutes)',
     pollLabel:'Fréquence de vérification', pollDesc:'Toutes les N secondes',
     vibLabel:'Vibration', vibDesc:'Vibre lors des alertes',
@@ -270,11 +271,11 @@ const T = {
     online:'en ligne', offline:'erreur réseau', noProxy:'proxy non configuré',
     resetBtn:'↺ Retour au calme',
     phases:{
-      idle:        {title:'Calme',              msg:'Aucune alerte en cours'},
-      'pre-alert': {title:'Pré-alerte',         msg:'Préparez-vous — dirigez-vous vers le miklat'},
-      alert:       {title:'🚨 ALERTE 🚨',       msg:'Entrez MAINTENANT dans le miklat !'},
-      safe:        {title:'Vous pouvez sortir', msg:'La menace est passée — sortie autorisée'},
-      waiting:     {title:'En attente…',        msg:'Chrono terminé — attendez la confirmation tzevaadom'},
+      idle:        { title:'Calme',              msg:'Aucune alerte en cours',                     icon:'🕊️' },
+      'pre-alert': { title:'Pré-alerte',         msg:'Préparez-vous — dirigez-vous vers le miklat', icon:'⚠️' },
+      alert:       { title:'🚨 ALERTE 🚨',       msg:'Entrez MAINTENANT dans le miklat !',          icon:'🚨' },
+      safe:        { title:'Vous pouvez sortir', msg:'La menace est passée — sortie autorisée',     icon:'✅' },
+      waiting:     { title:'En attente…',        msg:'Chrono terminé — attendez la confirmation',   icon:'⏳' },
     },
     timerLabel:'temps restant au miklat', timerAlmost:'presque fini…',
     notifPre:   ['⚠️ Pré-alerte','Dirigez-vous vers le miklat'],
@@ -285,8 +286,7 @@ const T = {
   he: {
     location:'ירושלים דרום',
     notifMsg:'🔔 אפשר התראות לקבלת אזעקות ברקע', notifBtn:'אפשר',
-    settings:'הגדרות',
-    zoneLabel:'אזור מעקב', zoneDesc:'הקלד לחיפוש עיר',
+    settings:'הגדרות', zoneLabel:'אזור מעקב', zoneDesc:'הקלד לחיפוש עיר',
     durLabel:'זמן מקסימלי במקלט', durDesc:'רשת ביטחון (דקות)',
     pollLabel:'תדירות בדיקה', pollDesc:'כל N שניות',
     vibLabel:'רטט', vibDesc:'רוטט בזמן אזעקה',
@@ -297,11 +297,11 @@ const T = {
     online:'מחובר', offline:'שגיאת רשת', noProxy:'Proxy לא מוגדר',
     resetBtn:'↺ חזרה לשקט',
     phases:{
-      idle:        {title:'שקט',         msg:'אין התרעות כרגע'},
-      'pre-alert': {title:'טרום-אזעקה',  msg:'התכוננו — פנו למקלט'},
-      alert:       {title:'🚨 אזעקה 🚨', msg:'!היכנסו למקלט עכשיו'},
-      safe:        {title:'ניתן לצאת',   msg:'הסכנה חלפה — ניתן לצאת מהמקלט'},
-      waiting:     {title:'ממתין…',      msg:'הטיימר הסתיים — ממתין לאישור tzevaadom'},
+      idle:        { title:'שקט',         msg:'אין התרעות כרגע',                    icon:'🕊️' },
+      'pre-alert': { title:'טרום-אזעקה',  msg:'התכוננו — פנו למקלט',               icon:'⚠️' },
+      alert:       { title:'🚨 אזעקה 🚨', msg:'!היכנסו למקלט עכשיו',              icon:'🚨' },
+      safe:        { title:'ניתן לצאת',   msg:'הסכנה חלפה — ניתן לצאת מהמקלט',   icon:'✅' },
+      waiting:     { title:'ממתין…',      msg:'הטיימר הסתיים — ממתין לאישור',      icon:'⏳' },
     },
     timerLabel:'זמן שנותר במקלט', timerAlmost:'…כמעט גמרנו',
     notifPre:   ['⚠️ טרום-אזעקה','פנו למקלט'],
@@ -312,8 +312,7 @@ const T = {
   en: {
     location:'Jerusalem South',
     notifMsg:'🔔 Enable notifications for background alerts', notifBtn:'Enable',
-    settings:'Settings',
-    zoneLabel:'Monitored zone', zoneDesc:'Type to search a city',
+    settings:'Settings', zoneLabel:'Monitored zone', zoneDesc:'Type to search a city',
     durLabel:'Max shelter duration', durDesc:'Safety fallback (minutes)',
     pollLabel:'Check frequency', pollDesc:'Every N seconds',
     vibLabel:'Vibration', vibDesc:'Vibrate on alerts',
@@ -324,11 +323,11 @@ const T = {
     online:'online', offline:'network error', noProxy:'proxy not set',
     resetBtn:'↺ Reset to calm',
     phases:{
-      idle:        {title:'All clear',     msg:'No active alerts'},
-      'pre-alert': {title:'Pre-alert',     msg:'Get ready — head to the shelter'},
-      alert:       {title:'🚨 ALERT 🚨',  msg:'Enter the shelter NOW!'},
-      safe:        {title:'You may exit',  msg:'Threat has passed — you may leave the shelter'},
-      waiting:     {title:'Waiting…',      msg:'Timer ended — waiting for tzevaadom confirmation'},
+      idle:        { title:'All clear',     msg:'No active alerts',                         icon:'🕊️' },
+      'pre-alert': { title:'Pre-alert',     msg:'Get ready — head to the shelter',          icon:'⚠️' },
+      alert:       { title:'🚨 ALERT 🚨',  msg:'Enter the shelter NOW!',                   icon:'🚨' },
+      safe:        { title:'You may exit',  msg:'Threat has passed — you may leave',        icon:'✅' },
+      waiting:     { title:'Waiting…',      msg:'Timer ended — waiting for confirmation',   icon:'⏳' },
     },
     timerLabel:'time remaining in shelter', timerAlmost:'almost done…',
     notifPre:   ['⚠️ Pre-alert','Head to the shelter'],
@@ -338,76 +337,419 @@ const T = {
   }
 };
 
+// ─── VILLES ───────────────────────────────────────────────────────────────────
 const CITIES = [
-  {fr:'⚡ Toutes les villes', he:'⚡ כל הערים', en:'⚡ All cities', keys:'__ALL__'},
-  {fr:'Tel Aviv',he:'תל אביב',en:'Tel Aviv',keys:'תל אביב,Tel Aviv'},
-  {fr:'Jérusalem',he:'ירושלים',en:'Jerusalem',keys:'ירושלים,Jerusalem'},
-  {fr:'Jérusalem Sud',he:'ירושלים דרום',en:'Jerusalem South',keys:'ירושלים - דרום,גוש עציון'},
-  {fr:'Jérusalem Centre',he:'ירושלים מרכז',en:'Jerusalem Center',keys:'ירושלים - מרכז'},
-  {fr:'Jérusalem Est',he:'ירושלים מזרח',en:'Jerusalem East',keys:'ירושלים - מזרח'},
-  {fr:'Jérusalem Ouest',he:'ירושלים מערב',en:'Jerusalem West',keys:'ירושלים - מערב'},
-  {fr:'Jérusalem (toute)',he:'ירושלים כולה',en:'Jerusalem (all)',keys:'ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון'},
-  {fr:'Jérusalem Nord',he:'ירושלים צפון',en:'Jerusalem North',keys:'ירושלים - צפון'},
-  {fr:'Haïfa',he:'חיפה',en:'Haifa',keys:'חיפה,Haifa'},
-  {fr:'Beer Sheva',he:'באר שבע',en:'Beer Sheva',keys:'באר שבע,Beer Sheva'},
-  {fr:'Ashdod',he:'אשדוד',en:'Ashdod',keys:'אשדוד,Ashdod'},
-  {fr:'Ashkelon',he:'אשקלון',en:'Ashkelon',keys:'אשקלון,Ashkelon'},
-  {fr:'Netanya',he:'נתניה',en:'Netanya',keys:'נתניה,Netanya'},
-  {fr:'Rishon LeZion',he:'ראשון לציון',en:'Rishon LeZion',keys:'ראשון לציון,Rishon LeZion'},
-  {fr:'Petah Tikva',he:'פתח תקווה',en:'Petah Tikva',keys:'פתח תקווה,Petah Tikva'},
-  {fr:'Rehovot',he:'רחובות',en:'Rehovot',keys:'רחובות,Rehovot'},
-  {fr:'Bat Yam',he:'בת ים',en:'Bat Yam',keys:'בת ים,Bat Yam'},
-  {fr:'Holon',he:'חולון',en:'Holon',keys:'חולון,Holon'},
-  {fr:'Herzliya',he:'הרצליה',en:'Herzliya',keys:'הרצליה,Herzliya'},
-  {fr:'Raanana',he:'רעננה',en:"Ra'anana",keys:"רעננה,Raanana"},
-  {fr:'Modiin',he:'מודיעין',en:'Modiin',keys:'מודיעין,Modiin'},
-  {fr:'Eilat',he:'אילת',en:'Eilat',keys:'אילת,Eilat'},
-  {fr:'Tibériade',he:'טבריה',en:'Tiberias',keys:'טבריה,Tiberias'},
-  {fr:'Nazareth',he:'נצרת',en:'Nazareth',keys:'נצרת,Nazareth'},
-  {fr:'Sdérot',he:'שדרות',en:'Sderot',keys:'שדרות,Sderot'},
-  {fr:'Kiryat Shmona',he:'קריית שמונה',en:'Kiryat Shmona',keys:'קריית שמונה,Kiryat Shmona'},
-  {fr:'Nahariya',he:'נהריה',en:'Nahariya',keys:'נהריה,Nahariya'},
-  {fr:'Akko',he:'עכו',en:'Akko',keys:'עכו,Akko'},
-  {fr:'Ramla',he:'רמלה',en:'Ramla',keys:'רמלה,Ramla'},
-  {fr:'Lod',he:'לוד',en:'Lod',keys:'לוד,Lod'},
-  {fr:'Kfar Saba',he:'כפר סבא',en:'Kfar Saba',keys:'כפר סבא,Kfar Saba'},
-  {fr:'Gush Etzion',he:'גוש עציון',en:'Gush Etzion',keys:'גוש עציון,Gush Etzion'},
-  {fr:'Gaza (env.)',he:'עוטף עזה',en:'Gaza Envelope',keys:'עוטף עזה,Gaza Envelope'},
-  {fr:'Vallée de Hula',he:'עמק החולה',en:'Hula Valley',keys:'עמק החולה,Hula Valley'},
+  { fr:'⚡ Toutes les villes', he:'⚡ כל הערים',       en:'⚡ All cities',       keys:'__ALL__' },
+  { fr:'Jérusalem Sud',        he:'ירושלים דרום',      en:'Jerusalem South',     keys:'ירושלים - דרום,גוש עציון' },
+  { fr:'Jérusalem Centre',     he:'ירושלים מרכז',      en:'Jerusalem Center',    keys:'ירושלים - מרכז' },
+  { fr:'Jérusalem Est',        he:'ירושלים מזרח',      en:'Jerusalem East',      keys:'ירושלים - מזרח' },
+  { fr:'Jérusalem Ouest',      he:'ירושלים מערב',      en:'Jerusalem West',      keys:'ירושלים - מערב' },
+  { fr:'Jérusalem Nord',       he:'ירושלים צפון',      en:'Jerusalem North',     keys:'ירושלים - צפון' },
+  { fr:'Jérusalem (toute)',    he:'ירושלים כולה',      en:'Jerusalem (all)',     keys:'ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון' },
+  { fr:'Tel Aviv',             he:'תל אביב',           en:'Tel Aviv',            keys:'תל אביב' },
+  { fr:'Haïfa',                he:'חיפה',              en:'Haifa',               keys:'חיפה' },
+  { fr:'Beer Sheva',           he:'באר שבע',           en:'Beer Sheva',          keys:'באר שבע' },
+  { fr:'Ashdod',               he:'אשדוד',             en:'Ashdod',              keys:'אשדוד' },
+  { fr:'Ashkelon',             he:'אשקלון',            en:'Ashkelon',            keys:'אשקלון' },
+  { fr:'Netanya',              he:'נתניה',             en:'Netanya',             keys:'נתניה' },
+  { fr:'Rishon LeZion',        he:'ראשון לציון',       en:'Rishon LeZion',       keys:'ראשון לציון' },
+  { fr:'Petah Tikva',          he:'פתח תקווה',         en:'Petah Tikva',         keys:'פתח תקווה' },
+  { fr:'Modiin',               he:'מודיעין',           en:'Modiin',              keys:'מודיעין' },
+  { fr:'Herzliya',             he:'הרצליה',            en:'Herzliya',            keys:'הרצליה' },
+  { fr:'Raanana',              he:'רעננה',             en:"Ra'anana",            keys:'רעננה' },
+  { fr:'Rehovot',              he:'רחובות',            en:'Rehovot',             keys:'רחובות' },
+  { fr:'Eilat',                he:'אילת',              en:'Eilat',               keys:'אילת' },
+  { fr:'Tibériade',            he:'טבריה',             en:'Tiberias',            keys:'טבריה' },
+  { fr:'Kiryat Shmona',        he:'קריית שמונה',       en:'Kiryat Shmona',       keys:'קריית שמונה' },
+  { fr:'Nahariya',             he:'נהריה',             en:'Nahariya',            keys:'נהריה' },
+  { fr:'Sdérot',               he:'שדרות',             en:'Sderot',              keys:'שדרות' },
+  { fr:'Gush Etzion',          he:'גוש עציון',         en:'Gush Etzion',         keys:'גוש עציון' },
+  { fr:'Gaza (env.)',          he:'עוטף עזה',          en:'Gaza Envelope',       keys:'עוטף עזה' },
+  { fr:'Nord (général)',       he:'הצפון',             en:'The North',           keys:'מטולה,קריית שמונה,נהריה' },
 ];
 
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+const PROXY_URL = 'https://miklat-alert.gregyman.workers.dev/';
+
 const CONFIG = {
-  proxyUrl: localStorage.getItem('proxyUrl') || 'https://miklat-alert.gregyman.workers.dev/',
-  zones: localStorage.getItem('zones') || 'ירושלים - דרום,גוש עציון',
-  durationSec: parseInt(localStorage.getItem('durationSec') || '600'),
-  pollIntervalSec: parseInt(localStorage.getItem('pollIntervalSec') || '15'),
-  vibration: localStorage.getItem('vibration') !== 'false',
-  sound: localStorage.getItem('sound') !== 'false',
-  lang: localStorage.getItem('lang') || 'fr',
+  zones:          localStorage.getItem('zones')          || 'ירושלים - דרום,גוש עציון',
+  durationSec:    parseInt(localStorage.getItem('durationSec')    || '600'),
+  pollIntervalSec:parseInt(localStorage.getItem('pollIntervalSec')|| '15'),
+  vibration:      localStorage.getItem('vibration') !== 'false',
+  sound:          localStorage.getItem('sound')     !== 'false',
+  lang:           localStorage.getItem('lang')           || 'fr',
 };
 
-let state = 'idle';
-let timerInterval = null;
-let pollInterval = null;
-let timerRemaining = 0;
-let nextPollIn = 0;
-let audioCtx = null;
-let currentLang = CONFIG.lang;
-let faviconFlash = null;
+// ─── ÉTAT ─────────────────────────────────────────────────────────────────────
+// États possibles: 'idle' | 'pre-alert' | 'alert' | 'safe' | 'waiting'
+let currentState    = 'idle';
+let currentLang     = CONFIG.lang;
+let timerInterval   = null;
+let pollInterval    = null;
+let pollCountdown   = 0;
+let audioCtx        = null;
+let faviconFlash    = null;
+let isTestMode      = false;  // true quand les tests sont ouverts et actifs
 
-// ─── FAVICON ──────────────────────────────────────────────────────────────────
-function setFavicon(phase) {
+// ─── PRIORITÉ DES ÉTATS ───────────────────────────────────────────────────────
+// Ordre croissant de priorité — on ne peut que monter, sauf via 'safe' ou reset
+const STATE_PRIORITY = { idle:0, 'pre-alert':1, alert:2, waiting:2, safe:3 };
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LOGIQUE PRINCIPALE : lecture API et reconstruction de l'état
+// ═══════════════════════════════════════════════════════════════════════════════
+
+async function fetchAndSync() {
+  if (isTestMode) return;  // ne pas écraser un test en cours
+
+  const dot = document.getElementById('status-dot');
+  const txt = document.getElementById('header-status-txt');
+
+  try {
+    const res = await fetch(PROXY_URL, { cache:'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    dot.className = 'status-dot';
+    txt.textContent = T[currentLang].online;
+    computeStateFromHistory(data);
+  } catch(e) {
+    dot.className = 'status-dot offline';
+    txt.textContent = T[currentLang].offline;
+    console.warn('[AlertMiklat] Fetch error:', e);
+  }
+}
+
+function computeStateFromHistory(data) {
+  // data = { recent: [{time, cities, threat, groupId}], now }
+  const recent  = data.recent  || [];
+  const nowSec  = data.now     || Math.floor(Date.now() / 1000);
+  const zones   = parseZones();
+
+  // Trouver le groupe le plus récent qui concerne notre zone
+  // Un "groupe" = toutes les alertes du même groupId (même vague)
+  // On groupe par groupId et on prend le plus récent
+  const byGroup = {};
+  for (const a of recent) {
+    const gid = a.groupId;
+    if (!byGroup[gid]) byGroup[gid] = { groupId:gid, alerts:[], minTime: Infinity };
+    byGroup[gid].alerts.push(a);
+    if (a.time < byGroup[gid].minTime) byGroup[gid].minTime = a.time;
+  }
+
+  // Parmi les groupes, trouver celui qui nous concerne (zone match)
+  // et qui est le plus récent
+  let bestGroup = null;
+  for (const gid of Object.keys(byGroup)) {
+    const g = byGroup[gid];
+    const matches = g.alerts.some(a => zoneMatches(a.cities, zones));
+    if (matches) {
+      if (!bestGroup || g.minTime > bestGroup.minTime) bestGroup = g;
+    }
+  }
+
+  if (!bestGroup) {
+    // Pas d'alerte récente pour notre zone → calme
+    // Mais seulement si on n'est pas déjà dans un état actif non terminé
+    if (currentState === 'idle' || currentState === 'pre-alert') {
+      applyState('idle', null, nowSec);
+    }
+    return;
+  }
+
+  // Trouver l'alerte la plus récente du groupe pour notre zone
+  const relevantAlerts = bestGroup.alerts
+    .filter(a => zoneMatches(a.cities, zones))
+    .sort((a,b) => b.time - a.time);
+
+  const latestAlert = relevantAlerts[0];
+  const alertTimeSec = latestAlert.time;
+  const ageSeconds = nowSec - alertTimeSec;
+
+  // Déterminer le type d'événement
+  // Dans alerts-history, on n'a pas de catégorie explicite pre/end
+  // On se base sur: si l'alerte est très récente (< 90s) → alerte active
+  // Si elle est plus ancienne mais dans la fenêtre (< durationSec) → toujours en alerte
+  // Si elle dépasse durationSec → on attend confirmation
+
+  // NOTE: le Worker retourne uniquement les alertes des 60 dernières secondes
+  // donc si on voit quelque chose, c'est forcément une alerte active récente
+
+  const matchedCity = relevantAlerts[0].cities.find(c => {
+    if (zones === '__ALL__') return true;
+    return zones.some(z => c.includes(z));
+  }) || relevantAlerts[0].cities[0] || '?';
+
+  // Temps restant au miklat
+  const elapsed  = ageSeconds;
+  const remaining = CONFIG.durationSec - elapsed;
+
+  if (remaining > 0) {
+    // Alerte active, chrono en cours
+    if (currentState !== 'alert') {
+      showLastAlert(matchedCity, alertTimeSec);
+      buzz('alert');
+      notify(...T[currentLang].notifAlert);
+    }
+    applyState('alert', { remaining, matchedCity, alertTimeSec }, nowSec);
+  } else {
+    // Chrono dépassé — état waiting, attendre confirmation de sortie
+    if (currentState === 'alert') {
+      applyState('waiting', null, nowSec);
+    }
+  }
+}
+
+function parseZones() {
+  if (CONFIG.zones === '__ALL__') return '__ALL__';
+  return CONFIG.zones.split(',').map(z => z.trim()).filter(Boolean);
+}
+
+function zoneMatches(cities, zones) {
+  if (zones === '__ALL__') return cities && cities.length > 0;
+  return cities && cities.some(c => zones.some(z => c.includes(z)));
+}
+
+// ─── APPLICATION D'UN ÉTAT ────────────────────────────────────────────────────
+function applyState(newState, params, nowSec) {
+  // Ne pas rétrograder un état plus grave (sauf vers 'idle' ou 'safe')
+  const currentPrio = STATE_PRIORITY[currentState] || 0;
+  const newPrio     = STATE_PRIORITY[newState]     || 0;
+
+  if (newState !== 'idle' && newState !== 'safe' && newPrio < currentPrio) return;
+
+  // Pas de changement → juste mettre à jour le chrono si alert
+  if (newState === currentState && newState === 'alert' && params) {
+    updateTimer(params.remaining);
+    return;
+  }
+
+  currentState = newState;
+  clearInterval(timerInterval);
+
+  const card      = document.getElementById('phase-card');
+  const timerBox  = document.getElementById('timer-container');
+  const overlay   = document.getElementById('alert-overlay');
+  const resetBtn  = document.getElementById('reset-btn');
+
+  card.className = 'phase-card';
+  overlay.classList.remove('show');
+  resetBtn.style.display = 'none';
+  timerBox.style.display = 'none';
+  document.getElementById('alert-info').textContent = '';
+
+  const p = T[currentLang].phases[newState] || T[currentLang].phases.idle;
+  document.getElementById('phase-title').textContent = p.title;
+  document.getElementById('phase-icon').textContent  = p.icon;
+  const msgEl = document.getElementById('phase-msg');
+  msgEl.textContent = p.msg;
+  msgEl.setAttribute('dir', T[currentLang].dir);
+
+  setFavicon(newState);
+
+  switch(newState) {
+    case 'idle':
+      card.classList.add('idle');
+      document.getElementById('status-dot').className = 'status-dot';
+      break;
+
+    case 'pre-alert':
+      card.classList.add('pre-alert');
+      buzz('pre');
+      notify(...T[currentLang].notifPre);
+      break;
+
+    case 'alert':
+      card.classList.add('alert-active');
+      timerBox.style.display = 'flex';
+      overlay.classList.add('show');
+      document.getElementById('status-dot').className = 'status-dot alerting';
+      // Affiche depuis combien de temps l'alerte a été émise
+      if (params && params.alertTimeSec && nowSec) {
+        const ago = Math.round(nowSec - params.alertTimeSec);
+        if (ago > 5) {
+          document.getElementById('alert-info').textContent =
+            `⏱ alerte émise il y a ${ago}s`;
+        }
+      }
+      startTimer(params ? params.remaining : CONFIG.durationSec);
+      break;
+
+    case 'safe':
+      card.classList.add('safe');
+      document.getElementById('status-dot').className = 'status-dot';
+      buzz('safe');
+      notify(...T[currentLang].notifSafe);
+      // Retour auto au calme après 30s
+      setTimeout(() => {
+        if (currentState === 'safe' && !isTestMode) applyState('idle', null, null);
+      }, 30000);
+      break;
+
+    case 'waiting':
+      card.classList.add('waiting');
+      document.getElementById('status-dot').className = 'status-dot';
+      resetBtn.style.display = 'block';
+      resetBtn.textContent = T[currentLang].resetBtn;
+      break;
+  }
+}
+
+// ─── CHRONO ───────────────────────────────────────────────────────────────────
+let timerRemaining = 0;
+
+function startTimer(remainingSec) {
+  timerRemaining = Math.max(0, Math.round(remainingSec));
+  renderTimer();
+  timerInterval = setInterval(() => {
+    if (timerRemaining <= 0) {
+      clearInterval(timerInterval);
+      renderTimerDone();
+      if (!isTestMode) {
+        setTimeout(() => {
+          if (currentState === 'alert') applyState('waiting', null, null);
+        }, 800);
+      }
+      return;
+    }
+    timerRemaining--;
+    renderTimer();
+  }, 1000);
+}
+
+function updateTimer(remainingSec) {
+  // Resync le chrono si l'API donne un temps différent de > 5s
+  const newRemaining = Math.max(0, Math.round(remainingSec));
+  if (Math.abs(newRemaining - timerRemaining) > 5) {
+    timerRemaining = newRemaining;
+    renderTimer();
+  }
+}
+
+function renderTimer() {
+  const m = Math.floor(timerRemaining / 60);
+  const s = timerRemaining % 60;
+  const display = document.getElementById('timer-display');
+  const fill    = document.getElementById('progress-fill');
+  const label   = document.getElementById('timer-label');
+  display.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  const pct = ((CONFIG.durationSec - timerRemaining) / CONFIG.durationSec * 100);
+  fill.style.width = Math.min(100, pct) + '%';
+  fill.style.background = 'linear-gradient(90deg,var(--red),var(--orange))';
+  display.className = timerRemaining <= 60 ? 'timer-display warning' : 'timer-display';
+  label.textContent = timerRemaining <= 60 ? T[currentLang].timerAlmost : T[currentLang].timerLabel;
+}
+
+function renderTimerDone() {
+  const display = document.getElementById('timer-display');
+  const fill    = document.getElementById('progress-fill');
+  display.textContent = '00:00';
+  display.className   = 'timer-display safe-color';
+  fill.style.width    = '100%';
+  fill.style.background = 'var(--green)';
+  fill.className = 'progress-fill done';
+}
+
+// ─── LAST ALERT ───────────────────────────────────────────────────────────────
+function showLastAlert(city, timeSec) {
+  const card = document.getElementById('last-alert-card');
+  card.style.display = 'block';
+  document.getElementById('last-alert-content').textContent = '📍 ' + city;
+  const d = timeSec ? new Date(timeSec * 1000) : new Date();
+  document.getElementById('last-alert-time').textContent = d.toLocaleTimeString();
+}
+
+// ─── RESET ────────────────────────────────────────────────────────────────────
+function resetToIdle() {
+  isTestMode = false;
+  applyState('idle', null, null);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// POLLING
+// ═══════════════════════════════════════════════════════════════════════════════
+function startPolling() {
+  pollCountdown = 0;
+  fetchAndSync();
+  pollInterval = setInterval(() => {
+    pollCountdown--;
+    if (pollCountdown <= 0) {
+      pollCountdown = CONFIG.pollIntervalSec;
+      fetchAndSync();
+    }
+    document.getElementById('next-poll-txt').textContent = '↻ ' + Math.max(0, pollCountdown) + 's';
+  }, 1000);
+}
+
+function restartPolling() {
+  clearInterval(pollInterval);
+  startPolling();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LANGUE
+// ═══════════════════════════════════════════════════════════════════════════════
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('lang', lang);
+  const t = T[lang];
+  document.documentElement.lang = lang;
+  document.body.classList.toggle('rtl', lang === 'he');
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+
+  const ids = {
+    't-notif-msg':t.notifMsg, 't-notif-btn':t.notifBtn,
+    't-settings':t.settings, 't-zone-label':t.zoneLabel, 't-zone-desc':t.zoneDesc,
+    't-dur-label':t.durLabel, 't-dur-desc':t.durDesc,
+    't-poll-label':t.pollLabel, 't-poll-desc':t.pollDesc,
+    't-vib-label':t.vibLabel, 't-vib-desc':t.vibDesc,
+    't-snd-label':t.sndLabel, 't-snd-desc':t.sndDesc,
+    't-last-alert-title':t.lastAlert,
+    't-btn-pre':t.btnPre, 't-btn-alert':t.btnAlert, 't-btn-safe':t.btnSafe,
+    'timer-label':t.timerLabel, 'reset-btn':t.resetBtn,
+  };
+  for (const [id, val] of Object.entries(ids)) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  }
+
+  const isTestVisible = document.getElementById('test-row').style.display !== 'none';
+  document.getElementById('t-test-btn').textContent = isTestVisible ? t.testHide : t.testBtn;
+
+  const cityMatch = CITIES.find(c => c.keys === CONFIG.zones);
+  const locLabel  = cityMatch ? (cityMatch[lang] || cityMatch.fr) : t.location;
+  document.getElementById('t-location').textContent = locLabel;
+  const searchEl = document.getElementById('zone-search');
+  if (searchEl && cityMatch) searchEl.value = cityMatch[lang] || cityMatch.fr;
+
+  // Re-render phase text dans la nouvelle langue
+  const p = T[lang].phases[currentState] || T[lang].phases.idle;
+  document.getElementById('phase-title').textContent = p.title;
+  document.getElementById('phase-icon').textContent  = p.icon;
+  const msgEl = document.getElementById('phase-msg');
+  if (msgEl) { msgEl.textContent = p.msg; msgEl.setAttribute('dir', t.dir); }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FAVICON DYNAMIQUE
+// ═══════════════════════════════════════════════════════════════════════════════
+function setFavicon(state) {
   clearInterval(faviconFlash);
   const link = document.getElementById('favicon-link');
-  if (phase === 'alert') {
-    let toggle = true;
+  const map  = {
+    idle:       ['#22d07a','✓'],
+    'pre-alert':['#f7c84f','!'],
+    safe:       ['#22d07a','✓'],
+    waiting:    ['#6b6b8a','?'],
+  };
+  if (state === 'alert') {
+    let tog = true;
     faviconFlash = setInterval(() => {
-      link.href = makeFavicon(toggle ? '#f74f4f' : '#0a0a0f', '!');
-      toggle = !toggle;
+      link.href = makeFavicon(tog ? '#f74f4f' : '#1a0000', '!');
+      tog = !tog;
     }, 600);
   } else {
-    const map = {idle:'#22d07a,✓','pre-alert':'#f7c84f,!',safe:'#22d07a,✓',waiting:'#6b6b8a,?'};
-    const [bg,sym] = (map[phase]||map.idle).split(',');
+    const [bg, sym] = map[state] || map.idle;
     link.href = makeFavicon(bg, sym);
   }
 }
@@ -417,259 +759,27 @@ function makeFavicon(bg, sym) {
   );
 }
 
-// ─── LANG ─────────────────────────────────────────────────────────────────────
-function setLang(lang) {
-  currentLang = lang;
-  localStorage.setItem('lang', lang);
-  const t = T[lang];
-  document.documentElement.lang = lang;
-  document.body.classList.toggle('rtl', lang === 'he');
-  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
-  document.getElementById('t-notif-msg').textContent = t.notifMsg;
-  document.getElementById('t-notif-btn').textContent = t.notifBtn;
-  document.getElementById('t-settings').textContent = t.settings;
-  document.getElementById('t-zone-label').textContent = t.zoneLabel;
-  document.getElementById('t-zone-desc').textContent = t.zoneDesc;
-  document.getElementById('t-dur-label').textContent = t.durLabel;
-  document.getElementById('t-dur-desc').textContent = t.durDesc;
-  document.getElementById('t-poll-label').textContent = t.pollLabel;
-  document.getElementById('t-poll-desc').textContent = t.pollDesc;
-  document.getElementById('t-vib-label').textContent = t.vibLabel;
-  document.getElementById('t-vib-desc').textContent = t.vibDesc;
-  document.getElementById('t-snd-label').textContent = t.sndLabel;
-  document.getElementById('t-snd-desc').textContent = t.sndDesc;
-  document.getElementById('t-last-alert-title').textContent = t.lastAlert;
-  document.getElementById('t-btn-pre').textContent = t.btnPre;
-  document.getElementById('t-btn-alert').textContent = t.btnAlert;
-  document.getElementById('t-btn-safe').textContent = t.btnSafe;
-  document.getElementById('timer-label').textContent = t.timerLabel;
-  document.getElementById('reset-btn').textContent = t.resetBtn;
-  const isTestVisible = document.getElementById('test-row').style.display !== 'none';
-  document.getElementById('t-test-btn').textContent = isTestVisible ? t.testHide : t.testBtn;
-  const cityMatch = CITIES.find(c => c.keys === CONFIG.zones);
-  if (cityMatch) {
-    document.getElementById('zone-search').value = cityMatch[lang] || cityMatch.fr;
-    document.getElementById('t-location').textContent = cityMatch[lang] || cityMatch.fr;
-  } else {
-    document.getElementById('t-location').textContent = t.location;
-  }
-  applyPhaseText(state);
+// ═══════════════════════════════════════════════════════════════════════════════
+// AUDIO / VIBRATION
+// ═══════════════════════════════════════════════════════════════════════════════
+function getAudioCtx() {
+  if (!audioCtx) audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
 }
-
-function applyPhaseText(phase) {
-  const p = T[currentLang].phases[phase] || T[currentLang].phases.idle;
-  document.getElementById('phase-title').textContent = p.title;
-  const msgEl = document.getElementById('phase-msg');
-  msgEl.textContent = p.msg;
-  msgEl.setAttribute('dir', T[currentLang].dir);
-}
-
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-window.addEventListener('load', () => {
-  document.getElementById('duration-val').textContent = CONFIG.durationSec / 60;
-  document.getElementById('poll-val').textContent = CONFIG.pollIntervalSec + 's';
-  setToggleUI('toggle-vibration', CONFIG.vibration);
-  setToggleUI('toggle-sound', CONFIG.sound);
-  const cityMatch = CITIES.find(c => c.keys === CONFIG.zones);
-  if (cityMatch) {
-    document.getElementById('zone-search').value = cityMatch[currentLang] || cityMatch.fr;
-    document.getElementById('zone-current-display').textContent = '📍 ' + CONFIG.zones;
-  }
-  setLang(currentLang);
-  setFavicon('idle');
-  checkNotifPermission();
-  startPolling();
-  setInterval(() => {
-    nextPollIn = Math.max(0, nextPollIn - 1);
-    document.getElementById('next-poll-txt').textContent = '↻ ' + nextPollIn + 's';
-  }, 1000);
-});
-
-// ─── SETTINGS ─────────────────────────────────────────────────────────────────
-function toggleSettings() {
-  document.getElementById('settings-body').classList.toggle('open');
-  document.getElementById('chevron').classList.toggle('open');
-}
-function adjustDuration(d) {
-  CONFIG.durationSec = Math.max(60, Math.min(1800, CONFIG.durationSec + d * 60));
-  localStorage.setItem('durationSec', CONFIG.durationSec);
-  document.getElementById('duration-val').textContent = CONFIG.durationSec / 60;
-}
-function adjustPoll(d) {
-  CONFIG.pollIntervalSec = Math.max(5, Math.min(120, CONFIG.pollIntervalSec + d));
-  localStorage.setItem('pollIntervalSec', CONFIG.pollIntervalSec);
-  document.getElementById('poll-val').textContent = CONFIG.pollIntervalSec + 's';
-  restartPolling();
-}
-function toggleOption(key) { CONFIG[key] = !CONFIG[key]; localStorage.setItem(key, CONFIG[key]); setToggleUI('toggle-' + key, CONFIG[key]); }
-function setToggleUI(id, val) { document.getElementById(id).classList.toggle('on', val); }
-
-// ─── CITY AUTOCOMPLETE ────────────────────────────────────────────────────────
-function filterCities(val) {
-  const q = val.trim().toLowerCase();
-  const dd = document.getElementById('city-dropdown');
-  if (!q) { dd.style.display = 'none'; return; }
-  const matches = CITIES.filter(c => c.fr.toLowerCase().includes(q) || c.he.includes(q) || c.en.toLowerCase().includes(q) || c.keys.toLowerCase().includes(q));
-  if (!matches.length) { dd.style.display = 'none'; return; }
-  dd.innerHTML = matches.map(c => `<div class="city-option" onmousedown="selectCity(event)" data-keys="${c.keys}" data-fr="${c.fr}" data-he="${c.he}" data-en="${c.en}"><span style="font-weight:600;">${c[currentLang]||c.fr}</span><span style="font-size:11px;color:var(--muted);direction:rtl;">${c.he}</span></div>`).join('');
-  dd.style.display = 'block';
-}
-function selectCity(e) {
-  e.preventDefault();
-  const opt = e.currentTarget;
-  CONFIG.zones = opt.dataset.keys; localStorage.setItem('zones', CONFIG.zones);
-  T.fr.location = opt.dataset.fr; T.he.location = opt.dataset.he; T.en.location = opt.dataset.en;
-  document.getElementById('t-location').textContent = opt.dataset[currentLang] || opt.dataset.fr;
-  document.getElementById('zone-search').value = opt.dataset[currentLang] || opt.dataset.fr;
-  document.getElementById('zone-current-display').textContent = '📍 ' + CONFIG.zones;
-  document.getElementById('city-dropdown').style.display = 'none';
-}
-function showCityDropdown() { filterCities(document.getElementById('zone-search').value); }
-function hideCityDropdown() { setTimeout(() => { document.getElementById('city-dropdown').style.display = 'none'; }, 200); }
-
-// ─── POLLING ──────────────────────────────────────────────────────────────────
-function startPolling() { fetchAlerts(); pollInterval = setInterval(fetchAlerts, CONFIG.pollIntervalSec * 1000); }
-function restartPolling() { clearInterval(pollInterval); startPolling(); }
-
-async function fetchAlerts() {
-  nextPollIn = CONFIG.pollIntervalSec;
-  const dot = document.getElementById('status-dot');
-  const txt = document.getElementById('header-status-txt');
-  if (!CONFIG.proxyUrl) { dot.className = 'status-dot offline'; txt.textContent = T[currentLang].noProxy; return; }
-  try {
-    const res = await fetch(CONFIG.proxyUrl, { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    dot.className = 'status-dot';
-    txt.textContent = T[currentLang].online;
-    processAlerts(data);
-  } catch(e) {
-    dot.className = 'status-dot offline';
-    txt.textContent = T[currentLang].offline;
-  }
-}
-
-// ─── ALERT PROCESSING ─────────────────────────────────────────────────────────
-function processAlerts(data) {
-  const allCities = CONFIG.zones === '__ALL__';
-  const zones = allCities ? [] : CONFIG.zones.split(',').map(z => z.trim().toLowerCase());
-
-  // Nouvelle structure: { recent: [{time, cities:[], threat, groupId}] }
-  const recent = data?.recent || [];
-
-  let hasAlert = false;
-  let matchedZone = null;
-
-  for (const alert of recent) {
-    const cities = alert.cities || [];
-    const matched = allCities
-      ? cities.length > 0
-      : cities.some(c => zones.some(z => c.toLowerCase().includes(z)));
-    if (matched) {
-      hasAlert = true;
-      matchedZone = cities[0] || '?';
-      break;
-    }
-  }
-
-  if (hasAlert && state !== 'alert' && state !== 'waiting') {
-    showLastAlert(matchedZone);
-    setPhase('alert');
-  } else if (!hasAlert && state === 'pre-alert') {
-    setPhase('idle');
-  }
-}
-
-
-// ─── PHASE ────────────────────────────────────────────────────────────────────
-function setPhase(phase) {
-  state = phase;
-  const t = T[currentLang];
-  const card = document.getElementById('phase-card');
-  const timerBox = document.getElementById('timer-container');
-  const overlay = document.getElementById('alert-overlay');
-  const resetBtn = document.getElementById('reset-btn');
-  card.className = 'phase-card';
-  overlay.classList.remove('show');
-  clearInterval(timerInterval);
-  resetBtn.style.display = 'none';
-  applyPhaseText(phase);
-  setFavicon(phase);
-  document.getElementById('phase-icon').textContent = {idle:'🕊️','pre-alert':'⚠️',alert:'🚨',safe:'✅',waiting:'⏳'}[phase] || '🕊️';
-
-  if (phase === 'idle') {
-    card.classList.add('idle'); timerBox.style.display = 'none';
-    document.getElementById('status-dot').className = 'status-dot';
-  } else if (phase === 'pre-alert') {
-    card.classList.add('pre-alert'); timerBox.style.display = 'none';
-    buzz('pre'); notify(...t.notifPre);
-  } else if (phase === 'alert') {
-    card.classList.add('alert-active'); timerBox.style.display = 'flex';
-    overlay.classList.add('show');
-    document.getElementById('status-dot').className = 'status-dot alert';
-    buzz('alert'); notify(...t.notifAlert); startTimer();
-  } else if (phase === 'safe') {
-    card.classList.add('safe'); timerBox.style.display = 'none';
-    document.getElementById('status-dot').className = 'status-dot';
-    buzz('safe'); notify(...t.notifSafe);
-    // Reset auto vers idle après 30s
-    setTimeout(() => { if (state === 'safe') resetToIdle(); }, 30000);
-  } else if (phase === 'waiting') {
-    card.classList.add('waiting'); timerBox.style.display = 'none';
-    document.getElementById('status-dot').className = 'status-dot';
-    resetBtn.style.display = 'block';
-    resetBtn.textContent = t.resetBtn;
-  }
-}
-
-function resetToIdle() { setPhase('idle'); }
-
-function startTimer() {
-  timerRemaining = CONFIG.durationSec;
-  const display = document.getElementById('timer-display');
-  const fill = document.getElementById('progress-fill');
-  const label = document.getElementById('timer-label');
-  fill.className = 'progress-fill';
-  fill.style.background = 'linear-gradient(90deg,var(--red),var(--orange))';
-  function tick() {
-    const m = Math.floor(timerRemaining / 60), s = timerRemaining % 60;
-    display.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-    fill.style.width = ((CONFIG.durationSec - timerRemaining) / CONFIG.durationSec * 100) + '%';
-    const t = T[currentLang];
-    display.className = timerRemaining <= 60 ? 'timer-display warning' : 'timer-display';
-    label.textContent = timerRemaining <= 60 ? t.timerAlmost : t.timerLabel;
-    if (timerRemaining <= 0) {
-      clearInterval(timerInterval);
-      fill.className = 'progress-fill done'; fill.style.width = '100%'; fill.style.background = 'var(--green)';
-      display.className = 'timer-display safe-color'; display.textContent = '00:00';
-      // Chrono fini → on attend la confirmation tzevaadom (état "waiting")
-      setTimeout(() => { if (state === 'alert') setPhase('waiting'); }, 800);
-      return;
-    }
-    timerRemaining--;
-  }
-  tick(); timerInterval = setInterval(tick, 1000);
-}
-
-function showLastAlert(zone) {
-  document.getElementById('last-alert-card').style.display = 'block';
-  document.getElementById('last-alert-content').textContent = '📍 ' + zone;
-  document.getElementById('last-alert-time').textContent = new Date().toLocaleTimeString();
-}
-
-// ─── AUDIO / VIBRATION ────────────────────────────────────────────────────────
-function getAudioCtx() { if (!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
 function buzz(type) {
   if (CONFIG.vibration && navigator.vibrate) {
-    if (type==='alert') navigator.vibrate([300,100,300,100,300,100,1000]);
-    else if (type==='pre') navigator.vibrate([200,100,200]);
-    else if (type==='safe') navigator.vibrate([500]);
+    if      (type==='alert') navigator.vibrate([300,100,300,100,300,100,1000]);
+    else if (type==='pre')   navigator.vibrate([200,100,200]);
+    else if (type==='safe')  navigator.vibrate([500]);
   }
   if (!CONFIG.sound) return;
   try {
     const ctx = getAudioCtx();
-    const patterns = {pre:[[440,.15],[523,.15],[659,.3]],alert:[[880,.1],[880,.1],[880,.1],[440,.3],[880,.5]],safe:[[523,.2],[659,.2],[784,.4]]};
+    const patterns = {
+      pre:   [[440,.15],[523,.15],[659,.3]],
+      alert: [[880,.1],[880,.1],[880,.1],[440,.3],[880,.5]],
+      safe:  [[523,.2],[659,.2],[784,.4]],
+    };
     let t = ctx.currentTime;
     for (const [freq,dur] of (patterns[type]||[])) {
       const osc=ctx.createOscillator(), gain=ctx.createGain();
@@ -678,32 +788,146 @@ function buzz(type) {
       gain.gain.setValueAtTime(0.3,t); gain.gain.exponentialRampToValueAtTime(0.001,t+dur);
       osc.start(t); osc.stop(t+dur); t+=dur+0.05;
     }
-  } catch(e){}
+  } catch(e) {}
 }
 
-// ─── NOTIFICATIONS ────────────────────────────────────────────────────────────
-function checkNotifPermission() { if ('Notification' in window && Notification.permission==='default') document.getElementById('notif-bar').classList.add('show'); }
-function requestNotif() { Notification.requestPermission().then(p => { if (p==='granted') document.getElementById('notif-bar').classList.remove('show'); }); }
-function notify(title, body) { if ('Notification' in window && Notification.permission==='granted') new Notification(title, {body, icon:'🛡️', requireInteraction:true}); }
+// ═══════════════════════════════════════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════════════════════════════════════
+function checkNotifPermission() {
+  if ('Notification' in window && Notification.permission === 'default')
+    document.getElementById('notif-bar').classList.add('show');
+}
+function requestNotif() {
+  Notification.requestPermission().then(p => {
+    if (p==='granted') document.getElementById('notif-bar').classList.remove('show');
+  });
+}
+function notify(title, body) {
+  if ('Notification' in window && Notification.permission === 'granted')
+    new Notification(title, { body, icon:'https://gregysite.github.io/AlertMiklat/favicon.svg', requireInteraction:true });
+}
 
-// ─── TESTS ─────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// PARAMÈTRES
+// ═══════════════════════════════════════════════════════════════════════════════
+function toggleSettings() {
+  document.getElementById('settings-body').classList.toggle('open');
+  document.getElementById('chevron').classList.toggle('open');
+}
+function adjustDuration(d) {
+  CONFIG.durationSec = Math.max(60, Math.min(1800, CONFIG.durationSec + d*60));
+  localStorage.setItem('durationSec', CONFIG.durationSec);
+  document.getElementById('duration-val').textContent = CONFIG.durationSec/60;
+}
+function adjustPoll(d) {
+  CONFIG.pollIntervalSec = Math.max(5, Math.min(60, CONFIG.pollIntervalSec + d));
+  localStorage.setItem('pollIntervalSec', CONFIG.pollIntervalSec);
+  document.getElementById('poll-val').textContent = CONFIG.pollIntervalSec+'s';
+  restartPolling();
+}
+function toggleOption(key) {
+  CONFIG[key] = !CONFIG[key];
+  localStorage.setItem(key, CONFIG[key]);
+  document.getElementById('toggle-'+key).classList.toggle('on', CONFIG[key]);
+}
 
+// ─── AUTOCOMPLETE VILLE ───────────────────────────────────────────────────────
+function filterCities(val) {
+  const q = val.trim().toLowerCase();
+  const dd = document.getElementById('city-dropdown');
+  if (!q) { dd.style.display='none'; return; }
+  const matches = CITIES.filter(c =>
+    c.fr.toLowerCase().includes(q) || c.he.includes(q) ||
+    c.en.toLowerCase().includes(q) || c.keys.toLowerCase().includes(q)
+  );
+  if (!matches.length) { dd.style.display='none'; return; }
+  dd.innerHTML = matches.map(c => `
+    <div class="city-option" onmousedown="selectCity(event)"
+      data-keys="${c.keys}" data-fr="${c.fr}" data-he="${c.he}" data-en="${c.en}">
+      <span style="font-weight:600;">${c[currentLang]||c.fr}</span>
+      <span style="font-size:11px;color:var(--muted);direction:rtl;">${c.he}</span>
+    </div>`).join('');
+  dd.style.display = 'block';
+}
+function selectCity(e) {
+  e.preventDefault();
+  const opt = e.currentTarget;
+  CONFIG.zones = opt.dataset.keys;
+  localStorage.setItem('zones', CONFIG.zones);
+  T.fr.location = opt.dataset.fr; T.he.location = opt.dataset.he; T.en.location = opt.dataset.en;
+  document.getElementById('t-location').textContent = opt.dataset[currentLang] || opt.dataset.fr;
+  document.getElementById('zone-search').value = opt.dataset[currentLang] || opt.dataset.fr;
+  document.getElementById('zone-current-display').textContent = CONFIG.zones !== '__ALL__' ? '📍 ' + CONFIG.zones : '📍 כל הערים / Toutes';
+  document.getElementById('city-dropdown').style.display = 'none';
+  // Re-fetch immédiatement avec la nouvelle zone
+  fetchAndSync();
+}
+function showCityDropdown() { filterCities(document.getElementById('zone-search').value); }
+function hideCityDropdown() { setTimeout(() => { document.getElementById('city-dropdown').style.display='none'; }, 200); }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TESTS
+// ═══════════════════════════════════════════════════════════════════════════════
 function toggleTests() {
   const row = document.getElementById('test-row');
   const visible = row.style.display !== 'none';
   row.style.display = visible ? 'none' : 'flex';
   document.getElementById('t-test-btn').textContent = visible ? T[currentLang].testBtn : T[currentLang].testHide;
-  // Fermeture → stop le test en cours et retour au calme
   if (visible) {
+    // Fermeture → arrêt du test, retour au calme
+    isTestMode = false;
     clearInterval(timerInterval);
-    setPhase('idle');
+    applyState('idle', null, null);
+  } else {
+    isTestMode = true;
   }
 }
+
 function simulatePhase(phase) {
-  if (phase==='pre-alert') { setPhase('pre-alert'); }
-  else if (phase==='alert') { showLastAlert('TEST — ירושלים דרום / Jérusalem Sud'); setPhase('alert'); }
-  else if (phase==='safe') { setPhase('safe'); }
+  if (!isTestMode) return;
+  clearInterval(timerInterval);
+  if (phase === 'pre-alert') {
+    currentState = 'idle'; // force pour permettre la transition
+    applyState('pre-alert', null, null);
+    showLastAlert('TEST — ירושלים - דרום', null);
+  } else if (phase === 'alert') {
+    currentState = 'idle';
+    showLastAlert('TEST — ירושלים - דרום', Math.floor(Date.now()/1000));
+    buzz('alert');
+    notify(...T[currentLang].notifAlert);
+    applyState('alert', { remaining: CONFIG.durationSec }, Math.floor(Date.now()/1000));
+  } else if (phase === 'safe') {
+    currentState = 'alert'; // force pour permettre la transition
+    applyState('safe', null, null);
+  }
 }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════════════
+window.addEventListener('load', () => {
+  // Init UI
+  document.getElementById('duration-val').textContent = CONFIG.durationSec / 60;
+  document.getElementById('poll-val').textContent     = CONFIG.pollIntervalSec + 's';
+  document.getElementById('toggle-vibration').classList.toggle('on', CONFIG.vibration);
+  document.getElementById('toggle-sound').classList.toggle('on', CONFIG.sound);
+
+  // Init ville
+  const cityMatch = CITIES.find(c => c.keys === CONFIG.zones);
+  if (cityMatch) {
+    document.getElementById('zone-search').value = cityMatch[currentLang] || cityMatch.fr;
+    document.getElementById('zone-current-display').textContent = CONFIG.zones !== '__ALL__' ? '📍 ' + CONFIG.zones : '📍 כל הערים / Toutes';
+  }
+
+  // Init langue
+  setLang(currentLang);
+  setFavicon('idle');
+  checkNotifPermission();
+
+  // Premier fetch immédiat au chargement → reconstruit l'état
+  startPolling();
+});
 </script>
 </body>
 </html>
