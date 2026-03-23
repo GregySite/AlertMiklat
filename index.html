@@ -617,15 +617,23 @@ function parseZones() {
   if (CONFIG.zones === '__ALL__') return '__ALL__';
   return CONFIG.zones.split(',').map(z => z.trim()).filter(Boolean);
 }
+function normCities(cities) {
+  if (!cities) return [];
+  if (Array.isArray(cities)) return cities;
+  if (typeof cities === 'string') return [cities];
+  return [];
+}
 function zoneMatches(cities, zones) {
-  if (!cities || !cities.length) return false;
+  const arr = normCities(cities);
+  if (!arr.length) return false;
   if (zones === '__ALL__') return true;
-  return cities.some(c => zones.some(z => c.includes(z)));
+  return arr.some(c => zones.some(z => c.includes(z)));
 }
 function getMatchedCity(cities, zones) {
-  if (!cities || !cities.length) return '?';
-  if (zones === '__ALL__') return cities[0];
-  return cities.find(c => zones.some(z => c.includes(z))) || cities[0];
+  const arr = normCities(cities);
+  if (!arr.length) return '?';
+  if (zones === '__ALL__') return arr[0];
+  return arr.find(c => zones.some(z => c.includes(z))) || arr[0];
 }
 
 // ── ÉTAT ──────────────────────────────────────────────────────────
