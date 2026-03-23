@@ -400,7 +400,7 @@ const STATE_PRIORITY = { idle:0, 'pre-alert':1, alert:2, waiting:2, safe:3 };
 // ═══════════════════════════════════════════════════════════════════════════════
 
 async function fetchAndSync() {
-  if (isTestMode) return;  // ne pas écraser un test en cours
+  if (isTestMode) return;
 
   const dot = document.getElementById('status-dot');
   const txt = document.getElementById('header-status-txt');
@@ -411,7 +411,7 @@ async function fetchAndSync() {
     const data = await res.json();
     dot.className = 'status-dot';
     txt.textContent = T[currentLang].online;
-    computeStateFromHistory(data);
+    computeState(data);
   } catch(e) {
     dot.className = 'status-dot offline';
     txt.textContent = T[currentLang].offline;
@@ -419,84 +419,118 @@ async function fetchAndSync() {
   }
 }
 
-function computeStateFromHistory(data) {
-  // data = { recent: [{time, cities, threat, groupId}], now }
-  const recent  = data.recent  || [];
-  const nowSec  = data.now     || Math.floor(Date.now() / 1000);
+// ─── Catégories Oref ──────────────────────────────────────────────────────────
+// 13 = SORTIE (ניתן לצאת מהמרחב המוגן)
+// 14 = PRÉ-ALERTE (הנחיה מקדימה)
+// tout le reste = ALERTE active (roquette, drone, avion...)
+const CAT_END       = 13;
+const CAT_PRE_ALERT = 14;
+const CAT_DRILL     = [101, 102, 103, 104, 107]; // exercices — à ignorer
+
+function computeState(data) {
+  // Nouveau format: { active, history, ts }
+  // active  = alerte en cours RIGHT NOW (oref ou tzevaadom live)
+  // history = alertes des 90 dernières secondes (oref history + tzevaadom)
+
+  const nowSec  = Math.floor((data.ts || Date.now()) / 1000);
   const zones   = parseZones();
+  const active  = data.active  || null;
+  const history = data.history || [];
 
-  // Trouver le groupe le plus récent qui concerne notre zone
-  // Un "groupe" = toutes les alertes du même groupId (même vague)
-  // On groupe par groupId et on prend le plus récent
-  const byGroup = {};
-  for (const a of recent) {
-    const gid = a.groupId;
-    if (!byGroup[gid]) byGroup[gid] = { groupId:gid, alerts:[], minTime: Infinity };
-    byGroup[gid].alerts.push(a);
-    if (a.time < byGroup[gid].minTime) byGroup[gid].minTime = a.time;
-  }
+  // ── 1. Vérifier l'alerte active (temps réel) ─────────────────────────────
+  if (active && zoneMatches(active.cities, zones)) {
+    const cat = active.cat || 1;
 
-  // Parmi les groupes, trouver celui qui nous concerne (zone match)
-  // et qui est le plus récent
-  let bestGroup = null;
-  for (const gid of Object.keys(byGroup)) {
-    const g = byGroup[gid];
-    const matches = g.alerts.some(a => zoneMatches(a.cities, zones));
-    if (matches) {
-      if (!bestGroup || g.minTime > bestGroup.minTime) bestGroup = g;
+    // Ignorer les exercices
+    if (CAT_DRILL.includes(cat)) return;
+
+    if (cat === CAT_END) {
+      // Sortie officielle
+      if (currentState === 'alert' || currentState === 'waiting' || currentState === 'pre-alert') {
+        applyState('safe', null, nowSec);
+      }
+      return;
     }
+
+    if (cat === CAT_PRE_ALERT) {
+      // Pré-alerte
+      if (currentState === 'idle') {
+        applyState('pre-alert', null, nowSec);
+      }
+      return;
+    }
+
+    // Alerte active (roquette, drone, etc.)
+    const matchedCity = getMatchedCity(active.cities, zones);
+    if (currentState !== 'alert') {
+      showLastAlert(matchedCity, active.time || nowSec);
+      buzz('alert');
+      notify(...T[currentLang].notifAlert);
+    }
+    applyState('alert', { remaining: CONFIG.durationSec, matchedCity, alertTimeSec: active.time || nowSec }, nowSec);
+    return;
   }
 
-  if (!bestGroup) {
-    // Pas d'alerte récente pour notre zone → calme
-    // Mais seulement si on n'est pas déjà dans un état actif non terminé
+  // ── 2. Pas d'alerte active — reconstruire depuis l'historique ────────────
+  // Trouver l'événement le plus récent pour notre zone dans l'historique
+  const relevant = history
+    .filter(h => !CAT_DRILL.includes(h.cat) && zoneMatches(h.cities, zones))
+    .sort((a,b) => b.time - a.time);
+
+  if (relevant.length === 0) {
+    // Rien dans l'historique → calme (seulement si on n'est pas en alert/waiting)
     if (currentState === 'idle' || currentState === 'pre-alert') {
       applyState('idle', null, nowSec);
     }
     return;
   }
 
-  // Trouver l'alerte la plus récente du groupe pour notre zone
-  const relevantAlerts = bestGroup.alerts
-    .filter(a => zoneMatches(a.cities, zones))
-    .sort((a,b) => b.time - a.time);
+  const latest    = relevant[0];
+  const latestCat = latest.cat || 1;
+  const ageSeconds = nowSec - latest.time;
 
-  const latestAlert = relevantAlerts[0];
-  const alertTimeSec = latestAlert.time;
-  const ageSeconds = nowSec - alertTimeSec;
+  // Sortie dans l'historique
+  if (latestCat === CAT_END) {
+    if (currentState === 'alert' || currentState === 'waiting' || currentState === 'pre-alert') {
+      applyState('safe', null, nowSec);
+    }
+    return;
+  }
 
-  // Déterminer le type d'événement
-  // Dans alerts-history, on n'a pas de catégorie explicite pre/end
-  // On se base sur: si l'alerte est très récente (< 90s) → alerte active
-  // Si elle est plus ancienne mais dans la fenêtre (< durationSec) → toujours en alerte
-  // Si elle dépasse durationSec → on attend confirmation
+  // Pré-alerte dans l'historique
+  if (latestCat === CAT_PRE_ALERT) {
+    if (currentState === 'idle') {
+      applyState('pre-alert', null, nowSec);
+    }
+    return;
+  }
 
-  // NOTE: le Worker retourne uniquement les alertes des 60 dernières secondes
-  // donc si on voit quelque chose, c'est forcément une alerte active récente
-
-  const matchedCity = relevantAlerts[0].cities.find(c => {
-    if (zones === '__ALL__') return true;
-    return zones.some(z => c.includes(z));
-  }) || relevantAlerts[0].cities[0] || '?';
-
-  // Temps restant au miklat
-  const elapsed  = ageSeconds;
-  const remaining = CONFIG.durationSec - elapsed;
+  // Alerte dans l'historique — calculer le temps restant
+  const matchedCity = getMatchedCity(latest.cities, zones);
+  const remaining   = CONFIG.durationSec - ageSeconds;
 
   if (remaining > 0) {
-    // Alerte active, chrono en cours
+    // Alerte encore dans la fenêtre de temps
     if (currentState !== 'alert') {
-      showLastAlert(matchedCity, alertTimeSec);
-      buzz('alert');
-      notify(...T[currentLang].notifAlert);
+      showLastAlert(matchedCity, latest.time);
+      if (currentState === 'idle' || currentState === 'pre-alert') {
+        buzz('alert');
+        notify(...T[currentLang].notifAlert);
+      }
     }
-    applyState('alert', { remaining, matchedCity, alertTimeSec }, nowSec);
+    applyState('alert', { remaining, matchedCity, alertTimeSec: latest.time }, nowSec);
   } else {
-    // Chrono dépassé — état waiting, attendre confirmation de sortie
-    if (currentState === 'alert') {
+    // Alerte expirée → waiting
+    if (currentState === 'alert' || currentState === 'pre-alert') {
       applyState('waiting', null, nowSec);
     }
   }
+}
+
+function getMatchedCity(cities, zones) {
+  if (!cities || cities.length === 0) return '?';
+  if (zones === '__ALL__') return cities[0];
+  return cities.find(c => zones.some(z => c.includes(z))) || cities[0];
 }
 
 function parseZones() {
