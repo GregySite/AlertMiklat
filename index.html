@@ -421,7 +421,7 @@ const CITIES = [
 const CONFIG = {
   zones:           localStorage.getItem('zones')           || 'ירושלים - דרום,גוש עציון',
   durationSec:     parseInt(localStorage.getItem('durationSec')     || '600'),
-  pollIntervalSec: parseInt(localStorage.getItem('pollIntervalSec') || '15'),
+  pollIntervalSec: parseInt(localStorage.getItem('pollIntervalSec') || '10'),
   vibration:       localStorage.getItem('vibration') !== 'false',
   sound:           localStorage.getItem('sound')     !== 'false',
   lang:            localStorage.getItem('lang')            || 'fr',
@@ -742,7 +742,8 @@ function showLastAlert(city, timeSec) {
 // ═══════════════════════════════════════════════════════════════════
 
 function startPolling() {
-  pollCountdown = 0;
+  pollCountdown = CONFIG.pollIntervalSec;
+  document.getElementById('next-poll-txt').textContent = '↻ ' + pollCountdown + 's';
   fetchAndSync();
   pollInterval = setInterval(() => {
     pollCountdown--;
@@ -767,8 +768,10 @@ function setLang(lang) {
   document.documentElement.lang = lang;
   document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
   document.body.classList.toggle('rtl', lang === 'he');
-  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector('.lang-btn[onclick="setLang(\'' + lang + '\')"]').classList.add('active');
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.remove('active');
+    if (b.getAttribute('onclick') === "setLang('" + lang + "')") b.classList.add('active');
+  });
 
   const ids = {
     't-notif-msg':t.notifMsg,'t-notif-btn':t.notifBtn,
@@ -988,7 +991,7 @@ function simulatePhase(phase) {
 
 window.addEventListener('load', () => {
   document.getElementById('duration-val').textContent = CONFIG.durationSec / 60;
-  document.getElementById('poll-val').textContent     = CONFIG.pollIntervalSec + 's';
+  document.getElementById('poll-val').textContent = CONFIG.pollIntervalSec + 's';
   document.getElementById('toggle-vibration').classList.toggle('on', CONFIG.vibration);
   document.getElementById('toggle-sound').classList.toggle('on', CONFIG.sound);
 
