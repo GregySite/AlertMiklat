@@ -1,0 +1,9 @@
+{
+  "name": "AlertMiklat",
+  "short_name": "Miklat",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "description": "Système d'alertes en temps réel"
+}
