@@ -508,7 +508,7 @@ function computeState(data) {
     .sort((a,b) => b.time - a.time);
 
   if (relevant.length === 0) {
-    if (['idle','pre-alert'].includes(currentState)) applyState('idle', null, nowSec);
+    applyState('idle', null, nowSec); // On force le calme inconditionnellement
     return;
   }
 
