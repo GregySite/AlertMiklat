@@ -904,6 +904,10 @@ function selectCity(e) {
   document.getElementById('zone-current-display').textContent =
     CONFIG.zones !== '__ALL__' ? '📍 ' + CONFIG.zones : '📍 כל הערים / Toutes';
   document.getElementById('city-dropdown').style.display = 'none';
+  
+  // NOUVELLE LIGNE : On force le retour au calme avant de charger la nouvelle ville
+  applyState('idle', null, null); 
+  
   fetchAndSync();
 }
 function showCityDropdown() { filterCities(document.getElementById('zone-search').value); }
