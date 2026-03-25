@@ -471,19 +471,34 @@ function computeState(data) {
   const active  = data.active  || null;
   const history = data.history || [];
 
+  // Toujours mettre à jour l'historique
   renderHistory(history, zones, nowSec);
 
-  if (active && !CAT_DRILL.includes(active.cat) && zoneMatches(active.cities, zones)) {
-    const cat = active.cat || 1;
+  // ── 1. Événement actif RIGHT NOW ──────────────────────────────
+  if (active && !CAT_DRILL.includes(active.cat) && zoneMatches(normCities(active.cities), zones)) {
+    const cat  = active.cat || 1;
+    const city = getMatchedCity(normCities(active.cities), zones);
+
     if (cat === CAT_END) {
-      if (['alert','waiting','pre-alert'].includes(currentState)) applyState('safe', null, nowSec);
+      // Sortie officielle → safe (depuis n'importe quel état actif)
+      if (['alert','waiting','pre-alert'].includes(currentState)) {
+        applyState('safe', null, nowSec);
+      }
       return;
     }
     if (cat === CAT_PRE) {
-      if (currentState === 'idle') applyState('pre-alert', null, nowSec);
+      // Pré-alerte → seulement si on est idle ou déjà en pre-alert
+      if (currentState === 'idle' || currentState === 'pre-alert') {
+        if (currentState !== 'pre-alert') {
+          showLastAlert(city, active.time || nowSec);
+          buzz('pre');
+          notify(...T[currentLang].notifPre);
+        }
+        applyState('pre-alert', null, nowSec);
+      }
       return;
     }
-    const city = getMatchedCity(active.cities, zones);
+    // Cat 1 ou 2 = alerte active
     if (currentState !== 'alert') {
       showLastAlert(city, active.time || nowSec);
       buzz('alert');
@@ -493,38 +508,67 @@ function computeState(data) {
     return;
   }
 
+  // ── 2. Reconstruction depuis l'historique ─────────────────────
+  // Prend l'événement le plus récent pour notre zone
   const relevant = history
-    .filter(h => !CAT_DRILL.includes(h.cat) && zoneMatches(h.cities, zones))
+    .filter(h => !CAT_DRILL.includes(h.cat) && zoneMatches(normCities(h.cities), zones))
     .sort((a,b) => b.time - a.time);
 
   if (relevant.length === 0) {
-    if (currentState === 'idle' || currentState === 'pre-alert') applyState('idle', null, nowSec);
+    // Rien → calme (seulement si pas déjà dans un état actif)
+    if (['idle','pre-alert'].includes(currentState)) applyState('idle', null, nowSec);
     return;
   }
 
   const latest     = relevant[0];
   const cat        = latest.cat || 1;
   const ageSeconds = nowSec - latest.time;
+  const city       = getMatchedCity(normCities(latest.cities), zones);
 
   if (cat === CAT_END) {
-    if (['alert','waiting','pre-alert'].includes(currentState)) applyState('safe', null, nowSec);
-    return;
-  }
-  if (cat === CAT_PRE) {
-    if (currentState === 'idle') applyState('pre-alert', null, nowSec);
+    // Dernier événement = sortie → safe
+    if (['alert','waiting','pre-alert'].includes(currentState))
+      applyState('safe', null, nowSec);
+    else if (currentState === 'idle') {
+      // On a manqué le cycle complet → rester idle
+    }
     return;
   }
 
+  if (cat === CAT_PRE) {
+    // Dernier événement = pré-alerte récente
+    if (ageSeconds < 300) { // pré-alerte de moins de 5 min
+      if (currentState === 'idle') {
+        showLastAlert(city, latest.time);
+        applyState('pre-alert', null, nowSec);
+      }
+    } else {
+      if (['idle','pre-alert'].includes(currentState)) applyState('idle', null, nowSec);
+    }
+    return;
+  }
+
+  // Cat 1 ou 2 = alerte dans l'historique
   const remaining = CONFIG.durationSec - ageSeconds;
-  const city      = getMatchedCity(latest.cities, zones);
+
   if (remaining > 0) {
+    // Alerte encore dans la fenêtre de temps
     if (currentState !== 'alert') {
       showLastAlert(city, latest.time);
-      if (['idle','pre-alert'].includes(currentState)) { buzz('alert'); notify(...T[currentLang].notifAlert); }
+      if (['idle','pre-alert'].includes(currentState)) {
+        buzz('alert');
+        notify(...T[currentLang].notifAlert);
+      }
     }
     applyState('alert', { remaining, city, alertTime:latest.time }, nowSec);
   } else {
-    if (['alert','pre-alert'].includes(currentState)) applyState('waiting', null, nowSec);
+    // Chrono expiré → waiting (attente de la sortie officielle)
+    if (['alert','pre-alert'].includes(currentState))
+      applyState('waiting', null, nowSec);
+    else if (currentState === 'idle') {
+      // On a chargé le site après la fin du chrono → on reste idle
+      // (l'alerte est trop vieille, on ne reveille pas l'utilisateur)
+    }
   }
 }
 
