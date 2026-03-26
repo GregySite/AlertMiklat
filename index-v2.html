@@ -276,7 +276,7 @@
 </div>
 
 <script>
-const PROXY_URL = 'https://miklat-v2.gregyman.workers.dev/'; // NOUVELLE URL V2
+const PROXY_URL = 'https://miklat-v2.gregyman.workers.dev/';
 const CAT_PRE   = 14;
 const CAT_END   = 13;
 const CAT_DRILL = [3,4,5,6,101,102,103,104,107]; 
@@ -382,7 +382,7 @@ const CITIES = [
   { fr:'Tel Aviv',             he:'תל אביב',       en:'Tel Aviv',        keys:'תל אביב' },
   { fr:'Haïfa',                he:'חיפה',          en:'Haifa',           keys:'חיפה' },
   { fr:'Beer Sheva',           he:'באר שבע',       en:'Beer Sheva',      keys:'באר שבע' },
-  { fr:'Ashdod',               he:'אשדוד',         en:'Ashdod',          keys:'אשdod' },
+  { fr:'Ashdod',               he:'אשדוד',         en:'Ashdod',          keys:'אשדוד' },
   { fr:'Ashkelon',             he:'אשקלון',        en:'Ashkelon',        keys:'אשקלון' },
   { fr:'Netanya',              he:'נתניה',         en:'Netanya',         keys:'נתניה' },
   { fr:'Rishon LeZion',        he:'ראשון לציון',   en:'Rishon LeZion',   keys:'ראשון לציון' },
@@ -443,7 +443,7 @@ let faviconFlash   = null;
 let isTestMode     = false;
 
 let lastManualReset = 0; 
-let appInitTime = Math.floor(Date.now() / 1000); // L'heure à laquelle tu as ouvert le site
+let appInitTime = Math.floor(Date.now() / 1000); 
 
 // ── FETCH AVEC ANTI-FREEZE ────────────────────────────────────────
 async function fetchAndSync() {
@@ -513,7 +513,6 @@ function computeState(data) {
       const ageSeconds = nowSec - newestAlert.time;
       
       if (ageSeconds < CONFIG.durationSec) {
-        // Chrono tourne encore
         activeEvent = newestAlert; 
         const remaining = CONFIG.durationSec - ageSeconds;
         const city = getMatchedCity(normCities(newestAlert.cities), zones);
@@ -523,14 +522,12 @@ function computeState(data) {
         }
         applyState('alert', { remaining, city, alertTime: newestAlert.time }, nowSec);
       } else {
-        // Chrono expiré, on bloque sur "En attente" si ça s'est passé pendant la session
         if (newestAlert.time + CONFIG.durationSec >= appInitTime) {
           activeEvent = newestAlert; 
           applyState('waiting', null, nowSec);
         }
       }
     } else {
-      // Sortie reçue
       const ageSortie = nowSec - newestSortie.time;
       if (ageSortie < 120) { 
         activeEvent = newestSortie;
@@ -801,13 +798,17 @@ function makeFavicon(bg, sym) {
   return 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 32 32\'><circle cx=\'16\' cy=\'16\' r=\'15\' fill=\'' + bg + '\'/><text x=\'16\' y=\'22\' font-size=\'18\' text-anchor=\'middle\' fill=\'white\' font-family=\'sans-serif\' font-weight=\'bold\'>' + sym + '</text></svg>');
 }
 
+// === CORRECTION CRITIQUE (TRY/CATCH SUR LE SON) ===
 function getAudioCtx() { if (!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
 function buzz(type) {
-  if (CONFIG.vibration && navigator.vibrate) {
-    if      (type==='alert') navigator.vibrate([300,100,300,100,300,100,1000]);
-    else if (type==='pre')   navigator.vibrate([200,100,200]);
-    else if (type==='safe')  navigator.vibrate([500]);
-  }
+  try {
+    if (CONFIG.vibration && navigator.vibrate) {
+      if      (type==='alert') navigator.vibrate([300,100,300,100,300,100,1000]);
+      else if (type==='pre')   navigator.vibrate([200,100,200]);
+      else if (type==='safe')  navigator.vibrate([500]);
+    }
+  } catch (e) {}
+
   if (!CONFIG.sound) return;
   try {
     const ctx = getAudioCtx();
@@ -830,9 +831,17 @@ function checkNotifPermission() {
 function requestNotif() {
   Notification.requestPermission().then(p => { if (p==='granted') document.getElementById('notif-bar').classList.remove('show'); });
 }
+
+// === CORRECTION CRITIQUE (TRY/CATCH SUR LES NOTIFICATIONS PUSH) ===
 function notify(title, body) {
-  if ('Notification' in window && Notification.permission === 'granted')
-    new Notification(title, { body, requireInteraction:true });
+  if ('Notification' in window && Notification.permission === 'granted') {
+    try {
+      new Notification(title, { body, requireInteraction:true });
+    } catch (e) {
+      // Évite le crash "Illegal constructor" sur Chrome Android sans Service Worker.
+      console.log("Les notifications nécessitent un Service Worker sur ce navigateur.");
+    }
+  }
 }
 
 function toggleSettings() {
@@ -928,15 +937,7 @@ function selectCity(e) {
 function showCityDropdown() { filterCities(document.getElementById('zone-search').value); }
 function hideCityDropdown() { setTimeout(() => { document.getElementById('city-dropdown').style.display='none'; }, 200); }
 
-function toggleTests() {
-  const row = document.getElementById('test-row');
-  const visible = row.style.display !== 'none';
-  row.style.display = visible ? 'none' : 'flex';
-  document.getElementById('t-test-btn').textContent = visible ? T[currentLang].testBtn : T[currentLang].testHide;
-  if (visible) { isTestMode = false; clearInterval(timerInterval); applyState('idle', null, null); }
-  else isTestMode = true;
-}
-
+// === CORRECTION CRITIQUE DU BOUTON DE TEST ===
 function simulatePhase(phase) {
   if (!isTestMode) return;
   clearInterval(timerInterval);
@@ -945,7 +946,8 @@ function simulatePhase(phase) {
   else if (phase === 'alert') {
     currentState='idle';
     showLastAlert('TEST — ירושלים - דרום', now);
-    buzz('alert'); notify(...T[currentLang].notifAlert);
+    try { buzz('alert'); } catch(e) {}
+    try { notify(...T[currentLang].notifAlert); } catch(e) {}
     applyState('alert', { remaining:CONFIG.durationSec, city:'TEST', alertTime:now }, now);
   }
   else if (phase === 'safe') { currentState='alert'; applyState('safe', null, now); }
