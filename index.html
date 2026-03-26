@@ -441,7 +441,9 @@ let pollCountdown  = 0;
 let audioCtx       = null;
 let faviconFlash   = null;
 let isTestMode     = false;
-let lastManualReset = 0; // Enregistre l'heure du dernier clic sur "Retour au calme"
+
+let lastManualReset = 0; 
+let appInitTime = Math.floor(Date.now() / 1000); // L'heure à laquelle tu as ouvert le site
 
 // ── FETCH AVEC ANTI-FREEZE ────────────────────────────────────────
 async function fetchAndSync() {
@@ -469,21 +471,18 @@ async function fetchAndSync() {
   }
 }
 
-// ── LE CERVEAU ULTRA-SIMPLE (LOGIQUE LINEAIRE) ────────────────────
+// ── LE CERVEAU LINEAIRE ───────────────────────────────────────────
 function computeState(data) {
   const nowSec = Math.floor((data.ts || Date.now()) / 1000);
   const zones = parseZones();
 
-  // 1. On rassemble toutes les infos (en cours + histoire)
   let allEvents = [...(data.history || [])];
   if (data.active) allEvents.push(data.active);
 
-  // 2. On filtre pour notre ville et on trie du plus récent au plus ancien
   const zoneEvents = allEvents.filter(h =>
     !CAT_DRILL.includes(h.cat) && zoneMatches(normCities(h.cities), zones)
   ).sort((a, b) => b.time - a.time);
 
-  // 3. Déduplication (On ne garde qu'une seule trace si l'armée spamme le MÊME type de message dans la même minute)
   let uniqueEvents = [];
   for (const ev of zoneEvents) {
     const evCity = zones === '__ALL__' ? (ev.cities[0] || '?') : getMatchedCity(normCities(ev.cities), zones);
@@ -494,29 +493,28 @@ function computeState(data) {
     if (!isDup) uniqueEvents.push(ev);
   }
 
-  // 4. On isole les événements qui n'ont pas encore été "effacés" manuellement par l'utilisateur
   let newestAlert = null;
   let newestSortie = null;
   let newestPre = null;
 
   for (const h of uniqueEvents) {
-    if (h.time <= lastManualReset) continue; // Ignoré si on a cliqué sur "Retour au calme"
+    if (h.time <= lastManualReset) continue; 
     if (h.cat === CAT_END && !newestSortie) newestSortie = h;
     if ((h.cat === 1 || h.cat === 2) && !newestAlert) newestAlert = h;
     if (h.cat === CAT_PRE && !newestPre) newestPre = h;
   }
 
-  let activeEvent = null; // C'est lui qui va s'afficher en grand
+  let activeEvent = null; 
 
-  // -- RÈGLE A : L'Alerte Rouge gagne sur le reste --
+  // -- RÈGLE A : Alerte Rouge --
   if (newestAlert) {
     const hasSortie = newestSortie && newestSortie.time > newestAlert.time;
     if (!hasSortie) {
       const ageSeconds = nowSec - newestAlert.time;
-      activeEvent = newestAlert; // S'affiche en grand
       
       if (ageSeconds < CONFIG.durationSec) {
         // Chrono tourne encore
+        activeEvent = newestAlert; 
         const remaining = CONFIG.durationSec - ageSeconds;
         const city = getMatchedCity(normCities(newestAlert.cities), zones);
         if (currentState !== 'alert') {
@@ -525,13 +523,18 @@ function computeState(data) {
         }
         applyState('alert', { remaining, city, alertTime: newestAlert.time }, nowSec);
       } else {
-        // Chrono à zéro ET pas de Sortie de l'armée -> Reste bloqué sur "En attente" indéfiniment
-        applyState('waiting', null, nowSec);
+        // Chrono à zéro ET pas de Sortie de l'armée.
+        // Ton idée : Si le chrono était DÉJÀ expiré quand on a ouvert le site, on met Calme et on ignore.
+        if (newestAlert.time + CONFIG.durationSec >= appInitTime) {
+          // L'alerte était en cours quand on a ouvert le site, on bloque sur "En attente"
+          activeEvent = newestAlert; 
+          applyState('waiting', null, nowSec);
+        }
       }
     } else {
-      // L'armée a envoyé une Sortie APRÈS l'alerte !
+      // L'armée a envoyé une Sortie APRÈS l'alerte
       const ageSortie = nowSec - newestSortie.time;
-      if (ageSortie < 120) { // S'affiche en grand 2 minutes
+      if (ageSortie < 120) { 
         activeEvent = newestSortie;
         if (currentState !== 'safe') {
           buzz('safe'); notify(...T[currentLang].notifSafe);
@@ -541,12 +544,12 @@ function computeState(data) {
     }
   }
 
-  // -- RÈGLE B : S'il n'y a pas d'alerte rouge, on check la Pré-Alerte --
+  // -- RÈGLE B : Pré-Alerte --
   if (!activeEvent && newestPre) {
     const hasSortie = newestSortie && newestSortie.time > newestPre.time;
     if (!hasSortie) {
       const ageSeconds = nowSec - newestPre.time;
-      if (ageSeconds < 600) { // S'affiche en grand 10 minutes maximum, puis disparait
+      if (ageSeconds < 600) { 
         activeEvent = newestPre;
         if (currentState !== 'pre-alert') {
           const city = getMatchedCity(normCities(newestPre.cities), zones);
@@ -558,10 +561,10 @@ function computeState(data) {
     }
   }
 
-  // -- RÈGLE C : Si juste une Sortie isolée (ex: on vient d'ouvrir le site) --
+  // -- RÈGLE C : Sortie Isolée --
   if (!activeEvent && newestSortie) {
     const ageSortie = nowSec - newestSortie.time;
-    if (ageSortie < 120) { // S'affiche en grand 2 minutes
+    if (ageSortie < 120) { 
       activeEvent = newestSortie;
       if (currentState !== 'safe') {
         buzz('safe'); notify(...T[currentLang].notifSafe);
@@ -570,19 +573,15 @@ function computeState(data) {
     }
   }
 
-  // -- RÈGLE D : Si rien n'est valide, on met la colombe --
-  if (!activeEvent) {
+  // -- RÈGLE D : Si rien n'est valide --
+  if (!activeEvent && currentState !== 'waiting') {
     applyState('idle', null, nowSec);
   }
 
-  // 5. AFFICHAGE DE L'HISTORIQUE (Cascade)
-  // L'événement affiché en grand ne doit pas être dans la liste du bas.
-  // Quand il disparait d'en haut, il tombe automatiquement dans la liste !
   const historyEvents = uniqueEvents.filter(e => e !== activeEvent).slice(0, 5);
   renderHistoryList(historyEvents, zones, nowSec);
 }
 
-// ── FONCTION POUR L'HISTORIQUE (Les 5 derniers) ───────────────────
 function renderHistoryList(historyEvents, zones, nowSec) {
   const card = document.getElementById('history-card');
   const list = document.getElementById('history-list');
@@ -613,7 +612,6 @@ function renderHistoryList(historyEvents, zones, nowSec) {
   }).join('');
 }
 
-// ── FONCTIONS D'AFFICHAGE & CHRONO ────────────────────────────────
 function applyState(newState, params, nowSec) {
   if (newState === 'alert' && currentState === 'alert' && params) {
     updateTimer(params.remaining);
@@ -668,7 +666,6 @@ function applyState(newState, params, nowSec) {
     case 'waiting':
       card.classList.add('waiting');
       document.getElementById('status-dot').className = 'status-dot';
-      // Le bouton apparait indéfiniment jusqu'à ce que tu cliques dessus
       if (resetBtn) {
         resetBtn.style.display = 'block';
         resetBtn.textContent = T[currentLang].resetBtn;
@@ -679,7 +676,7 @@ function applyState(newState, params, nowSec) {
 
 function resetToIdle() { 
   isTestMode = false; 
-  lastManualReset = Math.floor(Date.now() / 1000); // Enregistre l'heure pour ignorer les vieilles alertes
+  lastManualReset = Math.floor(Date.now() / 1000); 
   applyState('idle', null, lastManualReset); 
   fetchAndSync();
 }
@@ -691,7 +688,6 @@ function startTimer(remainingSec) {
     if (timerRemaining <= 0) {
       clearInterval(timerInterval);
       renderTimerDone();
-      // Quand le temps est écoulé, le site passera automatiquement sur "Waiting" au prochain check de 5 secondes
       if (!isTestMode) setTimeout(() => { if (currentState === 'alert') { applyState('waiting', null, Math.floor(Date.now()/1000)); fetchAndSync(); } }, 800);
       return;
     }
@@ -742,7 +738,6 @@ function startPolling() {
 }
 function restartPolling() { clearInterval(pollInterval); startPolling(); }
 
-// ── UTILS (LANGUE, FAVICON, REGLAGES) ─────────────────────────────
 function setLang(lang) {
   currentLang = lang;
   localStorage.setItem('lang', lang);
@@ -928,7 +923,9 @@ function selectCity(e) {
     CONFIG.zones !== '__ALL__' ? '📍 ' + CONFIG.zones : '📍 כל הערים / Toutes';
   document.getElementById('city-dropdown').style.display = 'none';
   
-  applyState('idle', null, Math.floor(Date.now()/1000)); 
+  // Met à jour l'heure d'initialisation pour ignorer les vieilles alertes de la nouvelle ville
+  appInitTime = Math.floor(Date.now() / 1000);
+  applyState('idle', null, appInitTime); 
   fetchAndSync();
 }
 function showCityDropdown() { filterCities(document.getElementById('zone-search').value); }
