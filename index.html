@@ -272,7 +272,7 @@
     <button class="test-btn g" onclick="simulatePhase('safe')" id="t-btn-safe">✅ Sortie</button>
   </div>
 
-  <footer>© Greg u. (V2 Persistent)</footer>
+  <footer>© Greg u. V2</footer>
 </div>
 
 <script>
@@ -295,7 +295,12 @@ const T = {
     lastAlert:'⚡ Dernière alerte', historyTitle:'📋 Historique',
     catLabel:{ [CAT_PRE]:'Pré-alerte', [CAT_END]:'Sortie', 1:'Roquette', 2:'Drone/UAV', default:'Alerte' },
     badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', default:'alert' },
-    agoFn:(m) => m <= 0 ? "à l'instant" : 'il y a ' + m + ' min',
+    agoFn: (m) => { 
+      if (m <= 0) return "à l'instant"; 
+      if (m < 60) return 'il y a ' + m + ' min'; 
+      const h = Math.floor(m / 60), rem = m % 60; 
+      return 'il y a ' + h + 'h' + (rem > 0 ? String(rem).padStart(2, '0') : ''); 
+    },
     online:'en ligne', offline:'erreur réseau',
     resetBtn:'↺ Retour au calme',
     phases:{
@@ -324,7 +329,12 @@ const T = {
     lastAlert:'⚡ אזעקה אחרונה', historyTitle:'📋 היסטוריה',
     catLabel:{ [CAT_PRE]:'טרום-אזעקה', [CAT_END]:'יציאה', 1:'רקטה', 2:'כטב"מ', default:'אזעקה' },
     badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', default:'alert' },
-    agoFn:(m) => m <= 0 ? 'עכשיו' : 'לפני ' + m + " דק'",
+    agoFn: (m) => { 
+      if (m <= 0) return 'עכשיו'; 
+      if (m < 60) return 'לפני ' + m + " דק'"; 
+      const h = Math.floor(m / 60), rem = m % 60; 
+      return 'לפני ' + h + " ש' " + (rem > 0 ? "ו-" + rem + " דק'" : ""); 
+    },
     online:'מחובר', offline:'שגיאת רשת',
     resetBtn:'↺ חזרה לשקט',
     phases:{
@@ -353,7 +363,12 @@ const T = {
     lastAlert:'⚡ Last alert', historyTitle:'📋 History',
     catLabel:{ [CAT_PRE]:'Pre-alert', [CAT_END]:'All clear', 1:'Rocket', 2:'Drone/UAV', default:'Alert' },
     badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', default:'alert' },
-    agoFn:(m) => m <= 0 ? 'just now' : m + ' min ago',
+    agoFn: (m) => { 
+      if (m <= 0) return 'just now'; 
+      if (m < 60) return m + ' min ago'; 
+      const h = Math.floor(m / 60), rem = m % 60; 
+      return h + 'h ' + (rem > 0 ? rem + 'm ' : '') + 'ago'; 
+    },
     online:'online', offline:'network error',
     resetBtn:'↺ Reset to calm',
     phases:{
@@ -934,7 +949,6 @@ function selectCity(e) {
 function showCityDropdown() { filterCities(document.getElementById('zone-search').value); }
 function hideCityDropdown() { setTimeout(() => { document.getElementById('city-dropdown').style.display='none'; }, 200); }
 
-// LA FONCTION MANQUANTE EST DE RETOUR :
 function toggleTests() {
   const row = document.getElementById('test-row');
   const visible = row.style.display !== 'none';
