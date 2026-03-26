@@ -132,7 +132,7 @@
 
   footer { margin-top:24px; text-align:center; font-size:11px; color:var(--muted); font-family:var(--mono); }
 
-  /* RTL — textes uniquement alignés à droite, layout identique */
+  /* RTL */
   body.rtl .header-right { flex-direction:row-reverse; }
   body.rtl .location-badge { flex-direction:row-reverse; }
   body.rtl .setting-label { text-align:right; display:block; }
@@ -172,7 +172,7 @@
   </div>
 
   <div class="notif-bar" id="notif-bar">
-    <span id="t-notif-msg">🔔 Activer les notifications pour les alertes en arrière-plan</span>
+    <span id="t-notif-msg">🔔 Activer les notifications</span>
     <button onclick="requestNotif()" id="t-notif-btn">Activer</button>
   </div>
 
@@ -405,7 +405,7 @@ const CITIES = [
   { fr:'Kfar Saba',            he:'כפר סבא',          en:'Kfar Saba',         keys:'כפר סבא' },
   { fr:'Raanana',              he:'רעננה',            en:"Ra'anana",          keys:'רעננה' },
   { fr:'Bnei Brak',            he:'בני ברק',          en:'Bnei Brak',         keys:'בני ברק' },
-  { fr:'Ramat Gan',            he:'רמת גן',           en:'Ramat Gan',         keys:'רמת גן' },
+  { fr:'Ramat Gan',            he:'רמת גן',           en:'Ramat Gan',         keys:'רמת Gan' },
   { fr:'Givatayim',            he:'גבעתיים',          en:'Givatayim',         keys:'גבעתיים' },
   { fr:'Gush Dan',             he:'גוש דן',           en:'Gush Dan',          keys:'גוש דן,תל אביב,בני ברק,רמת גן' },
   { fr:'Tibériade',            he:'טבריה',            en:'Tiberias',          keys:'טבריה' },
@@ -441,7 +441,9 @@ let pollCountdown  = 0;
 let audioCtx       = null;
 let faviconFlash   = null;
 let isTestMode     = false;
+let lastManualReset = 0; // Enregistre l'heure du dernier clic sur "Retour au calme"
 
+// ── FETCH AVEC ANTI-FREEZE ────────────────────────────────────────
 async function fetchAndSync() {
   if (isTestMode) return;
   const dot = document.getElementById('status-dot');
@@ -458,152 +460,151 @@ async function fetchAndSync() {
     
     dot.className = 'status-dot';
     txt.textContent = T[currentLang].online;
+    
     computeState(data);
+
   } catch(e) {
     dot.className = 'status-dot offline';
     txt.textContent = T[currentLang].offline;
   }
 }
 
+// ── LE CERVEAU ULTRA-SIMPLE (LOGIQUE LINEAIRE) ────────────────────
 function computeState(data) {
-  const nowSec  = Math.floor((data.ts || Date.now()) / 1000);
-  const zones   = parseZones();
-  const active  = data.active  || null;
-  const history = data.history || [];
+  const nowSec = Math.floor((data.ts || Date.now()) / 1000);
+  const zones = parseZones();
 
-  renderHistory(history, zones, nowSec);
+  // 1. On rassemble toutes les infos (en cours + histoire)
+  let allEvents = [...(data.history || [])];
+  if (data.active) allEvents.push(data.active);
 
-  // 1. Gestion de l'alerte DIRECTE (temps réel sans délai)
-  if (active && !CAT_DRILL.includes(active.cat) && zoneMatches(normCities(active.cities), zones)) {
-    const cat  = active.cat || 1;
-    const city = getMatchedCity(normCities(active.cities), zones);
+  // 2. On filtre pour notre ville et on trie du plus récent au plus ancien
+  const zoneEvents = allEvents.filter(h =>
+    !CAT_DRILL.includes(h.cat) && zoneMatches(normCities(h.cities), zones)
+  ).sort((a, b) => b.time - a.time);
 
-    if (cat === CAT_END) {
-      if (['alert','waiting','pre-alert'].includes(currentState)) applyState('safe', null, nowSec);
-      return;
-    }
-    if (cat === CAT_PRE) {
-      if (currentState === 'idle' || currentState === 'pre-alert') {
-        if (currentState !== 'pre-alert') {
-          showLastAlert(city, active.time || nowSec);
-          buzz('pre'); notify(...T[currentLang].notifPre);
-        }
-        applyState('pre-alert', null, nowSec);
-      }
-      return;
-    }
-    if (currentState !== 'alert') {
-      showLastAlert(city, active.time || nowSec);
-      buzz('alert'); notify(...T[currentLang].notifAlert);
-    }
-    applyState('alert', { remaining:CONFIG.durationSec, city, alertTime:active.time||nowSec }, nowSec);
-    return;
+  // 3. Déduplication (On ne garde qu'une seule trace si l'armée spamme le MÊME type de message dans la même minute)
+  let uniqueEvents = [];
+  for (const ev of zoneEvents) {
+    const evCity = zones === '__ALL__' ? (ev.cities[0] || '?') : getMatchedCity(normCities(ev.cities), zones);
+    const isDup = uniqueEvents.some(u => {
+      const uCity = zones === '__ALL__' ? (u.cities[0] || '?') : getMatchedCity(normCities(u.cities), zones);
+      return Math.abs(u.time - ev.time) < 60 && uCity === evCity && u.cat === ev.cat;
+    });
+    if (!isDup) uniqueEvents.push(ev);
   }
 
-  // 2. Le Cerveau Temporel : On analyse tout l'historique récent de la ville
-  const relevant = history
-    .filter(h => !CAT_DRILL.includes(h.cat) && zoneMatches(normCities(h.cities), zones))
-    .sort((a,b) => b.time - a.time);
-
-  if (relevant.length === 0) {
-    applyState('idle', null, nowSec);
-    return;
-  }
-
+  // 4. On isole les événements qui n'ont pas encore été "effacés" manuellement par l'utilisateur
   let newestAlert = null;
   let newestSortie = null;
   let newestPre = null;
 
-  for (const h of relevant) {
+  for (const h of uniqueEvents) {
+    if (h.time <= lastManualReset) continue; // Ignoré si on a cliqué sur "Retour au calme"
     if (h.cat === CAT_END && !newestSortie) newestSortie = h;
     if ((h.cat === 1 || h.cat === 2) && !newestAlert) newestAlert = h;
     if (h.cat === CAT_PRE && !newestPre) newestPre = h;
   }
 
-  // Règle 1 : Y a-t-il une Alerte Rouge encore valide (chrono non expiré) ?
-  if (newestAlert && (nowSec - newestAlert.time) < CONFIG.durationSec) {
-    // La Sortie a-t-elle été annoncée APRÈS cette alerte ?
-    if (newestSortie && newestSortie.time > newestAlert.time) {
-      applyState('safe', null, nowSec);
-    } else {
-      const city = getMatchedCity(normCities(newestAlert.cities), zones);
-      const remaining = CONFIG.durationSec - (nowSec - newestAlert.time);
-      if (currentState !== 'alert') {
-        showLastAlert(city, newestAlert.time);
-        buzz('alert'); notify(...T[currentLang].notifAlert);
+  let activeEvent = null; // C'est lui qui va s'afficher en grand
+
+  // -- RÈGLE A : L'Alerte Rouge gagne sur le reste --
+  if (newestAlert) {
+    const hasSortie = newestSortie && newestSortie.time > newestAlert.time;
+    if (!hasSortie) {
+      const ageSeconds = nowSec - newestAlert.time;
+      activeEvent = newestAlert; // S'affiche en grand
+      
+      if (ageSeconds < CONFIG.durationSec) {
+        // Chrono tourne encore
+        const remaining = CONFIG.durationSec - ageSeconds;
+        const city = getMatchedCity(normCities(newestAlert.cities), zones);
+        if (currentState !== 'alert') {
+          showLastAlert(city, newestAlert.time);
+          buzz('alert'); notify(...T[currentLang].notifAlert);
+        }
+        applyState('alert', { remaining, city, alertTime: newestAlert.time }, nowSec);
+      } else {
+        // Chrono à zéro ET pas de Sortie de l'armée -> Reste bloqué sur "En attente" indéfiniment
+        applyState('waiting', null, nowSec);
       }
-      applyState('alert', { remaining, city, alertTime: newestAlert.time }, nowSec);
+    } else {
+      // L'armée a envoyé une Sortie APRÈS l'alerte !
+      const ageSortie = nowSec - newestSortie.time;
+      if (ageSortie < 120) { // S'affiche en grand 2 minutes
+        activeEvent = newestSortie;
+        if (currentState !== 'safe') {
+          buzz('safe'); notify(...T[currentLang].notifSafe);
+        }
+        applyState('safe', null, nowSec);
+      }
     }
-    return;
   }
 
-  // Règle 2 : Y a-t-il une Pré-alerte très récente (moins de 5 minutes) ?
-  if (newestPre && (nowSec - newestPre.time) < 300) {
-    if (newestSortie && newestSortie.time > newestPre.time) {
-      applyState('safe', null, nowSec);
-    } else {
-      if (currentState === 'idle') {
-        const city = getMatchedCity(normCities(newestPre.cities), zones);
-        showLastAlert(city, newestPre.time);
+  // -- RÈGLE B : S'il n'y a pas d'alerte rouge, on check la Pré-Alerte --
+  if (!activeEvent && newestPre) {
+    const hasSortie = newestSortie && newestSortie.time > newestPre.time;
+    if (!hasSortie) {
+      const ageSeconds = nowSec - newestPre.time;
+      if (ageSeconds < 600) { // S'affiche en grand 10 minutes maximum, puis disparait
+        activeEvent = newestPre;
+        if (currentState !== 'pre-alert') {
+          const city = getMatchedCity(normCities(newestPre.cities), zones);
+          showLastAlert(city, newestPre.time);
+          buzz('pre'); notify(...T[currentLang].notifPre);
+        }
         applyState('pre-alert', null, nowSec);
       }
     }
-    return;
   }
 
-  // Règle 3 : Chrono expiré mais on attend la Sortie officielle
-  if (newestAlert && (nowSec - newestAlert.time) >= CONFIG.durationSec && (nowSec - newestAlert.time) < 3600) {
-    if (!newestSortie || newestSortie.time < newestAlert.time) {
-       applyState('waiting', null, nowSec);
-       return;
+  // -- RÈGLE C : Si juste une Sortie isolée (ex: on vient d'ouvrir le site) --
+  if (!activeEvent && newestSortie) {
+    const ageSortie = nowSec - newestSortie.time;
+    if (ageSortie < 120) { // S'affiche en grand 2 minutes
+      activeEvent = newestSortie;
+      if (currentState !== 'safe') {
+        buzz('safe'); notify(...T[currentLang].notifSafe);
+      }
+      applyState('safe', null, nowSec);
     }
   }
 
-  // Par défaut, retour au calme
-  applyState('idle', null, nowSec);
+  // -- RÈGLE D : Si rien n'est valide, on met la colombe --
+  if (!activeEvent) {
+    applyState('idle', null, nowSec);
+  }
+
+  // 5. AFFICHAGE DE L'HISTORIQUE (Cascade)
+  // L'événement affiché en grand ne doit pas être dans la liste du bas.
+  // Quand il disparait d'en haut, il tombe automatiquement dans la liste !
+  const historyEvents = uniqueEvents.filter(e => e !== activeEvent).slice(0, 5);
+  renderHistoryList(historyEvents, zones, nowSec);
 }
 
-function renderHistory(history, zones, nowSec) {
+// ── FONCTION POUR L'HISTORIQUE (Les 5 derniers) ───────────────────
+function renderHistoryList(historyEvents, zones, nowSec) {
   const card = document.getElementById('history-card');
   const list = document.getElementById('history-list');
   const t    = T[currentLang];
 
-  const relevant = history.filter(h => !CAT_DRILL.includes(h.cat) && zoneMatches(normCities(h.cities), zones));
-
-  let cleanHistory = [];
-  for (const h of relevant) {
-    const hCity = zones === '__ALL__' ? (h.cities[0] || '?') : getMatchedCity(normCities(h.cities), zones);
-    
-    const isDup = cleanHistory.some(existing => {
-      const exCity = zones === '__ALL__' ? (existing.cities[0] || '?') : getMatchedCity(normCities(existing.cities), zones);
-      // FILTRE CORRIGÉ : On ne bloque un doublon que si c'est EXACTEMENT la même catégorie dans la même minute
-      return Math.abs(existing.time - h.time) < 60 && exCity === hCity && existing.cat === h.cat;
-    });
-    
-    if (!isDup) {
-      cleanHistory.push(h);
-    }
-    // PASSÉ À 5 ÉLÉMENTS DANS L'HISTORIQUE
-    if (cleanHistory.length >= 5) break; 
-  }
-
   document.getElementById('t-history-title').textContent = t.historyTitle;
-  
-  if (cleanHistory.length === 0) { 
-    card.style.display = 'none'; 
-    return; 
+
+  if (historyEvents.length === 0) {
+    card.style.display = 'none';
+    return;
   }
-  
+
   card.style.display = 'block';
 
-  list.innerHTML = cleanHistory.map(item => {
+  list.innerHTML = historyEvents.map(item => {
     const cat      = item.cat || 1;
     const label    = t.catLabel[cat]   || t.catLabel.default;
     const badgeCls = t.badgeClass[cat] || t.badgeClass.default;
     const heCity   = zones === '__ALL__' ? (item.cities[0] || '?') : getMatchedCity(normCities(item.cities), zones);
     const cityName = translateCity(heCity);
     const minAgo   = Math.round((nowSec - item.time) / 60);
-    
+
     return '<div class="history-item">'
       + '<span class="history-badge ' + badgeCls + '">' + label + '</span>'
       + '<span class="history-city">' + cityName + '</span>'
@@ -612,43 +613,8 @@ function renderHistory(history, zones, nowSec) {
   }).join('');
 }
 
-function translateCity(heCity) {
-  if (!heCity || heCity === '?') return '?';
-  const found = CITIES.find(c =>
-    c.he === heCity ||
-    c.keys.split(',').some(k => k.trim() === heCity)
-  );
-  if (found) return found[currentLang] || found.fr;
-  return heCity;
-}
-
-function parseZones() {
-  if (CONFIG.zones === '__ALL__') return '__ALL__';
-  return CONFIG.zones.split(',').map(z => z.trim()).filter(Boolean);
-}
-function normCities(cities) {
-  if (!cities) return [];
-  if (Array.isArray(cities)) return cities;
-  if (typeof cities === 'string') return [cities];
-  return [];
-}
-function zoneMatches(cities, zones) {
-  const arr = normCities(cities);
-  if (!arr.length) return false;
-  if (zones === '__ALL__') return true;
-  return arr.some(c => zones.some(z => c.includes(z)));
-}
-function getMatchedCity(cities, zones) {
-  const arr = normCities(cities);
-  if (!arr.length) return '?';
-  if (zones === '__ALL__') return arr[0];
-  return arr.find(c => zones.some(z => c.includes(z))) || arr[0];
-}
-
+// ── FONCTIONS D'AFFICHAGE & CHRONO ────────────────────────────────
 function applyState(newState, params, nowSec) {
-  const pri = { idle:0, 'pre-alert':1, alert:2, waiting:2, safe:3 };
-  if (newState !== 'idle' && newState !== 'safe' && (pri[newState]||0) < (pri[currentState]||0)) return;
-
   if (newState === 'alert' && currentState === 'alert' && params) {
     updateTimer(params.remaining);
     return;
@@ -660,12 +626,12 @@ function applyState(newState, params, nowSec) {
   const card     = document.getElementById('phase-card');
   const timerBox = document.getElementById('timer-container');
   const overlay  = document.getElementById('alert-overlay');
-  const resetBtn = document.getElementById('reset-btn');
+  const resetBtn = document.getElementById('reset-btn'); 
 
   card.className = 'phase-card';
   overlay.classList.remove('show');
-  resetBtn.style.display = 'none';
   timerBox.style.display = 'none';
+  if (resetBtn) resetBtn.style.display = 'none';
   document.getElementById('alert-info').textContent = '';
 
   const p = T[currentLang].phases[newState] || T[currentLang].phases.idle;
@@ -683,7 +649,6 @@ function applyState(newState, params, nowSec) {
       break;
     case 'pre-alert':
       card.classList.add('pre-alert');
-      buzz('pre'); notify(...T[currentLang].notifPre);
       break;
     case 'alert':
       card.classList.add('alert-active');
@@ -699,19 +664,25 @@ function applyState(newState, params, nowSec) {
     case 'safe':
       card.classList.add('safe');
       document.getElementById('status-dot').className = 'status-dot';
-      buzz('safe'); notify(...T[currentLang].notifSafe);
-      setTimeout(() => { if (currentState === 'safe' && !isTestMode) applyState('idle', null, null); }, 30000);
       break;
     case 'waiting':
       card.classList.add('waiting');
       document.getElementById('status-dot').className = 'status-dot';
-      resetBtn.style.display = 'block';
-      resetBtn.textContent = T[currentLang].resetBtn;
+      // Le bouton apparait indéfiniment jusqu'à ce que tu cliques dessus
+      if (resetBtn) {
+        resetBtn.style.display = 'block';
+        resetBtn.textContent = T[currentLang].resetBtn;
+      }
       break;
   }
 }
 
-function resetToIdle() { isTestMode = false; applyState('idle', null, null); }
+function resetToIdle() { 
+  isTestMode = false; 
+  lastManualReset = Math.floor(Date.now() / 1000); // Enregistre l'heure pour ignorer les vieilles alertes
+  applyState('idle', null, lastManualReset); 
+  fetchAndSync();
+}
 
 function startTimer(remainingSec) {
   timerRemaining = Math.max(0, Math.round(remainingSec));
@@ -720,17 +691,20 @@ function startTimer(remainingSec) {
     if (timerRemaining <= 0) {
       clearInterval(timerInterval);
       renderTimerDone();
-      if (!isTestMode) setTimeout(() => { if (currentState === 'alert') applyState('waiting', null, null); }, 800);
+      // Quand le temps est écoulé, le site passera automatiquement sur "Waiting" au prochain check de 5 secondes
+      if (!isTestMode) setTimeout(() => { if (currentState === 'alert') { applyState('waiting', null, Math.floor(Date.now()/1000)); fetchAndSync(); } }, 800);
       return;
     }
     timerRemaining--;
     renderTimer();
   }, 1000);
 }
+
 function updateTimer(remainingSec) {
   const r = Math.max(0, Math.round(remainingSec));
   if (Math.abs(r - timerRemaining) > 5) { timerRemaining = r; renderTimer(); }
 }
+
 function renderTimer() {
   const m = Math.floor(timerRemaining / 60), s = timerRemaining % 60;
   document.getElementById('timer-display').textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
@@ -742,6 +716,7 @@ function renderTimer() {
   document.getElementById('timer-display').className = timerRemaining <= 60 ? 'timer-display warning' : 'timer-display';
   document.getElementById('timer-label').textContent = timerRemaining <= 60 ? T[currentLang].timerAlmost : T[currentLang].timerLabel;
 }
+
 function renderTimerDone() {
   document.getElementById('timer-display').textContent = '00:00';
   document.getElementById('timer-display').className   = 'timer-display safe-color';
@@ -767,6 +742,7 @@ function startPolling() {
 }
 function restartPolling() { clearInterval(pollInterval); startPolling(); }
 
+// ── UTILS (LANGUE, FAVICON, REGLAGES) ─────────────────────────────
 function setLang(lang) {
   currentLang = lang;
   localStorage.setItem('lang', lang);
@@ -887,6 +863,39 @@ function toggleOption(key) {
   document.getElementById('toggle-'+key).classList.toggle('on', CONFIG[key]);
 }
 
+function translateCity(heCity) {
+  if (!heCity || heCity === '?') return '?';
+  const found = CITIES.find(c =>
+    c.he === heCity ||
+    c.keys.split(',').some(k => k.trim() === heCity)
+  );
+  if (found) return found[currentLang] || found.fr;
+  return heCity;
+}
+
+function parseZones() {
+  if (CONFIG.zones === '__ALL__') return '__ALL__';
+  return CONFIG.zones.split(',').map(z => z.trim()).filter(Boolean);
+}
+function normCities(cities) {
+  if (!cities) return [];
+  if (Array.isArray(cities)) return cities;
+  if (typeof cities === 'string') return [cities];
+  return [];
+}
+function zoneMatches(cities, zones) {
+  const arr = normCities(cities);
+  if (!arr.length) return false;
+  if (zones === '__ALL__') return true;
+  return arr.some(c => zones.some(z => c.includes(z)));
+}
+function getMatchedCity(cities, zones) {
+  const arr = normCities(cities);
+  if (!arr.length) return '?';
+  if (zones === '__ALL__') return arr[0];
+  return arr.find(c => zones.some(z => c.includes(z))) || arr[0];
+}
+
 function filterCities(val) {
   const q  = val.trim().toLowerCase();
   const dd = document.getElementById('city-dropdown');
@@ -905,6 +914,7 @@ function filterCities(val) {
   ).join('');
   dd.style.display = 'block';
 }
+
 function selectCity(e) {
   e.preventDefault();
   const opt = e.currentTarget;
@@ -918,8 +928,7 @@ function selectCity(e) {
     CONFIG.zones !== '__ALL__' ? '📍 ' + CONFIG.zones : '📍 כל הערים / Toutes';
   document.getElementById('city-dropdown').style.display = 'none';
   
-  applyState('idle', null, null); 
-  
+  applyState('idle', null, Math.floor(Date.now()/1000)); 
   fetchAndSync();
 }
 function showCityDropdown() { filterCities(document.getElementById('zone-search').value); }
@@ -933,6 +942,7 @@ function toggleTests() {
   if (visible) { isTestMode = false; clearInterval(timerInterval); applyState('idle', null, null); }
   else isTestMode = true;
 }
+
 function simulatePhase(phase) {
   if (!isTestMode) return;
   clearInterval(timerInterval);
