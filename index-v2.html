@@ -276,7 +276,7 @@
 </div>
 
 <script>
-const PROXY_URL = 'https://miklat-v2.gregyman.workers.dev/';
+const PROXY_URL = 'https://miklat-v2.gregyman.workers.dev/'; // URL V2
 const CAT_PRE   = 14;
 const CAT_END   = 13;
 const CAT_DRILL = [3,4,5,6,101,102,103,104,107]; 
@@ -798,7 +798,6 @@ function makeFavicon(bg, sym) {
   return 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 32 32\'><circle cx=\'16\' cy=\'16\' r=\'15\' fill=\'' + bg + '\'/><text x=\'16\' y=\'22\' font-size=\'18\' text-anchor=\'middle\' fill=\'white\' font-family=\'sans-serif\' font-weight=\'bold\'>' + sym + '</text></svg>');
 }
 
-// === CORRECTION CRITIQUE (TRY/CATCH SUR LE SON) ===
 function getAudioCtx() { if (!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
 function buzz(type) {
   try {
@@ -807,8 +806,8 @@ function buzz(type) {
       else if (type==='pre')   navigator.vibrate([200,100,200]);
       else if (type==='safe')  navigator.vibrate([500]);
     }
-  } catch (e) {}
-
+  } catch(e) {}
+  
   if (!CONFIG.sound) return;
   try {
     const ctx = getAudioCtx();
@@ -832,14 +831,12 @@ function requestNotif() {
   Notification.requestPermission().then(p => { if (p==='granted') document.getElementById('notif-bar').classList.remove('show'); });
 }
 
-// === CORRECTION CRITIQUE (TRY/CATCH SUR LES NOTIFICATIONS PUSH) ===
 function notify(title, body) {
   if ('Notification' in window && Notification.permission === 'granted') {
     try {
       new Notification(title, { body, requireInteraction:true });
-    } catch (e) {
-      // Évite le crash "Illegal constructor" sur Chrome Android sans Service Worker.
-      console.log("Les notifications nécessitent un Service Worker sur ce navigateur.");
+    } catch(e) {
+      console.log("Service worker requis");
     }
   }
 }
@@ -937,7 +934,16 @@ function selectCity(e) {
 function showCityDropdown() { filterCities(document.getElementById('zone-search').value); }
 function hideCityDropdown() { setTimeout(() => { document.getElementById('city-dropdown').style.display='none'; }, 200); }
 
-// === CORRECTION CRITIQUE DU BOUTON DE TEST ===
+// LA FONCTION MANQUANTE EST DE RETOUR :
+function toggleTests() {
+  const row = document.getElementById('test-row');
+  const visible = row.style.display !== 'none';
+  row.style.display = visible ? 'none' : 'flex';
+  document.getElementById('t-test-btn').textContent = visible ? T[currentLang].testBtn : T[currentLang].testHide;
+  if (visible) { isTestMode = false; clearInterval(timerInterval); applyState('idle', null, null); }
+  else isTestMode = true;
+}
+
 function simulatePhase(phase) {
   if (!isTestMode) return;
   clearInterval(timerInterval);
