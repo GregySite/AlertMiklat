@@ -473,22 +473,20 @@ function computeState(data) {
 
   renderHistory(history, zones, nowSec);
 
+  // 1. Gestion de l'alerte DIRECTE (temps réel sans délai)
   if (active && !CAT_DRILL.includes(active.cat) && zoneMatches(normCities(active.cities), zones)) {
     const cat  = active.cat || 1;
     const city = getMatchedCity(normCities(active.cities), zones);
 
     if (cat === CAT_END) {
-      if (['alert','waiting','pre-alert'].includes(currentState)) {
-        applyState('safe', null, nowSec);
-      }
+      if (['alert','waiting','pre-alert'].includes(currentState)) applyState('safe', null, nowSec);
       return;
     }
     if (cat === CAT_PRE) {
       if (currentState === 'idle' || currentState === 'pre-alert') {
         if (currentState !== 'pre-alert') {
           showLastAlert(city, active.time || nowSec);
-          buzz('pre');
-          notify(...T[currentLang].notifPre);
+          buzz('pre'); notify(...T[currentLang].notifPre);
         }
         applyState('pre-alert', null, nowSec);
       }
@@ -496,60 +494,73 @@ function computeState(data) {
     }
     if (currentState !== 'alert') {
       showLastAlert(city, active.time || nowSec);
-      buzz('alert');
-      notify(...T[currentLang].notifAlert);
+      buzz('alert'); notify(...T[currentLang].notifAlert);
     }
     applyState('alert', { remaining:CONFIG.durationSec, city, alertTime:active.time||nowSec }, nowSec);
     return;
   }
 
+  // 2. Le Cerveau Temporel : On analyse tout l'historique récent de la ville
   const relevant = history
     .filter(h => !CAT_DRILL.includes(h.cat) && zoneMatches(normCities(h.cities), zones))
     .sort((a,b) => b.time - a.time);
 
   if (relevant.length === 0) {
-    applyState('idle', null, nowSec); // On force le calme inconditionnellement
+    applyState('idle', null, nowSec);
     return;
   }
 
-  const latest     = relevant[0];
-  const cat        = latest.cat || 1;
-  const ageSeconds = nowSec - latest.time;
-  const city       = getMatchedCity(normCities(latest.cities), zones);
+  let newestAlert = null;
+  let newestSortie = null;
+  let newestPre = null;
 
-  if (cat === CAT_END) {
-    if (['alert','waiting','pre-alert'].includes(currentState))
+  for (const h of relevant) {
+    if (h.cat === CAT_END && !newestSortie) newestSortie = h;
+    if ((h.cat === 1 || h.cat === 2) && !newestAlert) newestAlert = h;
+    if (h.cat === CAT_PRE && !newestPre) newestPre = h;
+  }
+
+  // Règle 1 : Y a-t-il une Alerte Rouge encore valide (chrono non expiré) ?
+  if (newestAlert && (nowSec - newestAlert.time) < CONFIG.durationSec) {
+    // La Sortie a-t-elle été annoncée APRÈS cette alerte ?
+    if (newestSortie && newestSortie.time > newestAlert.time) {
       applyState('safe', null, nowSec);
+    } else {
+      const city = getMatchedCity(normCities(newestAlert.cities), zones);
+      const remaining = CONFIG.durationSec - (nowSec - newestAlert.time);
+      if (currentState !== 'alert') {
+        showLastAlert(city, newestAlert.time);
+        buzz('alert'); notify(...T[currentLang].notifAlert);
+      }
+      applyState('alert', { remaining, city, alertTime: newestAlert.time }, nowSec);
+    }
     return;
   }
 
-  if (cat === CAT_PRE) {
-    if (ageSeconds < 300) { 
+  // Règle 2 : Y a-t-il une Pré-alerte très récente (moins de 5 minutes) ?
+  if (newestPre && (nowSec - newestPre.time) < 300) {
+    if (newestSortie && newestSortie.time > newestPre.time) {
+      applyState('safe', null, nowSec);
+    } else {
       if (currentState === 'idle') {
-        showLastAlert(city, latest.time);
+        const city = getMatchedCity(normCities(newestPre.cities), zones);
+        showLastAlert(city, newestPre.time);
         applyState('pre-alert', null, nowSec);
       }
-    } else {
-      if (['idle','pre-alert'].includes(currentState)) applyState('idle', null, nowSec);
     }
     return;
   }
 
-  const remaining = CONFIG.durationSec - ageSeconds;
-
-  if (remaining > 0) {
-    if (currentState !== 'alert') {
-      showLastAlert(city, latest.time);
-      if (['idle','pre-alert'].includes(currentState)) {
-        buzz('alert');
-        notify(...T[currentLang].notifAlert);
-      }
+  // Règle 3 : Chrono expiré mais on attend la Sortie officielle
+  if (newestAlert && (nowSec - newestAlert.time) >= CONFIG.durationSec && (nowSec - newestAlert.time) < 3600) {
+    if (!newestSortie || newestSortie.time < newestAlert.time) {
+       applyState('waiting', null, nowSec);
+       return;
     }
-    applyState('alert', { remaining, city, alertTime:latest.time }, nowSec);
-  } else {
-    if (['alert','pre-alert'].includes(currentState))
-      applyState('waiting', null, nowSec);
   }
+
+  // Par défaut, retour au calme
+  applyState('idle', null, nowSec);
 }
 
 function renderHistory(history, zones, nowSec) {
@@ -565,13 +576,15 @@ function renderHistory(history, zones, nowSec) {
     
     const isDup = cleanHistory.some(existing => {
       const exCity = zones === '__ALL__' ? (existing.cities[0] || '?') : getMatchedCity(normCities(existing.cities), zones);
-      return Math.abs(existing.time - h.time) < 60 && exCity === hCity;
+      // FILTRE CORRIGÉ : On ne bloque un doublon que si c'est EXACTEMENT la même catégorie dans la même minute
+      return Math.abs(existing.time - h.time) < 60 && exCity === hCity && existing.cat === h.cat;
     });
     
     if (!isDup) {
       cleanHistory.push(h);
     }
-    if (cleanHistory.length >= 3) break;
+    // PASSÉ À 5 ÉLÉMENTS DANS L'HISTORIQUE
+    if (cleanHistory.length >= 5) break; 
   }
 
   document.getElementById('t-history-title').textContent = t.historyTitle;
@@ -905,7 +918,6 @@ function selectCity(e) {
     CONFIG.zones !== '__ALL__' ? '📍 ' + CONFIG.zones : '📍 כל הערים / Toutes';
   document.getElementById('city-dropdown').style.display = 'none';
   
-  // NOUVELLE LIGNE : On force le retour au calme avant de charger la nouvelle ville
   applyState('idle', null, null); 
   
   fetchAndSync();
