@@ -895,15 +895,19 @@ function toggleOption(key) {
 function translateCity(heCity) {
   if (!heCity || heCity === '?') return '?';
   
-  // 1. Cherche d'abord une correspondance parfaite (la ville exacte)
-  let found = CITIES.find(c => c.he === heCity || c.keys === heCity);
-  
-  // 2. Si introuvable, alors seulement on cherche si elle appartient à un groupe
-  if (!found) {
-    found = CITIES.find(c => c.keys.split(',').some(k => k.trim() === heCity));
+  // 1. On trouve TOUTES les lignes qui contiennent cette ville
+  const matches = CITIES.filter(c => 
+    c.he === heCity || 
+    c.keys.split(',').some(k => k.trim() === heCity)
+  );
+
+  if (matches.length > 0) {
+    // 2. On les trie de la plus précise (moins de texte) à la plus globale
+    matches.sort((a, b) => a.keys.length - b.keys.length);
+    // 3. On renvoie la plus précise !
+    return matches[0][currentLang] || matches[0].fr;
   }
   
-  if (found) return found[currentLang] || found.fr;
   return heCity;
 }
 
