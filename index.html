@@ -894,10 +894,15 @@ function toggleOption(key) {
 
 function translateCity(heCity) {
   if (!heCity || heCity === '?') return '?';
-  const found = CITIES.find(c =>
-    c.he === heCity ||
-    c.keys.split(',').some(k => k.trim() === heCity)
-  );
+  
+  // 1. Cherche d'abord une correspondance parfaite (la ville exacte)
+  let found = CITIES.find(c => c.he === heCity || c.keys === heCity);
+  
+  // 2. Si introuvable, alors seulement on cherche si elle appartient à un groupe
+  if (!found) {
+    found = CITIES.find(c => c.keys.split(',').some(k => k.trim() === heCity));
+  }
+  
   if (found) return found[currentLang] || found.fr;
   return heCity;
 }
