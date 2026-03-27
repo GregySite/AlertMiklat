@@ -439,12 +439,12 @@ const CITIES = [
 ];
 
 const CONFIG = {
-  zones:           localStorage.getItem('zones')                          || 'ירושלים - דרום,גוש עציון',
+  zones:           localStorage.getItem('zones')                          || 'ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון',
   durationSec:     parseInt(localStorage.getItem('durationSec')          || '600'),
   pollIntervalSec: parseInt(localStorage.getItem('pollIntervalSec')      || '5'),
   vibration:       localStorage.getItem('vibration') !== 'false',
   sound:           localStorage.getItem('sound')     !== 'false',
-  lang:            localStorage.getItem('lang')                          || 'fr',
+  lang:            localStorage.getItem('lang')                          || 'he',
 };
 
 let currentState   = 'idle';
