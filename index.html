@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0a0f"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="mobile-web-app-capable" content="yes"/>
-<title>AlertMiklat v2</title>
+<title>AlertMiklat v3</title>
 <link rel="icon" type="image/svg+xml" id="favicon-link" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%2322d07a'/%3E%3Ctext x='16' y='22' font-size='18' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'%3E✓%3C/text%3E%3C/svg%3E"/>
 <link rel="manifest" href="manifest.json"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -15,7 +15,7 @@
   :root {
     --bg:#0a0a0f; --surface:#12121a; --border:#1e1e2e;
     --text:#e8e8f0; --muted:#6b6b8a; --accent:#4f6ef7;
-    --green:#22d07a; --yellow:#f7c84f; --red:#f74f4f; --orange:#f79a4f;
+    --green:#22d07a; --yellow:#f7c84f; --red:#f74f4f; --orange:#f79a4f; --purple:#b14ff7;
     --glow-red:rgba(247,79,79,0.25); --glow-green:rgba(34,208,122,0.25); --glow-yellow:rgba(247,200,79,0.25);
     --radius:16px; --font:'Rubik',sans-serif; --mono:'Share Tech Mono',monospace;
   }
@@ -75,12 +75,22 @@
   .reset-btn { margin-top:16px; background:none; border:1px solid var(--muted); color:var(--muted); border-radius:999px; padding:8px 20px; font-family:var(--font); font-size:13px; cursor:pointer; transition:all 0.2s; display:block; width:100%; }
   .reset-btn:hover { border-color:var(--accent); color:var(--accent); }
 
+  /* DASHBOARD DES STATS V3 */
+  .stats-card { display:flex; gap:10px; margin-bottom:16px; }
+  .stat-box { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px; text-align:center; display:flex; flex-direction:column; justify-content:center; }
+  .stat-val { font-size:24px; font-family:var(--mono); font-weight:700; margin-bottom:4px; }
+  .stat-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
+  .stat-box.tot .stat-val { color:var(--text); }
+  .stat-box.rck .stat-val { color:var(--red); }
+  .stat-box.drn .stat-val { color:var(--purple); }
+
   .history-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; }
   .history-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:12px; font-family:var(--mono); }
   .history-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
   .history-item:last-child { border-bottom:none; }
   .history-badge { font-size:11px; font-weight:700; padding:3px 8px; border-radius:999px; white-space:nowrap; flex-shrink:0; }
   .history-badge.alert { background:rgba(247,79,79,0.15); color:var(--red); border:1px solid rgba(247,79,79,0.3); }
+  .history-badge.drone { background:rgba(177,79,247,0.15); color:var(--purple); border:1px solid rgba(177,79,247,0.3); }
   .history-badge.pre   { background:rgba(247,200,79,0.15); color:var(--yellow); border:1px solid rgba(247,200,79,0.3); }
   .history-badge.safe  { background:rgba(34,208,122,0.15); color:var(--green); border:1px solid rgba(34,208,122,0.3); }
   .history-badge.unknown { background:rgba(107,107,138,0.15); color:var(--muted); border:1px solid rgba(107,107,138,0.3); }
@@ -111,12 +121,26 @@
   .num-btn { width:28px; height:28px; border-radius:6px; background:var(--border); border:none; color:var(--text); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
   .num-btn:hover { background:var(--accent); }
   .num-val { font-family:var(--mono); font-size:14px; min-width:32px; text-align:center; }
-  .city-input { background:var(--border); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:8px 10px; font-family:var(--font); font-size:13px; width:100%; outline:none; transition:border 0.2s; }
+  
+  /* RECHERCHE ET GPS */
+  .search-container { display:flex; gap:8px; width:100%; position:relative; }
+  .city-input { flex:1; background:var(--border); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:8px 10px; font-family:var(--font); font-size:13px; outline:none; transition:border 0.2s; }
   .city-input:focus { border-color:var(--accent); }
+  .gps-btn { width:36px; height:36px; border-radius:8px; background:var(--surface); border:1px solid var(--accent); color:var(--accent); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+  .gps-btn:hover { background:var(--accent); color:white; }
   .city-dropdown { display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; background:var(--surface); border:1px solid var(--accent); border-radius:8px; z-index:50; max-height:200px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
   .city-option { padding:10px 12px; cursor:pointer; font-size:13px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; gap:8px; }
   .city-option:hover { background:rgba(79,110,247,0.1); }
   .city-option:last-child { border-bottom:none; }
+
+  /* MULTI-ZONES CHIPS */
+  .chips-container { display:flex; flex-wrap:wrap; gap:6px; width:100%; margin-top:8px; }
+  .zone-chip { background:rgba(79,110,247,0.15); border:1px solid var(--accent); color:var(--text); padding:4px 10px; border-radius:16px; font-size:11px; display:inline-flex; align-items:center; gap:6px; }
+  .chip-close { color:var(--accent); cursor:pointer; font-weight:bold; padding:0 2px; }
+  .chip-close:hover { color:var(--red); }
+
+  /* BOUTON PWA */
+  .install-btn { background:var(--accent); color:white; border:none; border-radius:8px; padding:8px 16px; font-size:12px; font-weight:600; cursor:pointer; font-family:var(--font); }
 
   .test-row { display:flex; gap:8px; margin-bottom:16px; }
   .test-btn { flex:1; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:var(--font); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; }
@@ -138,7 +162,6 @@
   body.rtl .setting-label { text-align:right; display:block; }
   body.rtl .setting-desc  { text-align:right; display:block; }
   body.rtl .setting-row.col { align-items:flex-end; }
-  body.rtl #zone-current-display { text-align:right; width:100%; }
   body.rtl .history-item { flex-direction:row-reverse; }
   body.rtl .history-title { text-align:right; }
   body.rtl .last-alert-title { text-align:right; }
@@ -153,7 +176,7 @@
 <div id="app">
 
   <header>
-    <div class="logo"><span style="font-weight:900;">alert</span><span style="font-weight:200;opacity:0.6;">miklat</span></div>
+    <div class="logo"><span style="font-weight:900;">alert</span><span style="font-weight:200;opacity:0.6;">miklat</span><span style="font-size:10px; color:var(--accent); margin-left:4px; vertical-align:top;">v3</span></div>
     <div class="header-right">
       <div class="lang-switcher">
         <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
@@ -167,7 +190,7 @@
 
   <div class="location-badge">
     <div class="dot"></div>
-    <span id="t-location">Jérusalem Sud</span>
+    <span id="t-location">ירושלים כולה</span>
     <span style="margin-left:auto;font-size:11px;color:var(--muted);font-family:var(--mono);" id="next-poll-txt"></span>
   </div>
 
@@ -191,6 +214,22 @@
     <button class="reset-btn" id="reset-btn" style="display:none;" onclick="resetToIdle()">↺ Retour au calme</button>
   </div>
 
+  <div class="history-title" id="t-stats-title" style="margin-bottom: 8px;">📊 Statistiques Nationales (24h)</div>
+  <div class="stats-card" id="stats-card">
+    <div class="stat-box tot">
+      <div class="stat-val" id="stat-total">0</div>
+      <div class="stat-label" id="t-stat-total">Total</div>
+    </div>
+    <div class="stat-box rck">
+      <div class="stat-val" id="stat-rockets">0</div>
+      <div class="stat-label" id="t-stat-rock">Roquettes</div>
+    </div>
+    <div class="stat-box drn">
+      <div class="stat-val" id="stat-drones">0</div>
+      <div class="stat-label" id="t-stat-drone">Drones</div>
+    </div>
+  </div>
+
   <div class="history-card" id="history-card" style="display:none;">
     <div class="history-title" id="t-history-title">📋 Historique</div>
     <div id="history-list"></div>
@@ -209,17 +248,29 @@
     </div>
     <div class="settings-body" id="settings-body">
 
+      <div class="setting-row" id="install-row" style="display:none;">
+        <div>
+          <div class="setting-label" id="t-install-label">Installer l'App</div>
+          <div class="setting-desc" id="t-install-desc">Ajouter à l'écran d'accueil</div>
+        </div>
+        <button class="install-btn" id="t-install-btn" onclick="installApp()">Installer</button>
+      </div>
+
       <div class="setting-row col">
         <div>
-          <div class="setting-label" id="t-zone-label">Zone surveillée</div>
-          <div class="setting-desc" id="t-zone-desc">Tapez pour chercher une ville</div>
+          <div class="setting-label" id="t-zone-label">Zones surveillées</div>
+          <div class="setting-desc" id="t-zone-desc">Cherchez ou utilisez le GPS</div>
         </div>
-        <div style="position:relative;width:100%;">
-          <input id="zone-search" class="city-input" placeholder="Chercher une ville…" autocomplete="off"
+        
+        <div class="search-container">
+          <input id="zone-search" class="city-input" placeholder="Ajouter une ville…" autocomplete="off"
             oninput="filterCities(this.value)" onfocus="showCityDropdown()" onblur="hideCityDropdown()"/>
+          <button class="gps-btn" onclick="geolocate()" title="Me localiser">📍</button>
           <div id="city-dropdown" class="city-dropdown"></div>
         </div>
-        <div style="font-size:11px;color:var(--accent);font-family:var(--mono);" id="zone-current-display"></div>
+
+        <div class="chips-container" id="zone-chips-container">
+          </div>
       </div>
 
       <div class="setting-row">
@@ -267,34 +318,37 @@
 
   <button class="toggle-test-btn" onclick="toggleTests()">🧪 <span id="t-test-btn">tests</span></button>
   <div class="test-row" id="test-row" style="display:none;">
-    <button class="test-btn y" onclick="simulatePhase('pre-alert')" id="t-btn-pre">⚠️ Pré-alerte</button>
-    <button class="test-btn r" onclick="simulatePhase('alert')" id="t-btn-alert">🚨 ALERTE</button>
+    <button class="test-btn y" onclick="simulatePhase('pre-alert')" id="t-btn-pre">⚠️ Pré</button>
+    <button class="test-btn r" onclick="simulatePhase('alert', 1)" style="font-size:10px;">🚨 Roquette</button>
+    <button class="test-btn r" onclick="simulatePhase('alert', 2)" style="font-size:10px; background:rgba(177,79,247,0.1); border-color:var(--purple); color:var(--purple);">🚨 Drone</button>
     <button class="test-btn g" onclick="simulatePhase('safe')" id="t-btn-safe">✅ Sortie</button>
   </div>
 
-  <footer>© Greg u. v2</footer>
+  <footer>© Greg u. v3</footer>
 </div>
 
 <script>
-const PROXY_URL = 'https://miklat-v2.gregyman.workers.dev/'; // URL V2
+const PROXY_URL = 'https://miklat-v2.gregyman.workers.dev/'; // URL V2 garde notre historique 24h
 const CAT_PRE   = 14;
 const CAT_END   = 13;
 const CAT_DRILL = [3,4,5,6,101,102,103,104,107]; 
 
 const T = {
   fr: {
-    location:'Jérusalem Sud',
+    location:'Multi-Zones',
     notifMsg:'🔔 Activer les notifications pour les alertes en arrière-plan', notifBtn:'Activer',
-    settings:'Paramètres', zoneLabel:'Zone surveillée', zoneDesc:'Tapez pour chercher une ville',
+    settings:'Paramètres', zoneLabel:'Zones surveillées', zoneDesc:'Cherchez ou utilisez le GPS',
     durLabel:'Durée max au miklat', durDesc:'Filet de sécurité (minutes)',
     pollLabel:'Fréquence de vérification', pollDesc:'Toutes les N secondes',
     vibLabel:'Vibration', vibDesc:'Vibre lors des alertes',
     sndLabel:"Son d'alerte", sndDesc:'Bip dans le navigateur',
+    installLabel:'Installer l\'App', installDesc:'Ajouter à l\'écran d\'accueil', installBtn:'Installer',
     testBtn:'tests', testHide:'masquer tests',
     btnPre:'⚠️ Pré-alerte', btnAlert:'🚨 ALERTE', btnSafe:'✅ Sortie',
     lastAlert:'⚡ Dernière alerte', historyTitle:'📋 Historique',
-    catLabel:{ [CAT_PRE]:'Pré-alerte', [CAT_END]:'Sortie', 1:'Roquette', 2:'Drone/UAV', default:'Alerte' },
-    badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', default:'alert' },
+    statsTitle:'📊 Statistiques Nationales (24h)', statTot:'Total', statRock:'Roquettes', statDrone:'Drones',
+    catLabel:{ [CAT_PRE]:'Pré-alerte', [CAT_END]:'Sortie', 1:'Roquette', 2:'Drone', default:'Alerte' },
+    badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', 2:'drone', default:'alert' },
     agoFn: (m) => { 
       if (m <= 0) return "à l'instant"; 
       if (m < 60) return 'il y a ' + m + ' min'; 
@@ -312,23 +366,26 @@ const T = {
     },
     timerLabel:'temps restant au miklat', timerAlmost:'presque fini…',
     notifPre:   ['⚠️ Pré-alerte','Dirigez-vous vers le miklat'],
-    notifAlert: ['🚨 ALERTE — Entrez au miklat !','Mettez-vous à l\'abri immédiatement'],
+    notifAlert: ['🚨 ALERTE ROQUETTE','Entrez au miklat immédiatement !'],
+    notifDrone: ['🚨 ALERTE DRONE','Infiltration aérienne - À l\'abri !'],
     notifSafe:  ['✅ Sortie autorisée','Vous pouvez quitter le miklat'],
     dir:'ltr',
   },
   he: {
-    location:'ירושלים דרום',
+    location:'ריבוי אזורים',
     notifMsg:'🔔 אפשר התראות לקבלת אזעקות ברקע', notifBtn:'אפשר',
-    settings:'הגדרות', zoneLabel:'אזור מעקב', zoneDesc:'הקלד לחיפוש עיר',
+    settings:'הגדרות', zoneLabel:'אזורי מעקב', zoneDesc:'חפש או השתמש ב-GPS',
     durLabel:'זמן מקסימלי במקלט', durDesc:'רשת ביטחון (דקות)',
     pollLabel:'תדירות בדיקה', pollDesc:'כל N שניות',
     vibLabel:'רטט', vibDesc:'רוטט בזמן אזעקה',
     sndLabel:'צליל אזעקה', sndDesc:'צפצוף בדפדפן',
+    installLabel:'התקן אפליקציה', installDesc:'הוסף למסך הבית', installBtn:'התקן',
     testBtn:'בדיקות', testHide:'הסתר בדיקות',
     btnPre:'⚠️ טרום-אזעקה', btnAlert:'🚨 אזעקה', btnSafe:'✅ יציאה',
     lastAlert:'⚡ אזעקה אחרונה', historyTitle:'📋 היסטוריה',
+    statsTitle:'📊 סטטיסטיקה ארצית (24 שעות)', statTot:'סה"כ', statRock:'רקטות', statDrone:'כטב"מים',
     catLabel:{ [CAT_PRE]:'טרום-אזעקה', [CAT_END]:'יציאה', 1:'רקטה', 2:'כטב"מ', default:'אזעקה' },
-    badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', default:'alert' },
+    badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', 2:'drone', default:'alert' },
     agoFn: (m) => { 
       if (m <= 0) return 'עכשיו'; 
       if (m < 60) return 'לפני ' + m + " דק'"; 
@@ -346,23 +403,26 @@ const T = {
     },
     timerLabel:'זמן שנותר במקלט', timerAlmost:'…כמעט גמרנו',
     notifPre:   ['⚠️ טרום-אזעקה','פנו למקלט'],
-    notifAlert: ['🚨 אזעקה — היכנסו למקלט !','התמגנו מיד'],
+    notifAlert: ['🚨 אזעקת רקטות','היכנסו למרחב מוגן מיד !'],
+    notifDrone: ['🚨 חדירת כטב"מ','סכנה מהאוויר - היכנסו למקלט !'],
     notifSafe:  ['✅ ניתן לצאת','ניתן לצאת מהמקלט'],
     dir:'rtl',
   },
   en: {
-    location:'Jerusalem South',
+    location:'Multi-Zone',
     notifMsg:'🔔 Enable notifications for background alerts', notifBtn:'Enable',
-    settings:'Settings', zoneLabel:'Monitored zone', zoneDesc:'Type to search a city',
+    settings:'Settings', zoneLabel:'Monitored zones', zoneDesc:'Search or use GPS',
     durLabel:'Max shelter duration', durDesc:'Safety fallback (minutes)',
     pollLabel:'Check frequency', pollDesc:'Every N seconds',
     vibLabel:'Vibration', vibDesc:'Vibrate on alerts',
     sndLabel:'Alert sound', sndDesc:'Browser beep on alert',
+    installLabel:'Install App', installDesc:'Add to home screen', installBtn:'Install',
     testBtn:'tests', testHide:'hide tests',
     btnPre:'⚠️ Pre-alert', btnAlert:'🚨 ALERT', btnSafe:'✅ All clear',
     lastAlert:'⚡ Last alert', historyTitle:'📋 History',
-    catLabel:{ [CAT_PRE]:'Pre-alert', [CAT_END]:'All clear', 1:'Rocket', 2:'Drone/UAV', default:'Alert' },
-    badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', default:'alert' },
+    statsTitle:'📊 National Stats (24h)', statTot:'Total', statRock:'Rockets', statDrone:'Drones',
+    catLabel:{ [CAT_PRE]:'Pre-alert', [CAT_END]:'All clear', 1:'Rocket', 2:'UAV/Drone', default:'Alert' },
+    badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', 2:'drone', default:'alert' },
     agoFn: (m) => { 
       if (m <= 0) return 'just now'; 
       if (m < 60) return m + ' min ago'; 
@@ -380,81 +440,81 @@ const T = {
     },
     timerLabel:'time remaining in shelter', timerAlmost:'almost done…',
     notifPre:   ['⚠️ Pre-alert','Head to the shelter'],
-    notifAlert: ['🚨 ALERT — Enter shelter now!','Take cover immediately'],
+    notifAlert: ['🚨 ROCKET ALERT','Take cover immediately!'],
+    notifDrone: ['🚨 HOSTILE AIRCRAFT','Drone infiltration - Enter shelter!'],
     notifSafe:  ['✅ All clear','You may leave the shelter'],
     dir:'ltr',
   }
 };
 
+// V3 : LISTE DES VILLES AVEC COORDONNEES GPS
 const CITIES = [
-  { fr:'⚡ Toutes les villes', he:'⚡ כל הערים',  en:'⚡ All cities',   keys:'__ALL__' },
-  // --- JÉRUSALEM ---
-  { fr:'Jérusalem (toute)',    he:'ירושלים כולה', en:'Jerusalem (all)', keys:'ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון' },
-  { fr:'Jérusalem Sud',        he:'ירושלים דרום', en:'Jerusalem South', keys:'ירושלים - דרום,גוש עציון' },
-  { fr:'Jérusalem Centre',     he:'ירושלים מרכז', en:'Jerusalem Center',keys:'ירושלים - מרכז' },
-  { fr:'Jérusalem Est',        he:'ירושלים מזרח', en:'Jerusalem East',  keys:'ירושלים - מזרח' },
-  { fr:'Jérusalem Ouest',      he:'ירושלים מערב', en:'Jerusalem West',  keys:'ירושלים - מערב' },
-  { fr:'Jérusalem Nord',       he:'ירושלים צפון', en:'Jerusalem North', keys:'ירושלים - צפון' },
-  { fr:'Beit Shemesh',         he:'בית שמש',      en:'Beit Shemesh',      keys:'בית שמש' },
-  { fr:'Gush Etzion',          he:'גוש עציון',     en:'Gush Etzion',     keys:'גוש עציון' },
-  // --- CENTRE / GUSH DAN ---
-  { fr:'Gush Dan (Général)',   he:'גוש דן',       en:'Gush Dan',          keys:'גוש דן,תל אביב,בני ברק,רמת גן' },
-  { fr:'Tel Aviv',             he:'תל אביב',       en:'Tel Aviv',        keys:'תל אביב' },
-  { fr:'Rishon LeZion',        he:'ראשון לציון',   en:'Rishon LeZion',   keys:'ראשון לציון' },
-  { fr:'Rishon Nord/Est',      he:'ראשון לציון - מזרח', en:'Rishon East', keys:'ראשון לציון - מזרח' },
-  { fr:'Petah Tikva',          he:'פתח תקווה',     en:'Petah Tikva',     keys:'פתח תקווה' },
-  { fr:'Bnei Brak',            he:'בני ברק',      en:'Bnei Brak',         keys:'בני ברק' },
-  { fr:'Ramat Gan',            he:'רמת גן',       en:'Ramat Gan',         keys:'רמת גן' },
-  { fr:'Bat Yam',              he:'בת ים',        en:'Bat Yam',           keys:'בת ים' },
-  { fr:'Holon',                he:'חולון',        en:'Holon',             keys:'חולון' },
-  { fr:'Givatayim',            he:'גבעתיים',      en:'Givatayim',         keys:'גבעתיים' },
-  { fr:'Modiin',               he:'מודיעין',       en:'Modiin',          keys:'מודיעין' },
-  { fr:'Rehovot',              he:'רחובות',       en:'Rehovot',           keys:'רחובות' },
-  { fr:'Lod',                  he:'לוד',          en:'Lod',               keys:'לוד' },
-  { fr:'Ramla',                he:'רמלה',         en:'Ramla',             keys:'רמלה' },
-  { fr:'Yavné',                he:'יבנה',         en:'Yavne',             keys:'יבנה' },
-  { fr:'Nes Ziona',            he:'נס ציונה',     en:'Ness Ziona',        keys:'נס ציונה' },
-  { fr:'Kiryat Ono',           he:'קריית אונו',   en:'Kiryat Ono',        keys:'קריית אונו' },
-  { fr:'Rosh HaAyin',          he:'ראש העין',     en:'Rosh HaAyin',       keys:'ראש העין' },
-  // --- SHARON / CÔTE ---
-  { fr:'Netanya',              he:'נתניה',        en:'Netanya',         keys:'נתניה' },
-  { fr:'Herzliya',             he:'הרצליה',       en:'Herzliya',        keys:'הרצליה' },
-  { fr:'Kfar Saba',            he:'כפר סבא',      en:'Kfar Saba',         keys:'כפר סבא' },
-  { fr:'Raanana',              he:'רעננה',        en:"Ra'anana",          keys:'רעננה' },
-  { fr:'Hod HaSharon',         he:'הוד השרון',    en:'Hod HaSharon',      keys:'הוד השרון' },
-  { fr:'Hadera',               he:'חדרה',         en:'Hadera',            keys:'חדרה' },
-  // --- SUD / NEGEV ---
-  { fr:'Beer Sheva',           he:'באר שבע',      en:'Beer Sheva',      keys:'באר שבע' },
-  { fr:'Ashdod',               he:'אשדוד',        en:'Ashdod',          keys:'אשדוד' },
-  { fr:'Ashkelon',             he:'אשקלון',       en:'Ashkelon',        keys:'אשקלון' },
-  { fr:'Sdérot',               he:'שדרות',        en:'Sderot',          keys:'שדרות' },
-  { fr:'Netivot',              he:'נתיבות',       en:'Netivot',           keys:'נתיבות' },
-  { fr:'Ofakim',               he:'אופקים',       en:'Ofakim',            keys:'אופקים' },
-  { fr:'Qiryat Gat',           he:'קריית גת',     en:'Kiryat Gat',        keys:'קריית גת' },
-  { fr:'Kiryat Malakhi',       he:'קריית מלאכי',  en:'Kiryat Malachi',    keys:'קריית מלאכי' },
-  { fr:'Dimona',               he:'דימונה',       en:'Dimona',            keys:'דימונה' },
-  { fr:'Arad',                 he:'ערד',          en:'Arad',              keys:'ערד' },
-  { fr:'Eilat',                he:'אילת',         en:'Eilat',           keys:'אילת' },
-  { fr:'Gaza (environs)',      he:'עוטף עזה',     en:'Gaza Envelope',   keys:'עוטף עזה' },
-  // --- NORD / GALILÉE ---
-  { fr:'Nord (Général)',       he:'הצפון',        en:'The North',         keys:'מטולה,קריית שמונה,נהריה,צפת,טבריה' },
-  { fr:'Haïfa',                he:'חיפה',         en:'Haifa',           keys:'חיפה' },
-  { fr:'Krayot (Banlieue Haïfa)', he:'הקריות',    en:'Krayot',            keys:'קריית אתא,קריית ביאליק,קריית מוצקין,קריית ים' },
-  { fr:'Kiryat Shmona',        he:'קריית שמונה',  en:'Kiryat Shmona',   keys:'קריית שמונה' },
-  { fr:'Nahariya',             he:'נהריה',        en:'Nahariya',        keys:'נהריה' },
-  { fr:'Acre (Akko)',          he:'עכו',          en:'Akko',              keys:'עכו' },
-  { fr:'Zefat (Safed)',        he:'צפת',          en:'Safed',             keys:'צפת' },
-  { fr:'Tibériade',            he:'טבריה',        en:'Tiberias',          keys:'טבריה' },
-  { fr:'Metulla',              he:'מטולה',        en:'Metulla',           keys:'מטולה' },
-  { fr:'Karmiel',              he:'כרמיאל',       en:'Karmiel',           keys:'כרמיאל' },
-  { fr:'Katzrin',              he:'קצרין',        en:'Katzrin',           keys:'קצרין' },
-  { fr:'Rosh Pina',            he:'ראש פינה',     en:'Rosh Pinna',        keys:'ראש פינה' },
-  { fr:'Nazareth',             he:'נצרת',         en:'Nazareth',          keys:'נצרת' },
-  { fr:'Afula',                he:'עפולה',        en:'Afula',             keys:'עפולה' }
+  { fr:'⚡ Toutes les villes', he:'⚡ כל הערים', en:'⚡ All cities', keys:'__ALL__', lat:0, lon:0 },
+  { fr:'Jérusalem (toute)', he:'ירושלים כולה', en:'Jerusalem (all)', keys:'ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון', lat:31.768, lon:35.213 },
+  { fr:'Jérusalem Sud', he:'ירושלים דרום', en:'Jerusalem South', keys:'ירושלים - דרום,גוש עציון', lat:31.745, lon:35.200 },
+  { fr:'Jérusalem Centre', he:'ירושלים מרכז', en:'Jerusalem Center', keys:'ירושלים - מרכז', lat:31.780, lon:35.210 },
+  { fr:'Jérusalem Est', he:'ירושלים מזרח', en:'Jerusalem East', keys:'ירושלים - מזרח', lat:31.790, lon:35.230 },
+  { fr:'Jérusalem Ouest', he:'ירושלים מערב', en:'Jerusalem West', keys:'ירושלים - מערב', lat:31.780, lon:35.180 },
+  { fr:'Jérusalem Nord', he:'ירושלים צפון', en:'Jerusalem North', keys:'ירושלים - צפון', lat:31.820, lon:35.220 },
+  { fr:'Beit Shemesh', he:'בית שמש', en:'Beit Shemesh', keys:'בית שמש', lat:31.747, lon:34.988 },
+  { fr:'Gush Etzion', he:'גוש עציון', en:'Gush Etzion', keys:'גוש עציון', lat:31.650, lon:35.120 },
+  { fr:'Tel Aviv', he:'תל אביב', en:'Tel Aviv', keys:'תל אביב', lat:32.085, lon:34.781 },
+  { fr:'Rishon LeZion', he:'ראשון לציון', en:'Rishon LeZion', keys:'ראשון לציון', lat:31.973, lon:34.792 },
+  { fr:'Petah Tikva', he:'פתח תקווה', en:'Petah Tikva', keys:'פתח תקווה', lat:32.084, lon:34.887 },
+  { fr:'Bnei Brak', he:'בני ברק', en:'Bnei Brak', keys:'בני ברק', lat:32.084, lon:34.825 },
+  { fr:'Ramat Gan', he:'רמת גן', en:'Ramat Gan', keys:'רמת גן', lat:32.068, lon:34.824 },
+  { fr:'Bat Yam', he:'בת ים', en:'Bat Yam', keys:'בת ים', lat:32.022, lon:34.748 },
+  { fr:'Holon', he:'חולון', en:'Holon', keys:'חולון', lat:32.015, lon:34.776 },
+  { fr:'Givatayim', he:'גבעתיים', en:'Givatayim', keys:'גבעתיים', lat:32.072, lon:34.809 },
+  { fr:'Modiin', he:'מודיעין', en:'Modiin', keys:'מודיעין', lat:31.890, lon:35.010 },
+  { fr:'Rehovot', he:'רחובות', en:'Rehovot', keys:'רחובות', lat:31.894, lon:34.808 },
+  { fr:'Lod', he:'לוד', en:'Lod', keys:'לוד', lat:31.951, lon:34.888 },
+  { fr:'Ramla', he:'רמלה', en:'Ramla', keys:'רמלה', lat:31.927, lon:34.862 },
+  { fr:'Yavné', he:'יבנה', en:'Yavne', keys:'יבנה', lat:31.877, lon:34.739 },
+  { fr:'Nes Ziona', he:'נס ציונה', en:'Ness Ziona', keys:'נס ציונה', lat:31.929, lon:34.798 },
+  { fr:'Kiryat Ono', he:'קריית אונו', en:'Kiryat Ono', keys:'קריית אונו', lat:32.052, lon:34.861 },
+  { fr:'Rosh HaAyin', he:'ראש העין', en:'Rosh HaAyin', keys:'ראש העין', lat:32.095, lon:34.956 },
+  { fr:'Netanya', he:'נתניה', en:'Netanya', keys:'נתניה', lat:32.328, lon:34.853 },
+  { fr:'Herzliya', he:'הרצליה', en:'Herzliya', keys:'הרצליה', lat:32.162, lon:34.844 },
+  { fr:'Kfar Saba', he:'כפר סבא', en:'Kfar Saba', keys:'כפר סבא', lat:32.171, lon:34.908 },
+  { fr:'Raanana', he:'רעננה', en:"Ra'anana", keys:'רעננה', lat:32.184, lon:34.871 },
+  { fr:'Hod HaSharon', he:'הוד השרון', en:'Hod HaSharon', keys:'הוד השרון', lat:32.151, lon:34.894 },
+  { fr:'Hadera', he:'חדרה', en:'Hadera', keys:'חדרה', lat:32.435, lon:34.914 },
+  { fr:'Beer Sheva', he:'באר שבע', en:'Beer Sheva', keys:'באר שבע', lat:31.252, lon:34.791 },
+  { fr:'Ashdod', he:'אשדוד', en:'Ashdod', keys:'אשדוד', lat:31.801, lon:34.643 },
+  { fr:'Ashkelon', he:'אשקלון', en:'Ashkelon', keys:'אשקלון', lat:31.669, lon:34.571 },
+  { fr:'Sdérot', he:'שדרות', en:'Sderot', keys:'שדרות', lat:31.523, lon:34.595 },
+  { fr:'Netivot', he:'נתיבות', en:'Netivot', keys:'נתיבות', lat:31.416, lon:34.587 },
+  { fr:'Ofakim', he:'אופקים', en:'Ofakim', keys:'אופקים', lat:31.314, lon:34.620 },
+  { fr:'Qiryat Gat', he:'קריית גת', en:'Kiryat Gat', keys:'קריית גת', lat:31.611, lon:34.764 },
+  { fr:'Kiryat Malakhi', he:'קריית מלאכי', en:'Kiryat Malachi', keys:'קריית מלאכי', lat:31.727, lon:34.743 },
+  { fr:'Dimona', he:'דימונה', en:'Dimona', keys:'דימונה', lat:31.066, lon:35.033 },
+  { fr:'Arad', he:'ערד', en:'Arad', keys:'ערד', lat:31.258, lon:35.212 },
+  { fr:'Eilat', he:'אילת', en:'Eilat', keys:'אילת', lat:29.558, lon:34.948 },
+  { fr:'Gaza (environs)', he:'עוטף עזה', en:'Gaza Envelope', keys:'עוטף עזה', lat:31.400, lon:34.500 },
+  { fr:'Haïfa', he:'חיפה', en:'Haifa', keys:'חיפה', lat:32.794, lon:34.989 },
+  { fr:'Krayot', he:'הקריות', en:'Krayot', keys:'קריית אתא,קריית ביאליק,קריית מוצקין,קריית ים', lat:32.835, lon:35.074 },
+  { fr:'Kiryat Shmona', he:'קריית שמונה', en:'Kiryat Shmona', keys:'קריית שמונה', lat:33.207, lon:35.572 },
+  { fr:'Nahariya', he:'נהריה', en:'Nahariya', keys:'נהריה', lat:33.015, lon:35.098 },
+  { fr:'Acre (Akko)', he:'עכו', en:'Akko', keys:'עכו', lat:32.927, lon:35.083 },
+  { fr:'Zefat (Safed)', he:'צפת', en:'Safed', keys:'צפת', lat:32.964, lon:35.499 },
+  { fr:'Tibériade', he:'טבריה', en:'Tiberias', keys:'טבריה', lat:32.794, lon:35.533 },
+  { fr:'Metulla', he:'מטולה', en:'Metulla', keys:'מטולה', lat:33.282, lon:35.579 },
+  { fr:'Karmiel', he:'כרמיאל', en:'Karmiel', keys:'כרמיאל', lat:32.914, lon:35.297 },
+  { fr:'Katzrin', he:'קצרין', en:'Katzrin', keys:'קצרין', lat:32.993, lon:35.688 },
+  { fr:'Rosh Pina', he:'ראש פינה', en:'Rosh Pinna', keys:'ראש פינה', lat:32.969, lon:35.539 },
+  { fr:'Nazareth', he:'נצרת', en:'Nazareth', keys:'נצרת', lat:32.701, lon:35.296 },
+  { fr:'Afula', he:'עפולה', en:'Afula', keys:'עפולה', lat:32.606, lon:35.289 }
 ];
 
+// GESTION DU MULTI-ZONE (V3)
+// On stocke désormais un tableau de clés dans localStorage
+let savedZones = [];
+try { savedZones = JSON.parse(localStorage.getItem('zonesV3')) || []; } catch(e){}
+if (savedZones.length === 0) savedZones = ['ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון']; // Default
+
 const CONFIG = {
-  zones:           localStorage.getItem('zones')                          || 'ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון',
+  zones:           savedZones,
   durationSec:     parseInt(localStorage.getItem('durationSec')          || '600'),
   pollIntervalSec: parseInt(localStorage.getItem('pollIntervalSec')      || '5'),
   vibration:       localStorage.getItem('vibration') !== 'false',
@@ -475,6 +535,9 @@ let isTestMode     = false;
 let lastManualReset = 0; 
 let appInitTime = Math.floor(Date.now() / 1000); 
 
+// Variables PWA
+let deferredPrompt;
+
 // ── FETCH AVEC ANTI-FREEZE ────────────────────────────────────────
 async function fetchAndSync() {
   if (isTestMode) return;
@@ -494,6 +557,7 @@ async function fetchAndSync() {
     txt.textContent = T[currentLang].online;
     
     computeState(data);
+    updateDashboard(data.history || []); // Met à jour le Dashboard national V3
 
   } catch(e) {
     dot.className = 'status-dot offline';
@@ -504,7 +568,7 @@ async function fetchAndSync() {
 // ── LE CERVEAU LINEAIRE ───────────────────────────────────────────
 function computeState(data) {
   const nowSec = Math.floor((data.ts || Date.now()) / 1000);
-  const zones = parseZones();
+  const zones = parseZones(); // Renvoie un tableau plat de tous les mots clés de toutes les zones sélectionnées
 
   let allEvents = [...(data.history || [])];
   if (data.active) allEvents.push(data.active);
@@ -515,9 +579,9 @@ function computeState(data) {
 
   let uniqueEvents = [];
   for (const ev of zoneEvents) {
-    const evCity = zones === '__ALL__' ? (ev.cities[0] || '?') : getMatchedCity(normCities(ev.cities), zones);
+    const evCity = (zones.includes('__ALL__')) ? (ev.cities[0] || '?') : getMatchedCity(normCities(ev.cities), zones);
     const isDup = uniqueEvents.some(u => {
-      const uCity = zones === '__ALL__' ? (u.cities[0] || '?') : getMatchedCity(normCities(u.cities), zones);
+      const uCity = (zones.includes('__ALL__')) ? (u.cities[0] || '?') : getMatchedCity(normCities(u.cities), zones);
       return Math.abs(u.time - ev.time) < 60 && uCity === evCity && u.cat === ev.cat;
     });
     if (!isDup) uniqueEvents.push(ev);
@@ -548,9 +612,11 @@ function computeState(data) {
         const city = getMatchedCity(normCities(newestAlert.cities), zones);
         if (currentState !== 'alert') {
           showLastAlert(city, newestAlert.time);
-          buzz('alert'); notify(...T[currentLang].notifAlert);
+          buzz('alert', newestAlert.cat);
+          const notifTxt = newestAlert.cat === 2 ? T[currentLang].notifDrone : T[currentLang].notifAlert;
+          notify(...notifTxt);
         }
-        applyState('alert', { remaining, city, alertTime: newestAlert.time }, nowSec);
+        applyState('alert', { remaining, city, alertTime: newestAlert.time, cat: newestAlert.cat }, nowSec);
       } else {
         if (newestAlert.time + CONFIG.durationSec >= appInitTime) {
           activeEvent = newestAlert; 
@@ -607,6 +673,28 @@ function computeState(data) {
   renderHistoryList(historyEvents, zones, nowSec);
 }
 
+// ── V3 : DASHBOARD (Roquettes vs Drones au niveau national) ──
+function updateDashboard(history) {
+  const uniqueNationalEvents = [];
+  for (const ev of history) {
+    if (CAT_DRILL.includes(ev.cat) || ev.cat === CAT_PRE || ev.cat === CAT_END) continue;
+    const isDup = uniqueNationalEvents.some(u => 
+      Math.abs(u.time - ev.time) < 60 && u.cities[0] === ev.cities[0] && u.cat === ev.cat
+    );
+    if (!isDup) uniqueNationalEvents.push(ev);
+  }
+  
+  let rockets = 0; let drones = 0;
+  uniqueNationalEvents.forEach(ev => {
+    if (ev.cat === 1) rockets++;
+    else if (ev.cat === 2) drones++;
+  });
+
+  document.getElementById('stat-total').textContent = rockets + drones;
+  document.getElementById('stat-rockets').textContent = rockets;
+  document.getElementById('stat-drones').textContent = drones;
+}
+
 function renderHistoryList(historyEvents, zones, nowSec) {
   const card = document.getElementById('history-card');
   const list = document.getElementById('history-list');
@@ -625,7 +713,7 @@ function renderHistoryList(historyEvents, zones, nowSec) {
     const cat      = item.cat || 1;
     const label    = t.catLabel[cat]   || t.catLabel.default;
     const badgeCls = t.badgeClass[cat] || t.badgeClass.default;
-    const heCity   = zones === '__ALL__' ? (item.cities[0] || '?') : getMatchedCity(normCities(item.cities), zones);
+    const heCity   = (zones.includes('__ALL__')) ? (item.cities[0] || '?') : getMatchedCity(normCities(item.cities), zones);
     const cityName = translateCity(heCity);
     const minAgo   = Math.round((nowSec - item.time) / 60);
 
@@ -661,6 +749,11 @@ function applyState(newState, params, nowSec) {
   document.getElementById('phase-title').textContent = p.title;
   document.getElementById('phase-icon').textContent  = p.icon;
   const msgEl = document.getElementById('phase-msg');
+  
+  if (newState === 'alert' && params && params.cat === 2) {
+      document.getElementById('phase-title').textContent = currentLang === 'he' ? '🚨 חדירת כטב"מ 🚨' : '🚨 DRONE 🚨';
+  }
+
   msgEl.textContent = p.msg;
   msgEl.setAttribute('dir', T[currentLang].dir);
   setFavicon(newState);
@@ -763,6 +856,46 @@ function startPolling() {
 }
 function restartPolling() { clearInterval(pollInterval); startPolling(); }
 
+// ── V3 : MISE A JOUR DU RENDU DES ZONES (CHIPS) ──
+function renderZoneChips() {
+  const container = document.getElementById('zone-chips-container');
+  container.innerHTML = '';
+  
+  if (CONFIG.zones.length === 0) {
+    document.getElementById('t-location').textContent = '?';
+    return;
+  }
+
+  // Mettre à jour l'en-tête (Si 1 ville, on met le nom. Si plusieurs, on met "Multi-Zones")
+  if (CONFIG.zones.includes('__ALL__')) {
+    document.getElementById('t-location').textContent = T[currentLang].location.replace('Multi-Zones', CITIES[0][currentLang]); // Hack rapide pour afficher "Toutes"
+  } else if (CONFIG.zones.length === 1) {
+    const cM = CITIES.find(c => c.keys === CONFIG.zones[0]);
+    document.getElementById('t-location').textContent = cM ? (cM[currentLang] || cM.fr) : '...';
+  } else {
+    document.getElementById('t-location').textContent = T[currentLang].location; // "Multi-Zones"
+  }
+
+  CONFIG.zones.forEach(zoneKey => {
+    const cityObj = CITIES.find(c => c.keys === zoneKey);
+    if (!cityObj) return;
+    const name = cityObj[currentLang] || cityObj.fr;
+    
+    const chip = document.createElement('div');
+    chip.className = 'zone-chip';
+    chip.innerHTML = `<span>${name}</span> <span class="chip-close" onclick="removeZone('${zoneKey}')">✖</span>`;
+    container.appendChild(chip);
+  });
+}
+
+function removeZone(zoneKeyToRemove) {
+  CONFIG.zones = CONFIG.zones.filter(z => z !== zoneKeyToRemove);
+  if (CONFIG.zones.length === 0) CONFIG.zones = ['__ALL__']; // Fallback sécurité
+  localStorage.setItem('zonesV3', JSON.stringify(CONFIG.zones));
+  renderZoneChips();
+  fetchAndSync();
+}
+
 function setLang(lang) {
   currentLang = lang;
   localStorage.setItem('lang', lang);
@@ -784,7 +917,9 @@ function setLang(lang) {
     't-vib-label':t.vibLabel, 't-vib-desc':t.vibDesc,
     't-snd-label':t.sndLabel, 't-snd-desc':t.sndDesc,
     't-last-alert-title':t.lastAlert, 't-history-title':t.historyTitle,
-    't-btn-pre':t.btnPre, 't-btn-alert':t.btnAlert, 't-btn-safe':t.btnSafe,
+    't-stats-title':t.statsTitle, 't-stat-total':t.statTot, 't-stat-rock':t.statRock, 't-stat-drone':t.statDrone,
+    't-install-label':t.installLabel, 't-install-desc':t.installDesc, 't-install-btn':t.installBtn,
+    't-btn-pre':t.btnPre, 't-btn-safe':t.btnSafe,
     'timer-label':t.timerLabel, 'reset-btn':t.resetBtn,
   };
   for (const [id, val] of Object.entries(ids)) {
@@ -795,11 +930,7 @@ function setLang(lang) {
   const isTV = document.getElementById('test-row').style.display !== 'none';
   document.getElementById('t-test-btn').textContent = isTV ? t.testHide : t.testBtn;
 
-  const cM = CITIES.find(c => c.keys === CONFIG.zones);
-  const locName = cM ? (cM[lang] || cM.fr) : t.location;
-  document.getElementById('t-location').textContent = locName;
-  const sEl = document.getElementById('zone-search');
-  if (sEl) sEl.value = locName;
+  renderZoneChips(); // Met à jour les puces avec la bonne langue
 
   const p = T[lang].phases[currentState] || T[lang].phases.idle;
   document.getElementById('phase-title').textContent = p.title;
@@ -829,24 +960,33 @@ function makeFavicon(bg, sym) {
 }
 
 function getAudioCtx() { if (!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
-function buzz(type) {
+function buzz(type, cat = 1) {
   try {
     if (CONFIG.vibration && navigator.vibrate) {
-      if      (type==='alert') navigator.vibrate([300,100,300,100,300,100,1000]);
-      else if (type==='pre')   navigator.vibrate([200,100,200]);
-      else if (type==='safe')  navigator.vibrate([500]);
+      if (type === 'alert' && cat === 1) navigator.vibrate([300,100,300,100,300,100,1000]); 
+      else if (type === 'alert' && cat === 2) navigator.vibrate([100,50,100,50,100,50,100,50,100]); 
+      else if (type === 'pre') navigator.vibrate([200,100,200]);
+      else if (type === 'safe') navigator.vibrate([500]);
     }
   } catch(e) {}
   
   if (!CONFIG.sound) return;
   try {
     const ctx = getAudioCtx();
-    const patterns = { pre:[[440,.15],[523,.15],[659,.3]], alert:[[880,.1],[880,.1],[880,.1],[440,.3],[880,.5]], safe:[[523,.2],[659,.2],[784,.4]] };
+    const patterns = { 
+      pre:[[440,.15],[523,.15],[659,.3]], 
+      alert1:[[880,.1],[880,.1],[880,.1],[440,.3],[880,.5]], 
+      alert2:[[1200,.1],[1500,.1],[1200,.1],[1500,.1],[1200,.1],[1500,.1]], 
+      safe:[[523,.2],[659,.2],[784,.4]] 
+    };
+    
+    const key = (type === 'alert') ? 'alert' + cat : type;
     let t = ctx.currentTime;
-    for (const [freq,dur] of (patterns[type]||[])) {
+    for (const [freq,dur] of (patterns[key]||[])) {
       const osc=ctx.createOscillator(), gain=ctx.createGain();
       osc.connect(gain); gain.connect(ctx.destination);
-      osc.frequency.value=freq; osc.type=type==='alert'?'sawtooth':'sine';
+      osc.frequency.value=freq; 
+      osc.type = (type==='alert' && cat===1) ? 'sawtooth' : 'sine';
       gain.gain.setValueAtTime(0.3,t); gain.gain.exponentialRampToValueAtTime(0.001,t+dur);
       osc.start(t); osc.stop(t+dur); t+=dur+0.05;
     }
@@ -894,26 +1034,23 @@ function toggleOption(key) {
 
 function translateCity(heCity) {
   if (!heCity || heCity === '?') return '?';
-  
-  // 1. On trouve TOUTES les lignes qui contiennent cette ville
   const matches = CITIES.filter(c => 
     c.he === heCity || 
     c.keys.split(',').some(k => k.trim() === heCity)
   );
-
   if (matches.length > 0) {
-    // 2. On les trie de la plus précise (moins de texte) à la plus globale
     matches.sort((a, b) => a.keys.length - b.keys.length);
-    // 3. On renvoie la plus précise !
     return matches[0][currentLang] || matches[0].fr;
   }
-  
   return heCity;
 }
 
 function parseZones() {
-  if (CONFIG.zones === '__ALL__') return '__ALL__';
-  return CONFIG.zones.split(',').map(z => z.trim()).filter(Boolean);
+  // Concatène toutes les clés de toutes les zones sélectionnées pour le Worker
+  if (CONFIG.zones.includes('__ALL__')) return '__ALL__';
+  let allKeys = [];
+  CONFIG.zones.forEach(z => { allKeys.push(...z.split(',')); });
+  return allKeys.map(z => z.trim()).filter(Boolean);
 }
 function normCities(cities) {
   if (!cities) return [];
@@ -938,10 +1075,12 @@ function filterCities(val) {
   const q  = val.trim().toLowerCase();
   const dd = document.getElementById('city-dropdown');
   if (!q) { dd.style.display='none'; return; }
+  
   const matches = CITIES.filter(c =>
     c.fr.toLowerCase().includes(q) || c.he.includes(q) ||
     c.en.toLowerCase().includes(q) || c.keys.toLowerCase().includes(q)
-  );
+  ).slice(0, 40); 
+  
   if (!matches.length) { dd.style.display='none'; return; }
   dd.innerHTML = matches.map(c =>
     '<div class="city-option" onmousedown="selectCity(event)"'
@@ -956,15 +1095,21 @@ function filterCities(val) {
 function selectCity(e) {
   e.preventDefault();
   const opt = e.currentTarget;
-  CONFIG.zones = opt.dataset.keys;
-  localStorage.setItem('zones', CONFIG.zones);
-  T.fr.location = opt.dataset.fr; T.he.location = opt.dataset.he; T.en.location = opt.dataset.en;
-  const name = opt.dataset[currentLang] || opt.dataset.fr;
-  document.getElementById('t-location').textContent  = name;
-  document.getElementById('zone-search').value        = name;
-  document.getElementById('zone-current-display').textContent =
-    CONFIG.zones !== '__ALL__' ? '📍 ' + CONFIG.zones : '📍 כל הערים / Toutes';
+  const newKey = opt.dataset.keys;
+
+  if (newKey === '__ALL__') {
+    CONFIG.zones = ['__ALL__'];
+  } else {
+    // Si on avait "Toutes" ou qu'on n'a rien, on écrase. Sinon on ajoute.
+    if (CONFIG.zones.includes('__ALL__')) CONFIG.zones = [];
+    if (!CONFIG.zones.includes(newKey)) CONFIG.zones.push(newKey);
+  }
+
+  localStorage.setItem('zonesV3', JSON.stringify(CONFIG.zones));
+  document.getElementById('zone-search').value = '';
   document.getElementById('city-dropdown').style.display = 'none';
+  
+  renderZoneChips();
   
   appInitTime = Math.floor(Date.now() / 1000);
   applyState('idle', null, appInitTime); 
@@ -972,6 +1117,54 @@ function selectCity(e) {
 }
 function showCityDropdown() { filterCities(document.getElementById('zone-search').value); }
 function hideCityDropdown() { setTimeout(() => { document.getElementById('city-dropdown').style.display='none'; }, 200); }
+
+// ── V3 : FONCTION GPS ──
+function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+  const R = 6371; 
+  const dLat = (lat2-lat1) * (Math.PI/180);
+  const dLon = (lon2-lon1) * (Math.PI/180); 
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * (Math.PI/180)) * Math.cos(lat2 * (Math.PI/180)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  return R * c;
+}
+
+function geolocate() {
+  if (!navigator.geolocation) { alert("GPS non supporté par ce navigateur."); return; }
+  
+  document.getElementById('zone-search').value = "Recherche...";
+  
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const uLat = position.coords.latitude;
+      const uLon = position.coords.longitude;
+      
+      let closestCity = null;
+      let minDistance = 99999;
+
+      CITIES.forEach(city => {
+        if (city.lat && city.lon) {
+          const d = getDistanceFromLatLonInKm(uLat, uLon, city.lat, city.lon);
+          if (d < minDistance) { minDistance = d; closestCity = city; }
+        }
+      });
+
+      if (closestCity) {
+        document.getElementById('zone-search').value = "";
+        if (CONFIG.zones.includes('__ALL__')) CONFIG.zones = [];
+        if (!CONFIG.zones.includes(closestCity.keys)) CONFIG.zones.push(closestCity.keys);
+        
+        localStorage.setItem('zonesV3', JSON.stringify(CONFIG.zones));
+        renderZoneChips();
+        fetchAndSync();
+      }
+    },
+    (error) => {
+      document.getElementById('zone-search').value = "";
+      alert("Impossible de vous localiser. Veuillez autoriser le GPS.");
+    },
+    { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
+  );
+}
 
 function toggleTests() {
   const row = document.getElementById('test-row');
@@ -982,19 +1175,38 @@ function toggleTests() {
   else isTestMode = true;
 }
 
-function simulatePhase(phase) {
+function simulatePhase(phase, cat = 1) {
   if (!isTestMode) return;
   clearInterval(timerInterval);
   const now = Math.floor(Date.now()/1000);
   if (phase === 'pre-alert') { currentState='idle'; applyState('pre-alert', null, now); }
   else if (phase === 'alert') {
     currentState='idle';
-    showLastAlert('TEST — ירושלים - דרום', now);
-    try { buzz('alert'); } catch(e) {}
-    try { notify(...T[currentLang].notifAlert); } catch(e) {}
-    applyState('alert', { remaining:CONFIG.durationSec, city:'TEST', alertTime:now }, now);
+    showLastAlert('TEST — ירושלים', now);
+    try { buzz('alert', cat); } catch(e) {}
+    const notifTxt = cat === 2 ? T[currentLang].notifDrone : T[currentLang].notifAlert;
+    try { notify(...notifTxt); } catch(e) {}
+    applyState('alert', { remaining:CONFIG.durationSec, city:'TEST', alertTime:now, cat: cat }, now);
   }
   else if (phase === 'safe') { currentState='alert'; applyState('safe', null, now); }
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-row').style.display = 'flex';
+});
+
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        document.getElementById('install-row').style.display = 'none';
+      }
+      deferredPrompt = null;
+    });
+  }
 }
 
 window.addEventListener('load', () => {
@@ -1002,15 +1214,6 @@ window.addEventListener('load', () => {
   document.getElementById('poll-val').textContent     = CONFIG.pollIntervalSec + 's';
   document.getElementById('toggle-vibration').classList.toggle('on', CONFIG.vibration);
   document.getElementById('toggle-sound').classList.toggle('on', CONFIG.sound);
-
-  const cM = CITIES.find(c => c.keys === CONFIG.zones);
-  if (cM) {
-    const name = cM[currentLang] || cM.fr;
-    document.getElementById('zone-search').value       = name;
-    document.getElementById('t-location').textContent  = name;
-    document.getElementById('zone-current-display').textContent =
-      CONFIG.zones !== '__ALL__' ? '📍 ' + CONFIG.zones : '📍 כל הערים / Toutes';
-  }
 
   setLang(currentLang);
   setFavicon('idle');
