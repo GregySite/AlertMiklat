@@ -214,10 +214,11 @@
     <button class="reset-btn" id="reset-btn" style="display:none;" onclick="resetToIdle()">↺ Retour au calme</button>
   </div>
 
+  <div class="history-title" id="t-stats-title" style="margin-bottom: 8px;">📊 Statistiques Nationales (24h)</div>
   <div class="stats-card" id="stats-card">
     <div class="stat-box tot">
       <div class="stat-val" id="stat-total">0</div>
-      <div class="stat-label" id="t-stat-total">Total Alertes</div>
+      <div class="stat-label" id="t-stat-total">Total</div>
     </div>
     <div class="stat-box rck">
       <div class="stat-val" id="stat-rockets">0</div>
@@ -345,7 +346,7 @@ const T = {
     testBtn:'tests', testHide:'masquer tests',
     btnPre:'⚠️ Pré-alerte', btnAlert:'🚨 ALERTE', btnSafe:'✅ Sortie',
     lastAlert:'⚡ Dernière alerte', historyTitle:'📋 Historique',
-    statTot:'Total Alertes', statRock:'Roquettes', statDrone:'Drones',
+    statsTitle:'📊 Statistiques Nationales (24h)', statTot:'Total', statRock:'Roquettes', statDrone:'Drones',
     catLabel:{ [CAT_PRE]:'Pré-alerte', [CAT_END]:'Sortie', 1:'Roquette', 2:'Drone', default:'Alerte' },
     badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', 2:'drone', default:'alert' },
     agoFn: (m) => { 
@@ -382,7 +383,7 @@ const T = {
     testBtn:'בדיקות', testHide:'הסתר בדיקות',
     btnPre:'⚠️ טרום-אזעקה', btnAlert:'🚨 אזעקה', btnSafe:'✅ יציאה',
     lastAlert:'⚡ אזעקה אחרונה', historyTitle:'📋 היסטוריה',
-    statTot:'סה"כ התראות', statRock:'רקטות', statDrone:'כטב"מים',
+    statsTitle:'📊 סטטיסטיקה ארצית (24 שעות)', statTot:'סה"כ', statRock:'רקטות', statDrone:'כטב"מים',
     catLabel:{ [CAT_PRE]:'טרום-אזעקה', [CAT_END]:'יציאה', 1:'רקטה', 2:'כטב"מ', default:'אזעקה' },
     badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', 2:'drone', default:'alert' },
     agoFn: (m) => { 
@@ -419,7 +420,7 @@ const T = {
     testBtn:'tests', testHide:'hide tests',
     btnPre:'⚠️ Pre-alert', btnAlert:'🚨 ALERT', btnSafe:'✅ All clear',
     lastAlert:'⚡ Last alert', historyTitle:'📋 History',
-    statTot:'Total Alerts', statRock:'Rockets', statDrone:'Drones',
+    statsTitle:'📊 National Stats (24h)', statTot:'Total', statRock:'Rockets', statDrone:'Drones',
     catLabel:{ [CAT_PRE]:'Pre-alert', [CAT_END]:'All clear', 1:'Rocket', 2:'UAV/Drone', default:'Alert' },
     badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', 2:'drone', default:'alert' },
     agoFn: (m) => { 
@@ -916,7 +917,7 @@ function setLang(lang) {
     't-vib-label':t.vibLabel, 't-vib-desc':t.vibDesc,
     't-snd-label':t.sndLabel, 't-snd-desc':t.sndDesc,
     't-last-alert-title':t.lastAlert, 't-history-title':t.historyTitle,
-    't-stat-total':t.statTot, 't-stat-rock':t.statRock, 't-stat-drone':t.statDrone,
+    't-stats-title':t.statsTitle, 't-stat-total':t.statTot, 't-stat-rock':t.statRock, 't-stat-drone':t.statDrone,
     't-install-label':t.installLabel, 't-install-desc':t.installDesc, 't-install-btn':t.installBtn,
     't-btn-pre':t.btnPre, 't-btn-safe':t.btnSafe,
     'timer-label':t.timerLabel, 'reset-btn':t.resetBtn,
