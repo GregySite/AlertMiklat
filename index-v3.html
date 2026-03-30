@@ -157,19 +157,39 @@
   footer { margin-top:24px; text-align:center; font-size:11px; color:var(--muted); font-family:var(--mono); }
 
   /* ================================================================= */
-  /* V3.1 : LIGNE RADAR 24H (Sur le bord de l'écran)                   */
+  /* V3.1 : LIGNE RADAR 24H (Corrigé)                                  */
   /* ================================================================= */
   #side-timeline {
-    position: fixed;
-    top: 40px; /* Démarre à hauteur du titre */
-    bottom: 20px; /* S'arrête avant le bas */
-    right: 8px;
-    width: 4px; /* Un peu plus épaisse */
-    background: var(--border); /* Couleur de bordure propre */
+    position: absolute; /* Reste coincé dans le cadre #app */
+    top: 80px; /* Démarre juste sous le header */
+    bottom: 30px; /* S'arrête avant le pied de page */
+    right: 4px; /* Collé au bord droit */
+    width: 4px; 
+    background: var(--border); 
     border-radius: 4px;
-    z-index: 99;
-    pointer-events: none; /* Ne gêne pas les clics sur l'écran */
+    z-index: 10;
+    pointer-events: none; 
   }
+  
+  body.rtl #side-timeline {
+    right: auto;
+    left: 4px; /* Collé au bord gauche en hébreu */
+  }
+  
+  .timeline-dot {
+    position: absolute;
+    left: 50%;
+    width: 6px; 
+    height: 6px;
+    border-radius: 50%;
+    pointer-events: auto; 
+    opacity: 0.6; /* Plus transparent pour gérer les centaines de points */
+    transition: top 0.5s ease;
+  }
+  
+  .timeline-dot.rocket { background: var(--red); box-shadow: 0 0 4px var(--red); }
+  .timeline-dot.drone { background: var(--purple); box-shadow: 0 0 4px var(--purple); }
+  /* ================================================================= */
   
   body.rtl #side-timeline {
     right: auto;
@@ -207,9 +227,9 @@
 </style>
 </head>
 <body>
-<div id="side-timeline"></div>
 <div id="alert-overlay"></div>
 <div id="app">
+  <div id="side-timeline"></div>
 
   <header>
     <div class="logo"><span style="font-weight:900;">alert</span><span style="font-weight:200;opacity:0.6;">miklat</span><span style="font-size:10px; color:var(--accent); margin-left:4px; vertical-align:top;">v3.1</span></div>
@@ -742,7 +762,7 @@ function updateSideTimeline(history) {
     point.style.top = `${topPercentage}%`;
     
     // Petit décalage aléatoire (-4px à +4px) pour voir les "essaims" de roquettes simultanées
-    const jitter = (Math.random() - 0.5) * 8; 
+    const jitter = (Math.random() - 0.5) * 5; 
     point.style.transform = `translate(calc(-50% + ${jitter}px), -50%)`;
     
     // Survoler le point affiche l'heure
