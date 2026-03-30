@@ -156,21 +156,40 @@
 
   footer { margin-top:24px; text-align:center; font-size:11px; color:var(--muted); font-family:var(--mono); }
 
-  /* V3.1 : BARRE LATERALE TIMELINE (Radar 24h) */
+  /* ================================================================= */
+  /* V3.1 : LIGNE RADAR 24H (Sur le bord de l'écran)                   */
+  /* ================================================================= */
   #side-timeline {
-    position:fixed; top:0; bottom:0; right:0; width:6px;
-    background:rgba(255,255,255,0.02); border-left:1px solid var(--border); z-index:99; pointer-events:none;
+    position: fixed;
+    top: 40px; /* Démarre à hauteur du titre */
+    bottom: 20px; /* S'arrête avant le bas */
+    right: 8px;
+    width: 4px; /* Un peu plus épaisse */
+    background: var(--border); /* Couleur de bordure propre */
+    border-radius: 4px;
+    z-index: 99;
+    pointer-events: none; /* Ne gêne pas les clics sur l'écran */
   }
+  
   body.rtl #side-timeline {
-    right:auto; left:0; border-left:none; border-right:1px solid var(--border);
+    right: auto;
+    left: 8px;
   }
+  
   .timeline-dot {
-    position:absolute; left:50%; transform:translateX(-50%) translateY(-50%);
-    width:6px; height:6px; border-radius:50%; transition: top 0.5s ease;
-    pointer-events:auto; /* Pour permettre le survol (tooltip) */
+    position: absolute;
+    left: 50%;
+    width: 5px; /* Points plus petits */
+    height: 5px;
+    border-radius: 50%;
+    pointer-events: auto; /* Permet le survol */
+    opacity: 0.75; /* Effet de transparence pour voir les superpositions */
+    transition: top 0.5s ease;
   }
-  .timeline-dot.rocket { background:var(--red); box-shadow:0 0 6px var(--red); }
-  .timeline-dot.drone { background:var(--purple); box-shadow:0 0 6px var(--purple); }
+  
+  .timeline-dot.rocket { background: var(--red); box-shadow: 0 0 4px var(--red); }
+  .timeline-dot.drone { background: var(--purple); box-shadow: 0 0 4px var(--purple); }
+  /* ================================================================= */
 
   /* RTL */
   body.rtl .header-right { flex-direction:row-reverse; }
@@ -345,7 +364,7 @@
 </div>
 
 <script>
-const PROXY_URL = 'https://miklat-v2.gregyman.workers.dev/'; // URL V2 garde notre historique 24h
+const PROXY_URL = 'https://miklat-v2.gregyman.workers.dev/'; 
 const CAT_PRE   = 14;
 const CAT_END   = 13;
 const CAT_DRILL = [3,4,5,6,101,102,103,104,107]; 
@@ -464,7 +483,6 @@ const T = {
   }
 };
 
-// V3 : LISTE DES VILLES AVEC COORDONNEES GPS
 const CITIES = [
   { fr:'⚡ Toutes les villes', he:'⚡ כל הערים', en:'⚡ All cities', keys:'__ALL__', lat:0, lon:0 },
   { fr:'Jérusalem (toute)', he:'ירושלים כולה', en:'Jerusalem (all)', keys:'ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון', lat:31.768, lon:35.213 },
@@ -524,8 +542,6 @@ const CITIES = [
   { fr:'Afula', he:'עפולה', en:'Afula', keys:'עפולה', lat:32.606, lon:35.289 }
 ];
 
-// GESTION DU MULTI-ZONE (V3)
-// On stocke désormais un tableau de clés dans localStorage
 let savedZones = [];
 try { savedZones = JSON.parse(localStorage.getItem('zonesV3')) || []; } catch(e){}
 if (savedZones.length === 0) savedZones = ['ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון']; // Default
@@ -552,10 +568,8 @@ let isTestMode     = false;
 let lastManualReset = 0; 
 let appInitTime = Math.floor(Date.now() / 1000); 
 
-// Variables PWA
 let deferredPrompt;
 
-// ── FETCH AVEC ANTI-FREEZE ────────────────────────────────────────
 async function fetchAndSync() {
   if (isTestMode) return;
   const dot = document.getElementById('status-dot');
@@ -574,8 +588,8 @@ async function fetchAndSync() {
     txt.textContent = T[currentLang].online;
     
     computeState(data);
-    updateDashboard(data.history || []); // Met à jour le Dashboard national V3
-    updateSideTimeline(data.history || []); // V3.1 : Mise à jour du radar latéral
+    updateDashboard(data.history || []); 
+    updateSideTimeline(data.history || []); // V3.1 : Radar latéral ajouté ici
 
   } catch(e) {
     dot.className = 'status-dot offline';
@@ -583,23 +597,20 @@ async function fetchAndSync() {
   }
 }
 
-// ── LE CERVEAU LINEAIRE ───────────────────────────────────────────
 function computeState(data) {
   const nowSec = Math.floor((data.ts || Date.now()) / 1000);
   const zones = parseZones();
 
   let allEvents = [...(data.history || [])];
 
-  // 🛡️ CORRECTION DU CHRONOMÈTRE (RAFRAÎCHISSEMENT) 🛡️
   if (data.active) {
-    // On cherche la VRAIE heure de début dans l'historique (dans les 20 dernières min)
     const realOrigin = allEvents.find(h => 
       h.cat === data.active.cat && 
       h.cities[0] === data.active.cities[0] &&
       (nowSec - h.time) < 1200 
     );
     if (realOrigin) {
-      data.active.time = realOrigin.time; // On restaure l'heure exacte d'origine !
+      data.active.time = realOrigin.time; 
     }
     allEvents.push(data.active);
   }
@@ -631,7 +642,6 @@ function computeState(data) {
 
   let activeEvent = null; 
 
-  // -- RÈGLE A : Alerte Rouge --
   if (newestAlert) {
     const hasSortie = newestSortie && newestSortie.time > newestAlert.time;
     if (!hasSortie) {
@@ -666,7 +676,6 @@ function computeState(data) {
     }
   }
 
-  // -- RÈGLE B : Pré-Alerte --
   if (!activeEvent && newestPre) {
     const hasSortie = newestSortie && newestSortie.time > newestPre.time;
     if (!hasSortie) {
@@ -683,7 +692,6 @@ function computeState(data) {
     }
   }
 
-  // -- RÈGLE C : Sortie Isolée --
   if (!activeEvent && newestSortie) {
     const ageSortie = nowSec - newestSortie.time;
     if (ageSortie < 120) { 
@@ -695,7 +703,6 @@ function computeState(data) {
     }
   }
 
-  // -- RÈGLE D : Retour au calme --
   if (!activeEvent && currentState !== 'waiting') {
     applyState('idle', null, nowSec);
   }
@@ -708,7 +715,7 @@ function computeState(data) {
 function updateSideTimeline(history) {
   const container = document.getElementById('side-timeline');
   if (!container) return;
-  container.innerHTML = ''; // On vide la barre
+  container.innerHTML = ''; 
 
   const uniqueNationalEvents = [];
   for (const ev of history) {
@@ -720,21 +727,25 @@ function updateSideTimeline(history) {
   }
 
   const nowSec = Math.floor(Date.now() / 1000);
-  const duration24hSec = 24 * 60 * 60; // 24 heures en secondes
+  const duration24hSec = 24 * 60 * 60; 
 
   uniqueNationalEvents.forEach(ev => {
     const ageSeconds = nowSec - ev.time;
-    // On ignore si c'est dans le futur (bug) ou plus vieux que 24h
+    // Empêche les points de sortir de l'axe vertical (de - de 0 ou + de 24h)
     if (ageSeconds > duration24hSec || ageSeconds < 0) return; 
 
-    // Calcul de la position : 0% = tout en haut (maintenant), 100% = tout en bas (il y a 24h)
-    const topPercentage = (ageSeconds / duration24hSec) * 100;
+    // Bloque le point entre 1% et 99% pour qu'il ne coupe pas les bords
+    const topPercentage = Math.max(1, Math.min(99, (ageSeconds / duration24hSec) * 100));
 
     const point = document.createElement('div');
     point.className = 'timeline-dot ' + (ev.cat === 2 ? 'drone' : 'rocket');
     point.style.top = `${topPercentage}%`;
     
-    // Bonus : si on laisse le doigt/souris sur le point, ça affiche l'heure !
+    // Petit décalage aléatoire (-4px à +4px) pour voir les "essaims" de roquettes simultanées
+    const jitter = (Math.random() - 0.5) * 8; 
+    point.style.transform = `translate(calc(-50% + ${jitter}px), -50%)`;
+    
+    // Survoler le point affiche l'heure
     const date = new Date(ev.time * 1000);
     point.title = `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
 
@@ -742,7 +753,6 @@ function updateSideTimeline(history) {
   });
 }
 
-// ── V3 : DASHBOARD (Roquettes vs Drones au niveau national) ──
 function updateDashboard(history) {
   const uniqueNationalEvents = [];
   for (const ev of history) {
@@ -925,7 +935,6 @@ function startPolling() {
 }
 function restartPolling() { clearInterval(pollInterval); startPolling(); }
 
-// ── V3 : MISE A JOUR DU RENDU DES ZONES (CHIPS) ──
 function renderZoneChips() {
   const container = document.getElementById('zone-chips-container');
   container.innerHTML = '';
@@ -935,14 +944,13 @@ function renderZoneChips() {
     return;
   }
 
-  // Mettre à jour l'en-tête (Si 1 ville, on met le nom. Si plusieurs, on met "Multi-Zones")
   if (CONFIG.zones.includes('__ALL__')) {
-    document.getElementById('t-location').textContent = T[currentLang].location.replace('Multi-Zones', CITIES[0][currentLang]); // Hack rapide pour afficher "Toutes"
+    document.getElementById('t-location').textContent = T[currentLang].location.replace('Multi-Zones', CITIES[0][currentLang]); 
   } else if (CONFIG.zones.length === 1) {
     const cM = CITIES.find(c => c.keys === CONFIG.zones[0]);
     document.getElementById('t-location').textContent = cM ? (cM[currentLang] || cM.fr) : '...';
   } else {
-    document.getElementById('t-location').textContent = T[currentLang].location; // "Multi-Zones"
+    document.getElementById('t-location').textContent = T[currentLang].location; 
   }
 
   CONFIG.zones.forEach(zoneKey => {
@@ -959,7 +967,7 @@ function renderZoneChips() {
 
 function removeZone(zoneKeyToRemove) {
   CONFIG.zones = CONFIG.zones.filter(z => z !== zoneKeyToRemove);
-  if (CONFIG.zones.length === 0) CONFIG.zones = ['__ALL__']; // Fallback sécurité
+  if (CONFIG.zones.length === 0) CONFIG.zones = ['__ALL__']; 
   localStorage.setItem('zonesV3', JSON.stringify(CONFIG.zones));
   renderZoneChips();
   fetchAndSync();
@@ -999,7 +1007,7 @@ function setLang(lang) {
   const isTV = document.getElementById('test-row').style.display !== 'none';
   document.getElementById('t-test-btn').textContent = isTV ? t.testHide : t.testBtn;
 
-  renderZoneChips(); // Met à jour les puces avec la bonne langue
+  renderZoneChips(); 
 
   const p = T[lang].phases[currentState] || T[lang].phases.idle;
   document.getElementById('phase-title').textContent = p.title;
