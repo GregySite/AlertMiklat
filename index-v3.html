@@ -157,14 +157,14 @@
   footer { margin-top:24px; text-align:center; font-size:11px; color:var(--muted); font-family:var(--mono); }
 
   /* ================================================================= */
-  /* V3.1 : LIGNE RADAR 24H (Parfaitement bornée)                      */
+  /* V3.1 : LIGNE RADAR 24H (Exactement l'ancien design validé)        */
   /* ================================================================= */
   #side-timeline {
-    position: absolute; /* Reste collé au design global (#app) */
-    /* top: dynamiquement géré par le JavaScript pour s'aligner au titre */
-    bottom: 20px; 
-    right: 4px;
-    width: 8px; /* Ligne légèrement plus épaisse */
+    position: absolute; /* Reste coincé dans le cadre #app */
+    top: 80px; /* Démarre juste sous le header */
+    bottom: 30px; /* S'arrête avant le pied de page */
+    right: 4px; /* Collé au bord droit */
+    width: 4px; 
     background: var(--border); 
     border-radius: 4px;
     z-index: 10;
@@ -173,21 +173,22 @@
   
   body.rtl #side-timeline {
     right: auto;
-    left: 4px;
+    left: 4px; /* Collé au bord gauche en hébreu */
   }
   
   .timeline-dot {
     position: absolute;
     left: 50%;
-    width: 4px; /* Points plus petits pour rester DANS la ligne */
-    height: 4px;
+    width: 6px; 
+    height: 6px;
     border-radius: 50%;
-    pointer-events: auto; /* Active le tooltip à la souris */
-    opacity: 0.85; /* Légère transparence pour voir les chevauchements */
+    pointer-events: auto; 
+    opacity: 0.6; /* Plus transparent pour gérer les centaines de points */
+    transition: top 0.5s ease;
   }
   
-  .timeline-dot.rocket { background: var(--red); box-shadow: 0 0 3px var(--red); }
-  .timeline-dot.drone { background: var(--purple); box-shadow: 0 0 3px var(--purple); }
+  .timeline-dot.rocket { background: var(--red); box-shadow: 0 0 4px var(--red); }
+  .timeline-dot.drone { background: var(--purple); box-shadow: 0 0 4px var(--purple); }
   /* ================================================================= */
 
   /* RTL */
@@ -544,7 +545,7 @@ const CITIES = [
 
 let savedZones = [];
 try { savedZones = JSON.parse(localStorage.getItem('zonesV3')) || []; } catch(e){}
-if (savedZones.length === 0) savedZones = ['ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון']; // Default
+if (savedZones.length === 0) savedZones = ['ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון'];
 
 const CONFIG = {
   zones:           savedZones,
@@ -569,16 +570,6 @@ let lastManualReset = 0;
 let appInitTime = Math.floor(Date.now() / 1000); 
 let deferredPrompt;
 
-// Aligne dynamiquement le radar sur le titre des statistiques
-function alignRadar() {
-  const radar = document.getElementById('side-timeline');
-  const title = document.getElementById('t-stats-title');
-  if (radar && title) {
-    const titleTop = title.offsetTop;
-    radar.style.top = titleTop + 'px';
-  }
-}
-
 async function fetchAndSync() {
   if (isTestMode) return;
   const dot = document.getElementById('status-dot');
@@ -598,8 +589,6 @@ async function fetchAndSync() {
     
     computeState(data);
     updateDashboard(data.history || []); 
-    
-    // Le radar est mis à jour et se sert de data.ts pour ne pas se décaler du serveur
     updateSideTimeline(data.history || [], data.ts); 
 
   } catch(e) {
@@ -722,7 +711,7 @@ function computeState(data) {
   renderHistoryList(historyEvents, zones, nowSec);
 }
 
-// ── V3.1 : BARRE LATERALE (RADAR 24H) DEFINITIVE ──
+// ── V3.1 : BARRE LATERALE (RADAR 24H) ──
 function updateSideTimeline(history, serverTs) {
   const container = document.getElementById('side-timeline');
   if (!container) return;
@@ -737,28 +726,35 @@ function updateSideTimeline(history, serverTs) {
     if (!isDup) uniqueNationalEvents.push(ev);
   }
 
-  // On utilise l'horloge du serveur pour un calcul parfait
   const nowSec = Math.floor((serverTs || Date.now()) / 1000);
   const duration24hSec = 24 * 60 * 60; 
 
   uniqueNationalEvents.forEach(ev => {
-    const ageSeconds = nowSec - ev.time;
+    // ---- CORRECTION DU BUG DES TEMPS ----
+    let evTime = ev.time;
+    if (typeof evTime === 'string') {
+      evTime = Math.floor(Date.parse(evTime.replace(' ', 'T')) / 1000);
+    } else if (evTime > 2000000000) { 
+      evTime = Math.floor(evTime / 1000);
+    }
+    if (isNaN(evTime)) return;
+    // -------------------------------------
+
+    const ageSeconds = nowSec - evTime;
     
-    // Protection anti-bug : si c'est plus vieux que 24h ou dans le "futur" (erreur serveur)
     if (ageSeconds > duration24hSec || ageSeconds < -60) return; 
 
-    // Bloqué mathématiquement entre 1% et 99% : IL NE PEUT PAS SORTIR DE LA LIGNE.
-    const topPercentage = Math.max(1, Math.min(99, (ageSeconds / duration24hSec) * 100));
+    // Bloqué entre 0% et 100%
+    const topPercentage = Math.max(0, Math.min(100, (ageSeconds / duration24hSec) * 100));
 
     const point = document.createElement('div');
     point.className = 'timeline-dot ' + (ev.cat === 2 ? 'drone' : 'rocket');
     point.style.top = `${topPercentage}%`;
     
-    // Décalage hyper fin (-1.5px à +1.5px) pour créer un essaim qui tient DANS les 8px de la barre.
-    const jitter = (Math.random() - 0.5) * 3; 
+    const jitter = (Math.random() - 0.5) * 5; 
     point.style.transform = `translate(calc(-50% + ${jitter}px), -50%)`;
     
-    const date = new Date(ev.time * 1000);
+    const date = new Date(evTime * 1000);
     point.title = `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
 
     container.appendChild(point);
@@ -848,7 +844,6 @@ function applyState(newState, params, nowSec) {
   msgEl.textContent = p.msg;
   msgEl.setAttribute('dir', T[currentLang].dir);
   setFavicon(newState);
-  alignRadar(); // On réaligne le radar au cas où la carte change de taille
 
   switch(newState) {
     case 'idle':
@@ -934,7 +929,6 @@ function showLastAlert(city, timeSec) {
   document.getElementById('last-alert-card').style.display = 'block';
   document.getElementById('last-alert-content').textContent = '📍 ' + city;
   document.getElementById('last-alert-time').textContent = (timeSec ? new Date(timeSec*1000) : new Date()).toLocaleTimeString();
-  alignRadar(); // On réaligne le radar
 }
 
 function startPolling() {
@@ -977,8 +971,6 @@ function renderZoneChips() {
     chip.innerHTML = `<span>${name}</span> <span class="chip-close" onclick="removeZone('${zoneKey}')">✖</span>`;
     container.appendChild(chip);
   });
-  
-  setTimeout(alignRadar, 100); // On réaligne le radar
 }
 
 function removeZone(zoneKeyToRemove) {
@@ -1034,8 +1026,6 @@ function setLang(lang) {
   const dot = document.getElementById('status-dot');
   const txt = document.getElementById('header-status-txt');
   if (txt) txt.textContent = dot.classList.contains('offline') ? t.offline : t.online;
-  
-  alignRadar();
 }
 
 function setFavicon(state) {
@@ -1109,7 +1099,6 @@ function notify(title, body) {
 function toggleSettings() {
   document.getElementById('settings-body').classList.toggle('open');
   document.getElementById('chevron').classList.toggle('open');
-  setTimeout(alignRadar, 300); // Réaligner après l'animation
 }
 function adjustDuration(d) {
   CONFIG.durationSec = Math.max(60, Math.min(1800, CONFIG.durationSec + d*60));
@@ -1266,7 +1255,6 @@ function toggleTests() {
   document.getElementById('t-test-btn').textContent = visible ? T[currentLang].testBtn : T[currentLang].testHide;
   if (visible) { isTestMode = false; clearInterval(timerInterval); applyState('idle', null, null); }
   else isTestMode = true;
-  setTimeout(alignRadar, 100);
 }
 
 function simulatePhase(phase, cat = 1) {
@@ -1314,9 +1302,6 @@ window.addEventListener('load', () => {
   checkNotifPermission();
   startPolling();
 });
-
-// Réaligne le radar si la fenêtre change de taille
-window.addEventListener('resize', alignRadar);
 </script>
 </body>
 </html>
