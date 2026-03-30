@@ -157,53 +157,33 @@
   footer { margin-top:24px; text-align:center; font-size:11px; color:var(--muted); font-family:var(--mono); }
 
   /* ================================================================= */
-  /* V3.1 : LIGNE RADAR 24H (Corrigé)                                  */
+  /* V3.1 : LIGNE RADAR 24H (Sur le bord de l'écran)                   */
   /* ================================================================= */
   #side-timeline {
-    position: absolute; /* Reste coincé dans le cadre #app */
-    top: 80px; /* Démarre juste sous le header */
+    position: absolute; /* Reste coincé dans le cadre de l'application */
+    top: 110px; /* Démarre sous le header */
     bottom: 30px; /* S'arrête avant le pied de page */
-    right: 4px; /* Collé au bord droit */
-    width: 4px; 
-    background: var(--border); 
+    right: 4px;
+    width: 6px; /* Ligne légèrement plus épaisse */
+    background: var(--border);
     border-radius: 4px;
     z-index: 10;
-    pointer-events: none; 
+    pointer-events: none; /* Ne gêne pas les clics sur l'écran */
   }
   
   body.rtl #side-timeline {
     right: auto;
-    left: 4px; /* Collé au bord gauche en hébreu */
+    left: 4px;
   }
   
   .timeline-dot {
     position: absolute;
     left: 50%;
-    width: 6px; 
+    width: 6px; /* Points plus petits */
     height: 6px;
     border-radius: 50%;
-    pointer-events: auto; 
-    opacity: 0.6; /* Plus transparent pour gérer les centaines de points */
-    transition: top 0.5s ease;
-  }
-  
-  .timeline-dot.rocket { background: var(--red); box-shadow: 0 0 4px var(--red); }
-  .timeline-dot.drone { background: var(--purple); box-shadow: 0 0 4px var(--purple); }
-  /* ================================================================= */
-  
-  body.rtl #side-timeline {
-    right: auto;
-    left: 8px;
-  }
-  
-  .timeline-dot {
-    position: absolute;
-    left: 50%;
-    width: 5px; /* Points plus petits */
-    height: 5px;
-    border-radius: 50%;
-    pointer-events: auto; /* Permet le survol */
-    opacity: 0.75; /* Effet de transparence pour voir les superpositions */
+    pointer-events: auto; /* Permet le survol pour voir l'heure */
+    opacity: 0.6; /* Transparence pour voir les empilements (essaims) */
     transition: top 0.5s ease;
   }
   
@@ -564,7 +544,7 @@ const CITIES = [
 
 let savedZones = [];
 try { savedZones = JSON.parse(localStorage.getItem('zonesV3')) || []; } catch(e){}
-if (savedZones.length === 0) savedZones = ['ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון']; // Default
+if (savedZones.length === 0) savedZones = ['ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון'];
 
 const CONFIG = {
   zones:           savedZones,
@@ -587,8 +567,28 @@ let isTestMode     = false;
 
 let lastManualReset = 0; 
 let appInitTime = Math.floor(Date.now() / 1000); 
-
 let deferredPrompt;
+
+// ── V3.1 : NORMALISATEUR DE TEMPS (CORRIGE LE BUG DU HALO UNIQUE) ──
+function normalizeTime(ev) {
+  if (typeof ev.time === 'number') {
+    if (ev.time > 2000000000000) return Math.floor(ev.time / 1000); // ms -> sec
+    return ev.time;
+  }
+  // Si le serveur renvoie une date ou heure texte illisible pour le calcul
+  let dStr = ev.alertDate || ev.date || (typeof ev.time === 'string' ? ev.time : null);
+  if (dStr) {
+    if (dStr.includes(':') && !dStr.includes('-')) {
+      const p = dStr.split(':');
+      const d = new Date();
+      d.setHours(parseInt(p[0]||0,10), parseInt(p[1]||0,10), parseInt(p[2]||0,10), 0);
+      return Math.floor(d.getTime()/1000);
+    }
+    const parsed = Date.parse(dStr.replace(' ', 'T'));
+    if (!isNaN(parsed)) return Math.floor(parsed / 1000);
+  }
+  return Math.floor(Date.now() / 1000);
+}
 
 async function fetchAndSync() {
   if (isTestMode) return;
@@ -604,12 +604,16 @@ async function fetchAndSync() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     
+    // NETTOYAGE DES DATES DU SERVEUR
+    if (data.history) data.history.forEach(ev => { ev.time = normalizeTime(ev); });
+    if (data.active) data.active.time = normalizeTime(data.active);
+    
     dot.className = 'status-dot';
     txt.textContent = T[currentLang].online;
     
     computeState(data);
     updateDashboard(data.history || []); 
-    updateSideTimeline(data.history || []); // V3.1 : Radar latéral ajouté ici
+    updateSideTimeline(data.history || []); 
 
   } catch(e) {
     dot.className = 'status-dot offline';
@@ -618,7 +622,7 @@ async function fetchAndSync() {
 }
 
 function computeState(data) {
-  const nowSec = Math.floor((data.ts || Date.now()) / 1000);
+  const nowSec = Math.floor(Date.now() / 1000);
   const zones = parseZones();
 
   let allEvents = [...(data.history || [])];
@@ -751,21 +755,22 @@ function updateSideTimeline(history) {
 
   uniqueNationalEvents.forEach(ev => {
     const ageSeconds = nowSec - ev.time;
-    // Empêche les points de sortir de l'axe vertical (de - de 0 ou + de 24h)
+    
+    // On ignore si c'est dans le futur (bug du serveur) ou plus vieux que 24h
     if (ageSeconds > duration24hSec || ageSeconds < 0) return; 
 
-    // Bloque le point entre 1% et 99% pour qu'il ne coupe pas les bords
+    // Bloque le point entre 1% et 99% pour qu'il ne coupe jamais les bords
     const topPercentage = Math.max(1, Math.min(99, (ageSeconds / duration24hSec) * 100));
 
     const point = document.createElement('div');
     point.className = 'timeline-dot ' + (ev.cat === 2 ? 'drone' : 'rocket');
     point.style.top = `${topPercentage}%`;
     
-    // Petit décalage aléatoire (-4px à +4px) pour voir les "essaims" de roquettes simultanées
-    const jitter = (Math.random() - 0.5) * 5; 
+    // Petit décalage aléatoire (-2px à +2px) pour voir l'effet "essaim" sans sortir du cadre
+    const jitter = (Math.random() - 0.5) * 4; 
     point.style.transform = `translate(calc(-50% + ${jitter}px), -50%)`;
     
-    // Survoler le point affiche l'heure
+    // Survoler le point affiche l'heure exacte
     const date = new Date(ev.time * 1000);
     point.title = `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
 
