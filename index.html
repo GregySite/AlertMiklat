@@ -12,499 +12,499 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <style>
-  :root {
-    --bg:#0a0a0f; --surface:#12121a; --border:#1e1e2e;
-    --text:#e8e8f0; --muted:#6b6b8a; --accent:#4f6ef7;
-    --green:#22d07a; --yellow:#f7c84f; --red:#f74f4f; --orange:#f79a4f; --purple:#b14ff7;
-    --glow-red:rgba(247,79,79,0.25); --glow-green:rgba(34,208,122,0.25); --glow-yellow:rgba(247,200,79,0.25);
-    --radius:16px; --font:'Rubik',sans-serif; --mono:'Share Tech Mono',monospace;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center; overflow-x:hidden; position:relative; }
-  body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(79,110,247,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(79,110,247,0.04) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
-  #app { position:relative; z-index:1; width:100%; max-width:480px; padding:20px 16px 40px; }
+  :root {
+    --bg:#0a0a0f; --surface:#12121a; --border:#1e1e2e;
+    --text:#e8e8f0; --muted:#6b6b8a; --accent:#4f6ef7;
+    --green:#22d07a; --yellow:#f7c84f; --red:#f74f4f; --orange:#f79a4f; --purple:#b14ff7;
+    --glow-red:rgba(247,79,79,0.25); --glow-green:rgba(34,208,122,0.25); --glow-yellow:rgba(247,200,79,0.25);
+    --radius:16px; --font:'Rubik',sans-serif; --mono:'Share Tech Mono',monospace;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center; overflow-x:hidden; position:relative; }
+  body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(79,110,247,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(79,110,247,0.04) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
+  #app { position:relative; z-index:1; width:100%; max-width:480px; padding:20px 16px 40px; }
 
-  header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
-  .logo { font-size:20px; letter-spacing:-0.5px; }
-  .header-right { display:flex; align-items:center; gap:10px; }
-  .lang-switcher { display:flex; gap:4px; background:var(--border); border-radius:999px; padding:3px; }
-  .lang-btn { border:none; background:none; color:var(--muted); font-family:var(--mono); font-size:11px; padding:3px 8px; border-radius:999px; cursor:pointer; transition:all 0.2s; font-weight:600; }
-  .lang-btn.active { background:var(--accent); color:white; }
-  .status-dot { width:10px; height:10px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse-dot 2s infinite; flex-shrink:0; }
-  .status-dot.offline { background:var(--muted); box-shadow:none; animation:none; }
-  .status-dot.alerting { background:var(--red); box-shadow:0 0 12px var(--red); }
-  @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.8);} }
+  header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); }
+  .logo { font-size:20px; letter-spacing:-0.5px; }
+  .header-right { display:flex; align-items:center; gap:10px; }
+  .lang-switcher { display:flex; gap:4px; background:var(--border); border-radius:999px; padding:3px; }
+  .lang-btn { border:none; background:none; color:var(--muted); font-family:var(--mono); font-size:11px; padding:3px 8px; border-radius:999px; cursor:pointer; transition:all 0.2s; font-weight:600; }
+  .lang-btn.active { background:var(--accent); color:white; }
+  .status-dot { width:10px; height:10px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse-dot 2s infinite; flex-shrink:0; }
+  .status-dot.offline { background:var(--muted); box-shadow:none; animation:none; }
+  .status-dot.alerting { background:var(--red); box-shadow:0 0 12px var(--red); }
+  @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.8);} }
 
-  .location-badge { display:inline-flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:8px 16px; font-size:13px; font-weight:500; margin-bottom:16px; width:100%; justify-content:center; }
-  .location-badge .dot { width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+  .location-badge { display:inline-flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:8px 16px; font-size:13px; font-weight:500; margin-bottom:16px; width:100%; justify-content:center; }
+  .location-badge .dot { width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0; }
 
-  .notif-bar { display:none; align-items:center; gap:10px; background:rgba(79,110,247,0.1); border:1px solid var(--accent); border-radius:10px; padding:12px 14px; margin-bottom:16px; font-size:13px; }
-  .notif-bar.show { display:flex; }
-  .notif-bar button { margin-left:auto; background:var(--accent); color:white; border:none; border-radius:6px; padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; font-family:var(--font); white-space:nowrap; }
+  .notif-bar { display:none; align-items:center; gap:10px; background:rgba(79,110,247,0.1); border:1px solid var(--accent); border-radius:10px; padding:12px 14px; margin-bottom:16px; font-size:13px; }
+  .notif-bar.show { display:flex; }
+  .notif-bar button { margin-left:auto; background:var(--accent); color:white; border:none; border-radius:6px; padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; font-family:var(--font); white-space:nowrap; }
 
-  .phase-card { border-radius:var(--radius); padding:28px 24px; margin-bottom:16px; border:1.5px solid var(--border); background:var(--surface); transition:border-color 0.4s,background 0.4s; position:relative; overflow:hidden; }
-  .phase-card::before { content:''; position:absolute; inset:0; opacity:0; transition:opacity 0.4s; pointer-events:none; }
-  .phase-icon { font-size:56px; text-align:center; margin-bottom:16px; display:block; }
-  .phase-title { font-size:26px; font-weight:900; text-align:center; letter-spacing:-0.5px; margin-bottom:8px; }
-  .msg-block { text-align:center; margin-top:12px; }
-  .msg-main { font-size:17px; font-weight:700; color:var(--text); line-height:1.4; }
-  .phase-card.idle { border-color:var(--border); }
-  .phase-card.pre-alert { border-color:var(--yellow); background:linear-gradient(135deg,#12121a 0%,#1a1700 100%); }
-  .phase-card.pre-alert::before { background:radial-gradient(ellipse at center,var(--glow-yellow),transparent 70%); opacity:1; }
-  .phase-card.pre-alert .phase-title { color:var(--yellow); }
-  .phase-card.alert-active { border-color:var(--red); background:linear-gradient(135deg,#12121a 0%,#1a0000 100%); animation:card-pulse 1s ease-in-out infinite; }
-  .phase-card.alert-active::before { background:radial-gradient(ellipse at center,var(--glow-red),transparent 70%); opacity:1; }
-  .phase-card.alert-active .phase-title { color:var(--red); }
-  @keyframes card-pulse { 0%,100%{box-shadow:0 0 0 0 var(--glow-red);} 50%{box-shadow:0 0 30px 8px var(--glow-red);} }
-  .phase-card.safe { border-color:var(--green); background:linear-gradient(135deg,#12121a 0%,#001a0a 100%); }
-  .phase-card.safe::before { background:radial-gradient(ellipse at center,var(--glow-green),transparent 70%); opacity:1; }
-  .phase-card.safe .phase-title { color:var(--green); }
-  .phase-card.waiting { border-color:var(--muted); }
-  .phase-card.waiting .phase-title { color:var(--muted); }
+  .phase-card { border-radius:var(--radius); padding:28px 24px; margin-bottom:16px; border:1.5px solid var(--border); background:var(--surface); transition:border-color 0.4s,background 0.4s; position:relative; overflow:hidden; }
+  .phase-card::before { content:''; position:absolute; inset:0; opacity:0; transition:opacity 0.4s; pointer-events:none; }
+  .phase-icon { font-size:56px; text-align:center; margin-bottom:16px; display:block; }
+  .phase-title { font-size:26px; font-weight:900; text-align:center; letter-spacing:-0.5px; margin-bottom:8px; }
+  .msg-block { text-align:center; margin-top:12px; }
+  .msg-main { font-size:17px; font-weight:700; color:var(--text); line-height:1.4; }
+  .phase-card.idle { border-color:var(--border); }
+  .phase-card.pre-alert { border-color:var(--yellow); background:linear-gradient(135deg,#12121a 0%,#1a1700 100%); }
+  .phase-card.pre-alert::before { background:radial-gradient(ellipse at center,var(--glow-yellow),transparent 70%); opacity:1; }
+  .phase-card.pre-alert .phase-title { color:var(--yellow); }
+  .phase-card.alert-active { border-color:var(--red); background:linear-gradient(135deg,#12121a 0%,#1a0000 100%); animation:card-pulse 1s ease-in-out infinite; }
+  .phase-card.alert-active::before { background:radial-gradient(ellipse at center,var(--glow-red),transparent 70%); opacity:1; }
+  .phase-card.alert-active .phase-title { color:var(--red); }
+  @keyframes card-pulse { 0%,100%{box-shadow:0 0 0 0 var(--glow-red);} 50%{box-shadow:0 0 30px 8px var(--glow-red);} }
+  .phase-card.safe { border-color:var(--green); background:linear-gradient(135deg,#12121a 0%,#001a0a 100%); }
+  .phase-card.safe::before { background:radial-gradient(ellipse at center,var(--glow-green),transparent 70%); opacity:1; }
+  .phase-card.safe .phase-title { color:var(--green); }
+  .phase-card.waiting { border-color:var(--muted); }
+  .phase-card.waiting .phase-title { color:var(--muted); }
 
-  .timer-container { margin:20px 0 8px; display:flex; flex-direction:column; align-items:center; gap:12px; }
-  .timer-display { font-family:var(--mono); font-size:64px; font-weight:400; line-height:1; letter-spacing:2px; color:var(--text); transition:color 0.3s; }
-  .timer-display.warning { color:var(--orange); }
-  .timer-display.safe-color { color:var(--green); }
-  .progress-track { width:100%; height:8px; background:var(--border); border-radius:4px; overflow:hidden; }
-  .progress-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--red),var(--orange)); transition:width 1s linear,background 0.5s; width:0%; }
-  .progress-fill.done { background:var(--green); }
-  .timer-label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; font-family:var(--mono); text-align:center; }
-  .alert-info { font-size:11px; color:var(--muted); text-align:center; margin-top:4px; font-family:var(--mono); }
+  .timer-container { margin:20px 0 8px; display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .timer-display { font-family:var(--mono); font-size:64px; font-weight:400; line-height:1; letter-spacing:2px; color:var(--text); transition:color 0.3s; }
+  .timer-display.warning { color:var(--orange); }
+  .timer-display.safe-color { color:var(--green); }
+  .progress-track { width:100%; height:8px; background:var(--border); border-radius:4px; overflow:hidden; }
+  .progress-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--red),var(--orange)); transition:width 1s linear,background 0.5s; width:0%; }
+  .progress-fill.done { background:var(--green); }
+  .timer-label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; font-family:var(--mono); text-align:center; }
+  .alert-info { font-size:11px; color:var(--muted); text-align:center; margin-top:4px; font-family:var(--mono); }
 
-  .reset-btn { margin-top:16px; background:none; border:1px solid var(--muted); color:var(--muted); border-radius:999px; padding:8px 20px; font-family:var(--font); font-size:13px; cursor:pointer; transition:all 0.2s; display:block; width:100%; }
-  .reset-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .reset-btn { margin-top:16px; background:none; border:1px solid var(--muted); color:var(--muted); border-radius:999px; padding:8px 20px; font-family:var(--font); font-size:13px; cursor:pointer; transition:all 0.2s; display:block; width:100%; }
+  .reset-btn:hover { border-color:var(--accent); color:var(--accent); }
 
-  /* DASHBOARD DES STATS V3 */
-  .stats-card { display:flex; gap:10px; margin-bottom:16px; }
-  .stat-box { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px; text-align:center; display:flex; flex-direction:column; justify-content:center; }
-  .stat-val { font-size:24px; font-family:var(--mono); font-weight:700; margin-bottom:4px; }
-  .stat-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
-  .stat-box.tot .stat-val { color:var(--text); }
-  .stat-box.rck .stat-val { color:var(--red); }
-  .stat-box.drn .stat-val { color:var(--purple); }
+  /* DASHBOARD DES STATS V3 */
+  .stats-card { display:flex; gap:10px; margin-bottom:16px; }
+  .stat-box { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px; text-align:center; display:flex; flex-direction:column; justify-content:center; }
+  .stat-val { font-size:24px; font-family:var(--mono); font-weight:700; margin-bottom:4px; }
+  .stat-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
+  .stat-box.tot .stat-val { color:var(--text); }
+  .stat-box.rck .stat-val { color:var(--red); }
+  .stat-box.drn .stat-val { color:var(--purple); }
 
-  .history-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; }
-  .history-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:12px; font-family:var(--mono); }
-  .history-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
-  .history-item:last-child { border-bottom:none; }
-  .history-badge { font-size:11px; font-weight:700; padding:3px 8px; border-radius:999px; white-space:nowrap; flex-shrink:0; }
-  .history-badge.alert { background:rgba(247,79,79,0.15); color:var(--red); border:1px solid rgba(247,79,79,0.3); }
-  .history-badge.drone { background:rgba(177,79,247,0.15); color:var(--purple); border:1px solid rgba(177,79,247,0.3); }
-  .history-badge.pre   { background:rgba(247,200,79,0.15); color:var(--yellow); border:1px solid rgba(247,200,79,0.3); }
-  .history-badge.safe  { background:rgba(34,208,122,0.15); color:var(--green); border:1px solid rgba(34,208,122,0.3); }
-  .history-badge.unknown { background:rgba(107,107,138,0.15); color:var(--muted); border:1px solid rgba(107,107,138,0.3); }
-  .history-city { font-size:12px; color:var(--muted); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .history-ago  { font-size:11px; color:var(--muted); font-family:var(--mono); white-space:nowrap; flex-shrink:0; }
+  .history-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; }
+  .history-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:12px; font-family:var(--mono); }
+  .history-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
+  .history-item:last-child { border-bottom:none; }
+  .history-badge { font-size:11px; font-weight:700; padding:3px 8px; border-radius:999px; white-space:nowrap; flex-shrink:0; }
+  .history-badge.alert { background:rgba(247,79,79,0.15); color:var(--red); border:1px solid rgba(247,79,79,0.3); }
+  .history-badge.drone { background:rgba(177,79,247,0.15); color:var(--purple); border:1px solid rgba(177,79,247,0.3); }
+  .history-badge.pre   { background:rgba(247,200,79,0.15); color:var(--yellow); border:1px solid rgba(247,200,79,0.3); }
+  .history-badge.safe  { background:rgba(34,208,122,0.15); color:var(--green); border:1px solid rgba(34,208,122,0.3); }
+  .history-badge.unknown { background:rgba(107,107,138,0.15); color:var(--muted); border:1px solid rgba(107,107,138,0.3); }
+  .history-city { font-size:12px; color:var(--muted); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .history-ago  { font-size:11px; color:var(--muted); font-family:var(--mono); white-space:nowrap; flex-shrink:0; }
 
-  .last-alert-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; }
-  .last-alert-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; font-family:var(--mono); }
-  .last-alert-content { font-size:13px; line-height:1.6; }
-  .last-alert-time { font-size:11px; color:var(--muted); margin-top:4px; font-family:var(--mono); }
+  .last-alert-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; }
+  .last-alert-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; font-family:var(--mono); }
+  .last-alert-content { font-size:13px; line-height:1.6; }
+  .last-alert-time { font-size:11px; color:var(--muted); margin-top:4px; font-family:var(--mono); }
 
-  .settings-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; }
-  .settings-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; font-family:var(--mono); display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; }
-  .settings-body { display:none; margin-top:14px; }
-  .settings-body.open { display:block; }
-  .chevron { transition:transform 0.3s; display:inline-block; }
-  .chevron.open { transform:rotate(180deg); }
-  .setting-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); }
-  .setting-row:last-child { border-bottom:none; }
-  .setting-row.col { flex-direction:column; align-items:flex-start; gap:8px; }
-  .setting-label { font-size:13px; font-weight:500; }
-  .setting-desc  { font-size:11px; color:var(--muted); margin-top:2px; }
-  .toggle { width:44px; height:24px; border-radius:12px; background:var(--border); position:relative; cursor:pointer; transition:background 0.3s; flex-shrink:0; border:none; outline:none; }
-  .toggle::after { content:''; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:var(--muted); transition:all 0.3s; }
-  .toggle.on { background:var(--accent); }
-  .toggle.on::after { left:23px; background:white; }
-  .number-input { display:flex; align-items:center; gap:8px; }
-  .num-btn { width:28px; height:28px; border-radius:6px; background:var(--border); border:none; color:var(--text); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
-  .num-btn:hover { background:var(--accent); }
-  .num-val { font-family:var(--mono); font-size:14px; min-width:32px; text-align:center; }
-  
-  /* RECHERCHE ET GPS */
-  .search-container { display:flex; gap:8px; width:100%; position:relative; }
-  .city-input { flex:1; background:var(--border); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:8px 10px; font-family:var(--font); font-size:13px; outline:none; transition:border 0.2s; }
-  .city-input:focus { border-color:var(--accent); }
-  .gps-btn { width:36px; height:36px; border-radius:8px; background:var(--surface); border:1px solid var(--accent); color:var(--accent); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
-  .gps-btn:hover { background:var(--accent); color:white; }
-  .city-dropdown { display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; background:var(--surface); border:1px solid var(--accent); border-radius:8px; z-index:50; max-height:200px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
-  .city-option { padding:10px 12px; cursor:pointer; font-size:13px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; gap:8px; }
-  .city-option:hover { background:rgba(79,110,247,0.1); }
-  .city-option:last-child { border-bottom:none; }
+  .settings-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; }
+  .settings-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; font-family:var(--mono); display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; }
+  .settings-body { display:none; margin-top:14px; }
+  .settings-body.open { display:block; }
+  .chevron { transition:transform 0.3s; display:inline-block; }
+  .chevron.open { transform:rotate(180deg); }
+  .setting-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); }
+  .setting-row:last-child { border-bottom:none; }
+  .setting-row.col { flex-direction:column; align-items:flex-start; gap:8px; }
+  .setting-label { font-size:13px; font-weight:500; }
+  .setting-desc  { font-size:11px; color:var(--muted); margin-top:2px; }
+  .toggle { width:44px; height:24px; border-radius:12px; background:var(--border); position:relative; cursor:pointer; transition:background 0.3s; flex-shrink:0; border:none; outline:none; }
+  .toggle::after { content:''; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:var(--muted); transition:all 0.3s; }
+  .toggle.on { background:var(--accent); }
+  .toggle.on::after { left:23px; background:white; }
+  .number-input { display:flex; align-items:center; gap:8px; }
+  .num-btn { width:28px; height:28px; border-radius:6px; background:var(--border); border:none; color:var(--text); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
+  .num-btn:hover { background:var(--accent); }
+  .num-val { font-family:var(--mono); font-size:14px; min-width:32px; text-align:center; }
+  
+  /* RECHERCHE ET GPS */
+  .search-container { display:flex; gap:8px; width:100%; position:relative; }
+  .city-input { flex:1; background:var(--border); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:8px 10px; font-family:var(--font); font-size:13px; outline:none; transition:border 0.2s; }
+  .city-input:focus { border-color:var(--accent); }
+  .gps-btn { width:36px; height:36px; border-radius:8px; background:var(--surface); border:1px solid var(--accent); color:var(--accent); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+  .gps-btn:hover { background:var(--accent); color:white; }
+  .city-dropdown { display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; background:var(--surface); border:1px solid var(--accent); border-radius:8px; z-index:50; max-height:200px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
+  .city-option { padding:10px 12px; cursor:pointer; font-size:13px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .city-option:hover { background:rgba(79,110,247,0.1); }
+  .city-option:last-child { border-bottom:none; }
 
-  /* MULTI-ZONES CHIPS */
-  .chips-container { display:flex; flex-wrap:wrap; gap:6px; width:100%; margin-top:8px; }
-  .zone-chip { background:rgba(79,110,247,0.15); border:1px solid var(--accent); color:var(--text); padding:4px 10px; border-radius:16px; font-size:11px; display:inline-flex; align-items:center; gap:6px; }
-  .chip-close { color:var(--accent); cursor:pointer; font-weight:bold; padding:0 2px; }
-  .chip-close:hover { color:var(--red); }
+  /* MULTI-ZONES CHIPS */
+  .chips-container { display:flex; flex-wrap:wrap; gap:6px; width:100%; margin-top:8px; }
+  .zone-chip { background:rgba(79,110,247,0.15); border:1px solid var(--accent); color:var(--text); padding:4px 10px; border-radius:16px; font-size:11px; display:inline-flex; align-items:center; gap:6px; }
+  .chip-close { color:var(--accent); cursor:pointer; font-weight:bold; padding:0 2px; }
+  .chip-close:hover { color:var(--red); }
 
-  /* BOUTON PWA */
-  .install-btn { background:var(--accent); color:white; border:none; border-radius:8px; padding:8px 16px; font-size:12px; font-weight:600; cursor:pointer; font-family:var(--font); }
+  /* BOUTON PWA */
+  .install-btn { background:var(--accent); color:white; border:none; border-radius:8px; padding:8px 16px; font-size:12px; font-weight:600; cursor:pointer; font-family:var(--font); }
 
-  .test-row { display:flex; gap:8px; margin-bottom:16px; }
-  .test-btn { flex:1; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:var(--font); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; }
-  .test-btn:hover { transform:translateY(-1px); }
-  .test-btn.y { border-color:var(--yellow); color:var(--yellow); }
-  .test-btn.r { border-color:var(--red); color:var(--red); }
-  .test-btn.g { border-color:var(--green); color:var(--green); }
-  .toggle-test-btn { background:none; border:1px solid var(--border); color:var(--muted); border-radius:999px; padding:5px 14px; font-size:11px; cursor:pointer; font-family:var(--mono); letter-spacing:1px; transition:all 0.2s; display:block; margin:0 auto 8px; }
+  .test-row { display:flex; gap:8px; margin-bottom:16px; }
+  .test-btn { flex:1; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:var(--font); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+  .test-btn:hover { transform:translateY(-1px); }
+  .test-btn.y { border-color:var(--yellow); color:var(--yellow); }
+  .test-btn.r { border-color:var(--red); color:var(--red); }
+  .test-btn.g { border-color:var(--green); color:var(--green); }
+  .toggle-test-btn { background:none; border:1px solid var(--border); color:var(--muted); border-radius:999px; padding:5px 14px; font-size:11px; cursor:pointer; font-family:var(--mono); letter-spacing:1px; transition:all 0.2s; display:block; margin:0 auto 8px; }
 
-  #alert-overlay { display:none; position:fixed; inset:0; z-index:100; background:rgba(180,0,0,0.12); pointer-events:none; animation:flash-bg 0.5s ease-in-out infinite alternate; }
-  #alert-overlay.show { display:block; }
-  @keyframes flash-bg { from{background:rgba(180,0,0,0.06);} to{background:rgba(180,0,0,0.18);} }
+  #alert-overlay { display:none; position:fixed; inset:0; z-index:100; background:rgba(180,0,0,0.12); pointer-events:none; animation:flash-bg 0.5s ease-in-out infinite alternate; }
+  #alert-overlay.show { display:block; }
+  @keyframes flash-bg { from{background:rgba(180,0,0,0.06);} to{background:rgba(180,0,0,0.18);} }
 
-  footer { margin-top:24px; text-align:center; font-size:11px; color:var(--muted); font-family:var(--mono); }
+  footer { margin-top:24px; text-align:center; font-size:11px; color:var(--muted); font-family:var(--mono); }
 
-  /* RTL */
-  body.rtl .header-right { flex-direction:row-reverse; }
-  body.rtl .location-badge { flex-direction:row-reverse; }
-  body.rtl .setting-label { text-align:right; display:block; }
-  body.rtl .setting-desc  { text-align:right; display:block; }
-  body.rtl .setting-row.col { align-items:flex-end; }
-  body.rtl .history-item { flex-direction:row-reverse; }
-  body.rtl .history-title { text-align:right; }
-  body.rtl .last-alert-title { text-align:right; }
-  body.rtl .last-alert-content { text-align:right; }
-  body.rtl .last-alert-time { text-align:right; }
+  /* RTL */
+  body.rtl .header-right { flex-direction:row-reverse; }
+  body.rtl .location-badge { flex-direction:row-reverse; }
+  body.rtl .setting-label { text-align:right; display:block; }
+  body.rtl .setting-desc  { text-align:right; display:block; }
+  body.rtl .setting-row.col { align-items:flex-end; }
+  body.rtl .history-item { flex-direction:row-reverse; }
+  body.rtl .history-title { text-align:right; }
+  body.rtl .last-alert-title { text-align:right; }
+  body.rtl .last-alert-content { text-align:right; }
+  body.rtl .last-alert-time { text-align:right; }
 
-  @media(max-width:380px) { .timer-display{font-size:48px;} .phase-icon{font-size:44px;} }
+  @media(max-width:380px) { .timer-display{font-size:48px;} .phase-icon{font-size:44px;} }
 </style>
 </head>
 <body>
 <div id="alert-overlay"></div>
 <div id="app">
 
-  <header>
-    <div class="logo"><span style="font-weight:900;">alert</span><span style="font-weight:200;opacity:0.6;">miklat</span><span style="font-size:10px; color:var(--accent); margin-left:4px; vertical-align:top;">v3</span></div>
-    <div class="header-right">
-      <div class="lang-switcher">
-        <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
-        <button class="lang-btn" data-lang="he" onclick="setLang('he')">עב</button>
-        <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
-      </div>
-      <span id="header-status-txt" style="font-size:11px;color:var(--muted);font-family:var(--mono);"></span>
-      <div class="status-dot offline" id="status-dot"></div>
-    </div>
-  </header>
+  <header>
+    <div class="logo"><span style="font-weight:900;">alert</span><span style="font-weight:200;opacity:0.6;">miklat</span><span style="font-size:10px; color:var(--accent); margin-left:4px; vertical-align:top;">v3</span></div>
+    <div class="header-right">
+      <div class="lang-switcher">
+        <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
+        <button class="lang-btn" data-lang="he" onclick="setLang('he')">עב</button>
+        <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+      </div>
+      <span id="header-status-txt" style="font-size:11px;color:var(--muted);font-family:var(--mono);"></span>
+      <div class="status-dot offline" id="status-dot"></div>
+    </div>
+  </header>
 
-  <div class="location-badge">
-    <div class="dot"></div>
-    <span id="t-location">ירושלים כולה</span>
-    <span style="margin-left:auto;font-size:11px;color:var(--muted);font-family:var(--mono);" id="next-poll-txt"></span>
-  </div>
+  <div class="location-badge">
+    <div class="dot"></div>
+    <span id="t-location">ירושלים כולה</span>
+    <span style="margin-left:auto;font-size:11px;color:var(--muted);font-family:var(--mono);" id="next-poll-txt"></span>
+  </div>
 
-  <div class="notif-bar" id="notif-bar">
-    <span id="t-notif-msg">🔔 Activer les notifications</span>
-    <button onclick="requestNotif()" id="t-notif-btn">Activer</button>
-  </div>
+  <div class="notif-bar" id="notif-bar">
+    <span id="t-notif-msg">🔔 Activer les notifications</span>
+    <button onclick="requestNotif()" id="t-notif-btn">Activer</button>
+  </div>
 
-  <div class="phase-card idle" id="phase-card">
-    <span class="phase-icon" id="phase-icon">🕊️</span>
-    <div class="phase-title" id="phase-title">Calme</div>
-    <div class="msg-block">
-      <div class="msg-main" id="phase-msg">Aucune alerte en cours</div>
-    </div>
-    <div class="timer-container" id="timer-container" style="display:none;">
-      <div class="timer-display" id="timer-display">10:00</div>
-      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
-      <div class="timer-label" id="timer-label">temps restant au miklat</div>
-      <div class="alert-info" id="alert-info"></div>
-    </div>
-    <button class="reset-btn" id="reset-btn" style="display:none;" onclick="resetToIdle()">↺ Retour au calme</button>
-  </div>
+  <div class="phase-card idle" id="phase-card">
+    <span class="phase-icon" id="phase-icon">🕊️</span>
+    <div class="phase-title" id="phase-title">Calme</div>
+    <div class="msg-block">
+      <div class="msg-main" id="phase-msg">Aucune alerte en cours</div>
+    </div>
+    <div class="timer-container" id="timer-container" style="display:none;">
+      <div class="timer-display" id="timer-display">10:00</div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="timer-label" id="timer-label">temps restant au miklat</div>
+      <div class="alert-info" id="alert-info"></div>
+    </div>
+    <button class="reset-btn" id="reset-btn" style="display:none;" onclick="resetToIdle()">↺ Retour au calme</button>
+  </div>
 
-  <div class="history-title" id="t-stats-title" style="margin-bottom: 8px;">📊 Statistiques Nationales (24h)</div>
-  <div class="stats-card" id="stats-card">
-    <div class="stat-box tot">
-      <div class="stat-val" id="stat-total">0</div>
-      <div class="stat-label" id="t-stat-total">Total</div>
-    </div>
-    <div class="stat-box rck">
-      <div class="stat-val" id="stat-rockets">0</div>
-      <div class="stat-label" id="t-stat-rock">Roquettes</div>
-    </div>
-    <div class="stat-box drn">
-      <div class="stat-val" id="stat-drones">0</div>
-      <div class="stat-label" id="t-stat-drone">Drones</div>
-    </div>
-  </div>
+  <div class="history-title" id="t-stats-title" style="margin-bottom: 8px;">📊 Statistiques Nationales (24h)</div>
+  <div class="stats-card" id="stats-card">
+    <div class="stat-box tot">
+      <div class="stat-val" id="stat-total">0</div>
+      <div class="stat-label" id="t-stat-total">Total</div>
+    </div>
+    <div class="stat-box rck">
+      <div class="stat-val" id="stat-rockets">0</div>
+      <div class="stat-label" id="t-stat-rock">Roquettes</div>
+    </div>
+    <div class="stat-box drn">
+      <div class="stat-val" id="stat-drones">0</div>
+      <div class="stat-label" id="t-stat-drone">Drones</div>
+    </div>
+  </div>
 
-  <div class="history-card" id="history-card" style="display:none;">
-    <div class="history-title" id="t-history-title">📋 Historique</div>
-    <div id="history-list"></div>
-  </div>
+  <div class="history-card" id="history-card" style="display:none;">
+    <div class="history-title" id="t-history-title">📋 Historique</div>
+    <div id="history-list"></div>
+  </div>
 
-  <div class="last-alert-card" id="last-alert-card" style="display:none;">
-    <div class="last-alert-title" id="t-last-alert-title">⚡ Dernière alerte</div>
-    <div class="last-alert-content" id="last-alert-content"></div>
-    <div class="last-alert-time" id="last-alert-time"></div>
-  </div>
+  <div class="last-alert-card" id="last-alert-card" style="display:none;">
+    <div class="last-alert-title" id="t-last-alert-title">⚡ Dernière alerte</div>
+    <div class="last-alert-content" id="last-alert-content"></div>
+    <div class="last-alert-time" id="last-alert-time"></div>
+  </div>
 
-  <div class="settings-card">
-    <div class="settings-title" onclick="toggleSettings()">
-      <span>⚙️ &nbsp;<span id="t-settings">Paramètres</span></span>
-      <span class="chevron" id="chevron">▼</span>
-    </div>
-    <div class="settings-body" id="settings-body">
+  <div class="settings-card">
+    <div class="settings-title" onclick="toggleSettings()">
+      <span>⚙️ &nbsp;<span id="t-settings">Paramètres</span></span>
+      <span class="chevron" id="chevron">▼</span>
+    </div>
+    <div class="settings-body" id="settings-body">
 
-      <div class="setting-row" id="install-row" style="display:none;">
-        <div>
-          <div class="setting-label" id="t-install-label">Installer l'App</div>
-          <div class="setting-desc" id="t-install-desc">Ajouter à l'écran d'accueil</div>
-        </div>
-        <button class="install-btn" id="t-install-btn" onclick="installApp()">Installer</button>
-      </div>
+      <div class="setting-row" id="install-row" style="display:none;">
+        <div>
+          <div class="setting-label" id="t-install-label">Installer l'App</div>
+          <div class="setting-desc" id="t-install-desc">Ajouter à l'écran d'accueil</div>
+        </div>
+        <button class="install-btn" id="t-install-btn" onclick="installApp()">Installer</button>
+      </div>
 
-      <div class="setting-row col">
-        <div>
-          <div class="setting-label" id="t-zone-label">Zones surveillées</div>
-          <div class="setting-desc" id="t-zone-desc">Cherchez ou utilisez le GPS</div>
-        </div>
-        
-        <div class="search-container">
-          <input id="zone-search" class="city-input" placeholder="Ajouter une ville…" autocomplete="off"
-            oninput="filterCities(this.value)" onfocus="showCityDropdown()" onblur="hideCityDropdown()"/>
-          <button class="gps-btn" onclick="geolocate()" title="Me localiser">📍</button>
-          <div id="city-dropdown" class="city-dropdown"></div>
-        </div>
+      <div class="setting-row col">
+        <div>
+          <div class="setting-label" id="t-zone-label">Zones surveillées</div>
+          <div class="setting-desc" id="t-zone-desc">Cherchez ou utilisez le GPS</div>
+        </div>
+        
+        <div class="search-container">
+          <input id="zone-search" class="city-input" placeholder="Ajouter une ville…" autocomplete="off"
+            oninput="filterCities(this.value)" onfocus="showCityDropdown()" onblur="hideCityDropdown()"/>
+          <button class="gps-btn" onclick="geolocate()" title="Me localiser">📍</button>
+          <div id="city-dropdown" class="city-dropdown"></div>
+        </div>
 
-        <div class="chips-container" id="zone-chips-container">
-          </div>
-      </div>
+        <div class="chips-container" id="zone-chips-container">
+          </div>
+      </div>
 
-      <div class="setting-row">
-        <div>
-          <div class="setting-label" id="t-dur-label">Durée max au miklat</div>
-          <div class="setting-desc" id="t-dur-desc">Filet de sécurité (minutes)</div>
-        </div>
-        <div class="number-input">
-          <button class="num-btn" onclick="adjustDuration(-1)">−</button>
-          <span class="num-val" id="duration-val">10</span>
-          <button class="num-btn" onclick="adjustDuration(1)">+</button>
-        </div>
-      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label" id="t-dur-label">Durée max au miklat</div>
+          <div class="setting-desc" id="t-dur-desc">Filet de sécurité (minutes)</div>
+        </div>
+        <div class="number-input">
+          <button class="num-btn" onclick="adjustDuration(-1)">−</button>
+          <span class="num-val" id="duration-val">10</span>
+          <button class="num-btn" onclick="adjustDuration(1)">+</button>
+        </div>
+      </div>
 
-      <div class="setting-row">
-        <div>
-          <div class="setting-label" id="t-poll-label">Fréquence de vérification</div>
-          <div class="setting-desc" id="t-poll-desc">Toutes les N secondes</div>
-        </div>
-        <div class="number-input">
-          <button class="num-btn" onclick="adjustPoll(-1)">−</button>
-          <span class="num-val" id="poll-val">5s</span>
-          <button class="num-btn" onclick="adjustPoll(1)">+</button>
-        </div>
-      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label" id="t-poll-label">Fréquence de vérification</div>
+          <div class="setting-desc" id="t-poll-desc">Toutes les N secondes</div>
+        </div>
+        <div class="number-input">
+          <button class="num-btn" onclick="adjustPoll(-1)">−</button>
+          <span class="num-val" id="poll-val">5s</span>
+          <button class="num-btn" onclick="adjustPoll(1)">+</button>
+        </div>
+      </div>
 
-      <div class="setting-row">
-        <div>
-          <div class="setting-label" id="t-vib-label">Vibration</div>
-          <div class="setting-desc" id="t-vib-desc">Vibre lors des alertes</div>
-        </div>
-        <button class="toggle on" id="toggle-vibration" onclick="toggleOption('vibration')"></button>
-      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label" id="t-vib-label">Vibration</div>
+          <div class="setting-desc" id="t-vib-desc">Vibre lors des alertes</div>
+        </div>
+        <button class="toggle on" id="toggle-vibration" onclick="toggleOption('vibration')"></button>
+      </div>
 
-      <div class="setting-row">
-        <div>
-          <div class="setting-label" id="t-snd-label">Son d'alerte</div>
-          <div class="setting-desc" id="t-snd-desc">Bip dans le navigateur</div>
-        </div>
-        <button class="toggle on" id="toggle-sound" onclick="toggleOption('sound')"></button>
-      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label" id="t-snd-label">Son d'alerte</div>
+          <div class="setting-desc" id="t-snd-desc">Bip dans le navigateur</div>
+        </div>
+        <button class="toggle on" id="toggle-sound" onclick="toggleOption('sound')"></button>
+      </div>
 
-    </div>
-  </div>
+    </div>
+  </div>
 
-  <button class="toggle-test-btn" onclick="toggleTests()">🧪 <span id="t-test-btn">tests</span></button>
-  <div class="test-row" id="test-row" style="display:none;">
-    <button class="test-btn y" onclick="simulatePhase('pre-alert')" id="t-btn-pre">⚠️ Pré</button>
-    <button class="test-btn r" onclick="simulatePhase('alert', 1)" style="font-size:10px;">🚨 Roquette</button>
-    <button class="test-btn r" onclick="simulatePhase('alert', 2)" style="font-size:10px; background:rgba(177,79,247,0.1); border-color:var(--purple); color:var(--purple);">🚨 Drone</button>
-    <button class="test-btn g" onclick="simulatePhase('safe')" id="t-btn-safe">✅ Sortie</button>
-  </div>
+  <button class="toggle-test-btn" onclick="toggleTests()">🧪 <span id="t-test-btn">tests</span></button>
+  <div class="test-row" id="test-row" style="display:none;">
+    <button class="test-btn y" onclick="simulatePhase('pre-alert')" id="t-btn-pre">⚠️ Pré</button>
+    <button class="test-btn r" onclick="simulatePhase('alert', 1)" style="font-size:10px;">🚨 Roquette</button>
+    <button class="test-btn r" onclick="simulatePhase('alert', 2)" style="font-size:10px; background:rgba(177,79,247,0.1); border-color:var(--purple); color:var(--purple);">🚨 Drone</button>
+    <button class="test-btn g" onclick="simulatePhase('safe')" id="t-btn-safe">✅ Sortie</button>
+  </div>
 
-  <footer>© Greg u. v3</footer>
+  <footer>© Greg u. v3</footer>
 </div>
 
 <script>
 const PROXY_URL = 'https://miklat-v2.gregyman.workers.dev/'; // URL V2 garde notre historique 24h
-const CAT_PRE   = 14;
-const CAT_END   = 13;
-const CAT_DRILL = [3,4,5,6,101,102,103,104,107]; 
+const CAT_PRE   = 14;
+const CAT_END   = 13;
+const CAT_DRILL = [3,4,5,6,101,102,103,104,107]; 
 
 const T = {
-  fr: {
-    location:'Multi-Zones',
-    notifMsg:'🔔 Activer les notifications pour les alertes en arrière-plan', notifBtn:'Activer',
-    settings:'Paramètres', zoneLabel:'Zones surveillées', zoneDesc:'Cherchez ou utilisez le GPS',
-    durLabel:'Durée max au miklat', durDesc:'Filet de sécurité (minutes)',
-    pollLabel:'Fréquence de vérification', pollDesc:'Toutes les N secondes',
-    vibLabel:'Vibration', vibDesc:'Vibre lors des alertes',
-    sndLabel:"Son d'alerte", sndDesc:'Bip dans le navigateur',
-    installLabel:'Installer l\'App', installDesc:'Ajouter à l\'écran d\'accueil', installBtn:'Installer',
-    testBtn:'tests', testHide:'masquer tests',
-    btnPre:'⚠️ Pré-alerte', btnAlert:'🚨 ALERTE', btnSafe:'✅ Sortie',
-    lastAlert:'⚡ Dernière alerte', historyTitle:'📋 Historique',
-    statsTitle:'📊 Statistiques Nationales (24h)', statTot:'Total', statRock:'Roquettes', statDrone:'Drones',
-    catLabel:{ [CAT_PRE]:'Pré-alerte', [CAT_END]:'Sortie', 1:'Roquette', 2:'Drone', default:'Alerte' },
-    badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', 2:'drone', default:'alert' },
-    agoFn: (m) => { 
-      if (m <= 0) return "à l'instant"; 
-      if (m < 60) return 'il y a ' + m + ' min'; 
-      const h = Math.floor(m / 60), rem = m % 60; 
-      return 'il y a ' + h + 'h' + (rem > 0 ? String(rem).padStart(2, '0') : ''); 
-    },
-    online:'en ligne', offline:'erreur réseau',
-    resetBtn:'↺ Retour au calme',
-    phases:{
-      idle:        { title:'Calme',              msg:'Aucune alerte en cours',                      icon:'🕊️' },
-      'pre-alert': { title:'Pré-alerte',         msg:'Préparez-vous — dirigez-vous vers le miklat', icon:'⚠️' },
-      alert:       { title:'🚨 ALERTE 🚨',       msg:'Entrez MAINTENANT dans le miklat !',           icon:'🚨' },
-      safe:        { title:'Vous pouvez sortir', msg:'La menace est passée — sortie autorisée',      icon:'✅' },
-      waiting:     { title:'En attente…',        msg:'Chrono terminé — attendez la confirmation',    icon:'⏳' },
-    },
-    timerLabel:'temps restant au miklat', timerAlmost:'presque fini…',
-    notifPre:   ['⚠️ Pré-alerte','Dirigez-vous vers le miklat'],
-    notifAlert: ['🚨 ALERTE ROQUETTE','Entrez au miklat immédiatement !'],
-    notifDrone: ['🚨 ALERTE DRONE','Infiltration aérienne - À l\'abri !'],
-    notifSafe:  ['✅ Sortie autorisée','Vous pouvez quitter le miklat'],
-    dir:'ltr',
-  },
-  he: {
-    location:'ריבוי אזורים',
-    notifMsg:'🔔 אפשר התראות לקבלת אזעקות ברקע', notifBtn:'אפשר',
-    settings:'הגדרות', zoneLabel:'אזורי מעקב', zoneDesc:'חפש או השתמש ב-GPS',
-    durLabel:'זמן מקסימלי במקלט', durDesc:'רשת ביטחון (דקות)',
-    pollLabel:'תדירות בדיקה', pollDesc:'כל N שניות',
-    vibLabel:'רטט', vibDesc:'רוטט בזמן אזעקה',
-    sndLabel:'צליל אזעקה', sndDesc:'צפצוף בדפדפן',
-    installLabel:'התקן אפליקציה', installDesc:'הוסף למסך הבית', installBtn:'התקן',
-    testBtn:'בדיקות', testHide:'הסתר בדיקות',
-    btnPre:'⚠️ טרום-אזעקה', btnAlert:'🚨 אזעקה', btnSafe:'✅ יציאה',
-    lastAlert:'⚡ אזעקה אחרונה', historyTitle:'📋 היסטוריה',
-    statsTitle:'📊 סטטיסטיקה ארצית (24 שעות)', statTot:'סה"כ', statRock:'רקטות', statDrone:'כטב"מים',
-    catLabel:{ [CAT_PRE]:'טרום-אזעקה', [CAT_END]:'יציאה', 1:'רקטה', 2:'כטב"מ', default:'אזעקה' },
-    badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', 2:'drone', default:'alert' },
-    agoFn: (m) => { 
-      if (m <= 0) return 'עכשיו'; 
-      if (m < 60) return 'לפני ' + m + " דק'"; 
-      const h = Math.floor(m / 60), rem = m % 60; 
-      return 'לפני ' + h + " ש' " + (rem > 0 ? "ו-" + rem + " דק'" : ""); 
-    },
-    online:'מחובר', offline:'שגיאת רשת',
-    resetBtn:'↺ חזרה לשקט',
-    phases:{
-      idle:        { title:'שקט',         msg:'אין התרעות כרגע',                  icon:'🕊️' },
-      'pre-alert': { title:'טרום-אזעקה',  msg:'התכוננו — פנו למקלט',             icon:'⚠️' },
-      alert:       { title:'🚨 אזעקה 🚨', msg:'!היכנסו למקלט עכשיו',            icon:'🚨' },
-      safe:        { title:'ניתן לצאת',   msg:'הסכנה חלפה — ניתן לצאת מהמקלט', icon:'✅' },
-      waiting:     { title:'ממתין…',      msg:'הטיימר הסתיים — ממתין לאישור',    icon:'⏳' },
-    },
-    timerLabel:'זמן שנותר במקלט', timerAlmost:'…כמעט גמרנו',
-    notifPre:   ['⚠️ טרום-אזעקה','פנו למקלט'],
-    notifAlert: ['🚨 אזעקת רקטות','היכנסו למרחב מוגן מיד !'],
-    notifDrone: ['🚨 חדירת כטב"מ','סכנה מהאוויר - היכנסו למקלט !'],
-    notifSafe:  ['✅ ניתן לצאת','ניתן לצאת מהמקלט'],
-    dir:'rtl',
-  },
-  en: {
-    location:'Multi-Zone',
-    notifMsg:'🔔 Enable notifications for background alerts', notifBtn:'Enable',
-    settings:'Settings', zoneLabel:'Monitored zones', zoneDesc:'Search or use GPS',
-    durLabel:'Max shelter duration', durDesc:'Safety fallback (minutes)',
-    pollLabel:'Check frequency', pollDesc:'Every N seconds',
-    vibLabel:'Vibration', vibDesc:'Vibrate on alerts',
-    sndLabel:'Alert sound', sndDesc:'Browser beep on alert',
-    installLabel:'Install App', installDesc:'Add to home screen', installBtn:'Install',
-    testBtn:'tests', testHide:'hide tests',
-    btnPre:'⚠️ Pre-alert', btnAlert:'🚨 ALERT', btnSafe:'✅ All clear',
-    lastAlert:'⚡ Last alert', historyTitle:'📋 History',
-    statsTitle:'📊 National Stats (24h)', statTot:'Total', statRock:'Rockets', statDrone:'Drones',
-    catLabel:{ [CAT_PRE]:'Pre-alert', [CAT_END]:'All clear', 1:'Rocket', 2:'UAV/Drone', default:'Alert' },
-    badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', 2:'drone', default:'alert' },
-    agoFn: (m) => { 
-      if (m <= 0) return 'just now'; 
-      if (m < 60) return m + ' min ago'; 
-      const h = Math.floor(m / 60), rem = m % 60; 
-      return h + 'h ' + (rem > 0 ? rem + 'm ' : '') + 'ago'; 
-    },
-    online:'online', offline:'network error',
-    resetBtn:'↺ Reset to calm',
-    phases:{
-      idle:        { title:'All clear',    msg:'No active alerts',                       icon:'🕊️' },
-      'pre-alert': { title:'Pre-alert',    msg:'Get ready — head to the shelter',        icon:'⚠️' },
-      alert:       { title:'🚨 ALERT 🚨', msg:'Enter the shelter NOW!',                 icon:'🚨' },
-      safe:        { title:'You may exit', msg:'Threat has passed — you may leave',      icon:'✅' },
-      waiting:     { title:'Waiting…',     msg:'Timer ended — waiting for confirmation', icon:'⏳' },
-    },
-    timerLabel:'time remaining in shelter', timerAlmost:'almost done…',
-    notifPre:   ['⚠️ Pre-alert','Head to the shelter'],
-    notifAlert: ['🚨 ROCKET ALERT','Take cover immediately!'],
-    notifDrone: ['🚨 HOSTILE AIRCRAFT','Drone infiltration - Enter shelter!'],
-    notifSafe:  ['✅ All clear','You may leave the shelter'],
-    dir:'ltr',
-  }
+  fr: {
+    location:'Multi-Zones',
+    notifMsg:'🔔 Activer les notifications pour les alertes en arrière-plan', notifBtn:'Activer',
+    settings:'Paramètres', zoneLabel:'Zones surveillées', zoneDesc:'Cherchez ou utilisez le GPS',
+    durLabel:'Durée max au miklat', durDesc:'Filet de sécurité (minutes)',
+    pollLabel:'Fréquence de vérification', pollDesc:'Toutes les N secondes',
+    vibLabel:'Vibration', vibDesc:'Vibre lors des alertes',
+    sndLabel:"Son d'alerte", sndDesc:'Bip dans le navigateur',
+    installLabel:'Installer l\'App', installDesc:'Ajouter à l\'écran d\'accueil', installBtn:'Installer',
+    testBtn:'tests', testHide:'masquer tests',
+    btnPre:'⚠️ Pré-alerte', btnAlert:'🚨 ALERTE', btnSafe:'✅ Sortie',
+    lastAlert:'⚡ Dernière alerte', historyTitle:'📋 Historique',
+    statsTitle:'📊 Statistiques Nationales (24h)', statTot:'Total', statRock:'Roquettes', statDrone:'Drones',
+    catLabel:{ [CAT_PRE]:'Pré-alerte', [CAT_END]:'Sortie', 1:'Roquette', 2:'Drone', default:'Alerte' },
+    badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', 2:'drone', default:'alert' },
+    agoFn: (m) => { 
+      if (m <= 0) return "à l'instant"; 
+      if (m < 60) return 'il y a ' + m + ' min'; 
+      const h = Math.floor(m / 60), rem = m % 60; 
+      return 'il y a ' + h + 'h' + (rem > 0 ? String(rem).padStart(2, '0') : ''); 
+    },
+    online:'en ligne', offline:'erreur réseau',
+    resetBtn:'↺ Retour au calme',
+    phases:{
+      idle:        { title:'Calme',              msg:'Aucune alerte en cours',                      icon:'🕊️' },
+      'pre-alert': { title:'Pré-alerte',         msg:'Préparez-vous — dirigez-vous vers le miklat', icon:'⚠️' },
+      alert:       { title:'🚨 ALERTE 🚨',       msg:'Entrez MAINTENANT dans le miklat !',           icon:'🚨' },
+      safe:        { title:'Vous pouvez sortir', msg:'La menace est passée — sortie autorisée',      icon:'✅' },
+      waiting:     { title:'En attente…',        msg:'Chrono terminé — attendez la confirmation',    icon:'⏳' },
+    },
+    timerLabel:'temps restant au miklat', timerAlmost:'presque fini…',
+    notifPre:   ['⚠️ Pré-alerte','Dirigez-vous vers le miklat'],
+    notifAlert: ['🚨 ALERTE ROQUETTE','Entrez au miklat immédiatement !'],
+    notifDrone: ['🚨 ALERTE DRONE','Infiltration aérienne - À l\'abri !'],
+    notifSafe:  ['✅ Sortie autorisée','Vous pouvez quitter le miklat'],
+    dir:'ltr',
+  },
+  he: {
+    location:'ריבוי אזורים',
+    notifMsg:'🔔 אפשר התראות לקבלת אזעקות ברקע', notifBtn:'אפשר',
+    settings:'הגדרות', zoneLabel:'אזורי מעקב', zoneDesc:'חפש או השתמש ב-GPS',
+    durLabel:'זמן מקסימלי במקלט', durDesc:'רשת ביטחון (דקות)',
+    pollLabel:'תדירות בדיקה', pollDesc:'כל N שניות',
+    vibLabel:'רטט', vibDesc:'רוטט בזמן אזעקה',
+    sndLabel:'צליל אזעקה', sndDesc:'צפצוף בדפדפן',
+    installLabel:'התקן אפליקציה', installDesc:'הוסף למסך הבית', installBtn:'התקן',
+    testBtn:'בדיקות', testHide:'הסתר בדיקות',
+    btnPre:'⚠️ טרום-אזעקה', btnAlert:'🚨 אזעקה', btnSafe:'✅ יציאה',
+    lastAlert:'⚡ אזעקה אחרונה', historyTitle:'📋 היסטוריה',
+    statsTitle:'📊 סטטיסטיקה ארצית (24 שעות)', statTot:'סה"כ', statRock:'רקטות', statDrone:'כטב"מים',
+    catLabel:{ [CAT_PRE]:'טרום-אזעקה', [CAT_END]:'יציאה', 1:'רקטה', 2:'כטב"מ', default:'אזעקה' },
+    badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', 2:'drone', default:'alert' },
+    agoFn: (m) => { 
+      if (m <= 0) return 'עכשיו'; 
+      if (m < 60) return 'לפני ' + m + " דק'"; 
+      const h = Math.floor(m / 60), rem = m % 60; 
+      return 'לפני ' + h + " ש' " + (rem > 0 ? "ו-" + rem + " דק'" : ""); 
+    },
+    online:'מחובר', offline:'שגיאת רשת',
+    resetBtn:'↺ חזרה לשקט',
+    phases:{
+      idle:        { title:'שקט',         msg:'אין התרעות כרגע',                  icon:'🕊️' },
+      'pre-alert': { title:'טרום-אזעקה',  msg:'התכוננו — פנו למקלט',             icon:'⚠️' },
+      alert:       { title:'🚨 אזעקה 🚨', msg:'!היכנסו למקלט עכשיו',            icon:'🚨' },
+      safe:        { title:'ניתן לצאת',   msg:'הסכנה חלפה — ניתן לצאת מהמקלט', icon:'✅' },
+      waiting:     { title:'ממתין…',      msg:'הטיימר הסתיים — ממתין לאישור',    icon:'⏳' },
+    },
+    timerLabel:'זמן שנותר במקלט', timerAlmost:'…כמעט גמרנו',
+    notifPre:   ['⚠️ טרום-אזעקה','פנו למקלט'],
+    notifAlert: ['🚨 אזעקת רקטות','היכנסו למרחב מוגן מיד !'],
+    notifDrone: ['🚨 חדירת כטב"מ','סכנה מהאוויר - היכנסו למקלט !'],
+    notifSafe:  ['✅ ניתן לצאת','ניתן לצאת מהמקלט'],
+    dir:'rtl',
+  },
+  en: {
+    location:'Multi-Zone',
+    notifMsg:'🔔 Enable notifications for background alerts', notifBtn:'Enable',
+    settings:'Settings', zoneLabel:'Monitored zones', zoneDesc:'Search or use GPS',
+    durLabel:'Max shelter duration', durDesc:'Safety fallback (minutes)',
+    pollLabel:'Check frequency', pollDesc:'Every N seconds',
+    vibLabel:'Vibration', vibDesc:'Vibrate on alerts',
+    sndLabel:'Alert sound', sndDesc:'Browser beep on alert',
+    installLabel:'Install App', installDesc:'Add to home screen', installBtn:'Install',
+    testBtn:'tests', testHide:'hide tests',
+    btnPre:'⚠️ Pre-alert', btnAlert:'🚨 ALERT', btnSafe:'✅ All clear',
+    lastAlert:'⚡ Last alert', historyTitle:'📋 History',
+    statsTitle:'📊 National Stats (24h)', statTot:'Total', statRock:'Rockets', statDrone:'Drones',
+    catLabel:{ [CAT_PRE]:'Pre-alert', [CAT_END]:'All clear', 1:'Rocket', 2:'UAV/Drone', default:'Alert' },
+    badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', 2:'drone', default:'alert' },
+    agoFn: (m) => { 
+      if (m <= 0) return 'just now'; 
+      if (m < 60) return m + ' min ago'; 
+      const h = Math.floor(m / 60), rem = m % 60; 
+      return h + 'h ' + (rem > 0 ? rem + 'm ' : '') + 'ago'; 
+    },
+    online:'online', offline:'network error',
+    resetBtn:'↺ Reset to calm',
+    phases:{
+      idle:        { title:'All clear',    msg:'No active alerts',                       icon:'🕊️' },
+      'pre-alert': { title:'Pre-alert',    msg:'Get ready — head to the shelter',        icon:'⚠️' },
+      alert:       { title:'🚨 ALERT 🚨', msg:'Enter the shelter NOW!',                 icon:'🚨' },
+      safe:        { title:'You may exit', msg:'Threat has passed — you may leave',      icon:'✅' },
+      waiting:     { title:'Waiting…',     msg:'Timer ended — waiting for confirmation', icon:'⏳' },
+    },
+    timerLabel:'time remaining in shelter', timerAlmost:'almost done…',
+    notifPre:   ['⚠️ Pre-alert','Head to the shelter'],
+    notifAlert: ['🚨 ROCKET ALERT','Take cover immediately!'],
+    notifDrone: ['🚨 HOSTILE AIRCRAFT','Drone infiltration - Enter shelter!'],
+    notifSafe:  ['✅ All clear','You may leave the shelter'],
+    dir:'ltr',
+  }
 };
 
 // V3 : LISTE DES VILLES AVEC COORDONNEES GPS
 const CITIES = [
-  { fr:'⚡ Toutes les villes', he:'⚡ כל הערים', en:'⚡ All cities', keys:'__ALL__', lat:0, lon:0 },
-  { fr:'Jérusalem (toute)', he:'ירושלים כולה', en:'Jerusalem (all)', keys:'ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון', lat:31.768, lon:35.213 },
-  { fr:'Jérusalem Sud', he:'ירושלים דרום', en:'Jerusalem South', keys:'ירושלים - דרום,גוש עציון', lat:31.745, lon:35.200 },
-  { fr:'Jérusalem Centre', he:'ירושלים מרכז', en:'Jerusalem Center', keys:'ירושלים - מרכז', lat:31.780, lon:35.210 },
-  { fr:'Jérusalem Est', he:'ירושלים מזרח', en:'Jerusalem East', keys:'ירושלים - מזרח', lat:31.790, lon:35.230 },
-  { fr:'Jérusalem Ouest', he:'ירושלים מערב', en:'Jerusalem West', keys:'ירושלים - מערב', lat:31.780, lon:35.180 },
-  { fr:'Jérusalem Nord', he:'ירושלים צפון', en:'Jerusalem North', keys:'ירושלים - צפון', lat:31.820, lon:35.220 },
-  { fr:'Beit Shemesh', he:'בית שמש', en:'Beit Shemesh', keys:'בית שמש', lat:31.747, lon:34.988 },
-  { fr:'Gush Etzion', he:'גוש עציון', en:'Gush Etzion', keys:'גוש עציון', lat:31.650, lon:35.120 },
-  { fr:'Tel Aviv', he:'תל אביב', en:'Tel Aviv', keys:'תל אביב', lat:32.085, lon:34.781 },
-  { fr:'Rishon LeZion', he:'ראשון לציון', en:'Rishon LeZion', keys:'ראשון לציון', lat:31.973, lon:34.792 },
-  { fr:'Petah Tikva', he:'פתח תקווה', en:'Petah Tikva', keys:'פתח תקווה', lat:32.084, lon:34.887 },
-  { fr:'Bnei Brak', he:'בני ברק', en:'Bnei Brak', keys:'בני ברק', lat:32.084, lon:34.825 },
-  { fr:'Ramat Gan', he:'רמת גן', en:'Ramat Gan', keys:'רמת גן', lat:32.068, lon:34.824 },
-  { fr:'Bat Yam', he:'בת ים', en:'Bat Yam', keys:'בת ים', lat:32.022, lon:34.748 },
-  { fr:'Holon', he:'חולון', en:'Holon', keys:'חולון', lat:32.015, lon:34.776 },
-  { fr:'Givatayim', he:'גבעתיים', en:'Givatayim', keys:'גבעתיים', lat:32.072, lon:34.809 },
-  { fr:'Modiin', he:'מודיעין', en:'Modiin', keys:'מודיעין', lat:31.890, lon:35.010 },
-  { fr:'Rehovot', he:'רחובות', en:'Rehovot', keys:'רחובות', lat:31.894, lon:34.808 },
-  { fr:'Lod', he:'לוד', en:'Lod', keys:'לוד', lat:31.951, lon:34.888 },
-  { fr:'Ramla', he:'רמלה', en:'Ramla', keys:'רמלה', lat:31.927, lon:34.862 },
-  { fr:'Yavné', he:'יבנה', en:'Yavne', keys:'יבנה', lat:31.877, lon:34.739 },
-  { fr:'Nes Ziona', he:'נס ציונה', en:'Ness Ziona', keys:'נס ציונה', lat:31.929, lon:34.798 },
-  { fr:'Kiryat Ono', he:'קריית אונו', en:'Kiryat Ono', keys:'קריית אונו', lat:32.052, lon:34.861 },
-  { fr:'Rosh HaAyin', he:'ראש העין', en:'Rosh HaAyin', keys:'ראש העין', lat:32.095, lon:34.956 },
-  { fr:'Netanya', he:'נתניה', en:'Netanya', keys:'נתניה', lat:32.328, lon:34.853 },
-  { fr:'Herzliya', he:'הרצליה', en:'Herzliya', keys:'הרצליה', lat:32.162, lon:34.844 },
-  { fr:'Kfar Saba', he:'כפר סבא', en:'Kfar Saba', keys:'כפר סבא', lat:32.171, lon:34.908 },
-  { fr:'Raanana', he:'רעננה', en:"Ra'anana", keys:'רעננה', lat:32.184, lon:34.871 },
-  { fr:'Hod HaSharon', he:'הוד השרון', en:'Hod HaSharon', keys:'הוד השרון', lat:32.151, lon:34.894 },
-  { fr:'Hadera', he:'חדרה', en:'Hadera', keys:'חדרה', lat:32.435, lon:34.914 },
-  { fr:'Beer Sheva', he:'באר שבע', en:'Beer Sheva', keys:'באר שבע', lat:31.252, lon:34.791 },
-  { fr:'Ashdod', he:'אשדוד', en:'Ashdod', keys:'אשדוד', lat:31.801, lon:34.643 },
-  { fr:'Ashkelon', he:'אשקלון', en:'Ashkelon', keys:'אשקלון', lat:31.669, lon:34.571 },
-  { fr:'Sdérot', he:'שדרות', en:'Sderot', keys:'שדרות', lat:31.523, lon:34.595 },
-  { fr:'Netivot', he:'נתיבות', en:'Netivot', keys:'נתיבות', lat:31.416, lon:34.587 },
-  { fr:'Ofakim', he:'אופקים', en:'Ofakim', keys:'אופקים', lat:31.314, lon:34.620 },
-  { fr:'Qiryat Gat', he:'קריית גת', en:'Kiryat Gat', keys:'קריית גת', lat:31.611, lon:34.764 },
-  { fr:'Kiryat Malakhi', he:'קריית מלאכי', en:'Kiryat Malachi', keys:'קריית מלאכי', lat:31.727, lon:34.743 },
-  { fr:'Dimona', he:'דימונה', en:'Dimona', keys:'דימונה', lat:31.066, lon:35.033 },
-  { fr:'Arad', he:'ערד', en:'Arad', keys:'ערד', lat:31.258, lon:35.212 },
-  { fr:'Eilat', he:'אילת', en:'Eilat', keys:'אילת', lat:29.558, lon:34.948 },
-  { fr:'Gaza (environs)', he:'עוטף עזה', en:'Gaza Envelope', keys:'עוטף עזה', lat:31.400, lon:34.500 },
-  { fr:'Haïfa', he:'חיפה', en:'Haifa', keys:'חיפה', lat:32.794, lon:34.989 },
-  { fr:'Krayot', he:'הקריות', en:'Krayot', keys:'קריית אתא,קריית ביאליק,קריית מוצקין,קריית ים', lat:32.835, lon:35.074 },
-  { fr:'Kiryat Shmona', he:'קריית שמונה', en:'Kiryat Shmona', keys:'קריית שמונה', lat:33.207, lon:35.572 },
-  { fr:'Nahariya', he:'נהריה', en:'Nahariya', keys:'נהריה', lat:33.015, lon:35.098 },
-  { fr:'Acre (Akko)', he:'עכו', en:'Akko', keys:'עכו', lat:32.927, lon:35.083 },
-  { fr:'Zefat (Safed)', he:'צפת', en:'Safed', keys:'צפת', lat:32.964, lon:35.499 },
-  { fr:'Tibériade', he:'טבריה', en:'Tiberias', keys:'טבריה', lat:32.794, lon:35.533 },
-  { fr:'Metulla', he:'מטולה', en:'Metulla', keys:'מטולה', lat:33.282, lon:35.579 },
-  { fr:'Karmiel', he:'כרמיאל', en:'Karmiel', keys:'כרמיאל', lat:32.914, lon:35.297 },
-  { fr:'Katzrin', he:'קצרין', en:'Katzrin', keys:'קצרין', lat:32.993, lon:35.688 },
-  { fr:'Rosh Pina', he:'ראש פינה', en:'Rosh Pinna', keys:'ראש פינה', lat:32.969, lon:35.539 },
-  { fr:'Nazareth', he:'נצרת', en:'Nazareth', keys:'נצרת', lat:32.701, lon:35.296 },
-  { fr:'Afula', he:'עפולה', en:'Afula', keys:'עפולה', lat:32.606, lon:35.289 }
+  { fr:'⚡ Toutes les villes', he:'⚡ כל הערים', en:'⚡ All cities', keys:'__ALL__', lat:0, lon:0 },
+  { fr:'Jérusalem (toute)', he:'ירושלים כולה', en:'Jerusalem (all)', keys:'ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון', lat:31.768, lon:35.213 },
+  { fr:'Jérusalem Sud', he:'ירושלים דרום', en:'Jerusalem South', keys:'ירושלים - דרום,גוש עציון', lat:31.745, lon:35.200 },
+  { fr:'Jérusalem Centre', he:'ירושלים מרכז', en:'Jerusalem Center', keys:'ירושלים - מרכז', lat:31.780, lon:35.210 },
+  { fr:'Jérusalem Est', he:'ירושלים מזרח', en:'Jerusalem East', keys:'ירושלים - מזרח', lat:31.790, lon:35.230 },
+  { fr:'Jérusalem Ouest', he:'ירושלים מערב', en:'Jerusalem West', keys:'ירושלים - מערב', lat:31.780, lon:35.180 },
+  { fr:'Jérusalem Nord', he:'ירושלים צפון', en:'Jerusalem North', keys:'ירושלים - צפון', lat:31.820, lon:35.220 },
+  { fr:'Beit Shemesh', he:'בית שמש', en:'Beit Shemesh', keys:'בית שמש', lat:31.747, lon:34.988 },
+  { fr:'Gush Etzion', he:'גוש עציון', en:'Gush Etzion', keys:'גוש עציון', lat:31.650, lon:35.120 },
+  { fr:'Tel Aviv', he:'תל אביב', en:'Tel Aviv', keys:'תל אביב', lat:32.085, lon:34.781 },
+  { fr:'Rishon LeZion', he:'ראשון לציון', en:'Rishon LeZion', keys:'ראשון לציון', lat:31.973, lon:34.792 },
+  { fr:'Petah Tikva', he:'פתח תקווה', en:'Petah Tikva', keys:'פתח תקווה', lat:32.084, lon:34.887 },
+  { fr:'Bnei Brak', he:'בני ברק', en:'Bnei Brak', keys:'בני ברק', lat:32.084, lon:34.825 },
+  { fr:'Ramat Gan', he:'רמת גן', en:'Ramat Gan', keys:'רמת גן', lat:32.068, lon:34.824 },
+  { fr:'Bat Yam', he:'בת ים', en:'Bat Yam', keys:'בת ים', lat:32.022, lon:34.748 },
+  { fr:'Holon', he:'חולון', en:'Holon', keys:'חולון', lat:32.015, lon:34.776 },
+  { fr:'Givatayim', he:'גבעתיים', en:'Givatayim', keys:'גבעתיים', lat:32.072, lon:34.809 },
+  { fr:'Modiin', he:'מודיעין', en:'Modiin', keys:'מודיעין', lat:31.890, lon:35.010 },
+  { fr:'Rehovot', he:'רחובות', en:'Rehovot', keys:'רחובות', lat:31.894, lon:34.808 },
+  { fr:'Lod', he:'לוד', en:'Lod', keys:'לוד', lat:31.951, lon:34.888 },
+  { fr:'Ramla', he:'רמלה', en:'Ramla', keys:'רמלה', lat:31.927, lon:34.862 },
+  { fr:'Yavné', he:'יבנה', en:'Yavne', keys:'יבנה', lat:31.877, lon:34.739 },
+  { fr:'Nes Ziona', he:'נס ציונה', en:'Ness Ziona', keys:'נס ציונה', lat:31.929, lon:34.798 },
+  { fr:'Kiryat Ono', he:'קריית אונו', en:'Kiryat Ono', keys:'קריית אונו', lat:32.052, lon:34.861 },
+  { fr:'Rosh HaAyin', he:'ראש העין', en:'Rosh HaAyin', keys:'ראש העין', lat:32.095, lon:34.956 },
+  { fr:'Netanya', he:'נתניה', en:'Netanya', keys:'נתניה', lat:32.328, lon:34.853 },
+  { fr:'Herzliya', he:'הרצליה', en:'Herzliya', keys:'הרצליה', lat:32.162, lon:34.844 },
+  { fr:'Kfar Saba', he:'כפר סבא', en:'Kfar Saba', keys:'כפר סבא', lat:32.171, lon:34.908 },
+  { fr:'Raanana', he:'רעננה', en:"Ra'anana", keys:'רעננה', lat:32.184, lon:34.871 },
+  { fr:'Hod HaSharon', he:'הוד השרון', en:'Hod HaSharon', keys:'הוד השרון', lat:32.151, lon:34.894 },
+  { fr:'Hadera', he:'חדרה', en:'Hadera', keys:'חדרה', lat:32.435, lon:34.914 },
+  { fr:'Beer Sheva', he:'באר שבע', en:'Beer Sheva', keys:'באר שבע', lat:31.252, lon:34.791 },
+  { fr:'Ashdod', he:'אשדוד', en:'Ashdod', keys:'אשדוד', lat:31.801, lon:34.643 },
+  { fr:'Ashkelon', he:'אשקלון', en:'Ashkelon', keys:'אשקלון', lat:31.669, lon:34.571 },
+  { fr:'Sdérot', he:'שדרות', en:'Sderot', keys:'שדרות', lat:31.523, lon:34.595 },
+  { fr:'Netivot', he:'נתיבות', en:'Netivot', keys:'נתיבות', lat:31.416, lon:34.587 },
+  { fr:'Ofakim', he:'אופקים', en:'Ofakim', keys:'אופקים', lat:31.314, lon:34.620 },
+  { fr:'Qiryat Gat', he:'קריית גת', en:'Kiryat Gat', keys:'קריית גת', lat:31.611, lon:34.764 },
+  { fr:'Kiryat Malakhi', he:'קריית מלאכי', en:'Kiryat Malachi', keys:'קריית מלאכי', lat:31.727, lon:34.743 },
+  { fr:'Dimona', he:'דימונה', en:'Dimona', keys:'דימונה', lat:31.066, lon:35.033 },
+  { fr:'Arad', he:'ערד', en:'Arad', keys:'ערד', lat:31.258, lon:35.212 },
+  { fr:'Eilat', he:'אילת', en:'Eilat', keys:'אילת', lat:29.558, lon:34.948 },
+  { fr:'Gaza (environs)', he:'עוטף עזה', en:'Gaza Envelope', keys:'עוטף עזה', lat:31.400, lon:34.500 },
+  { fr:'Haïfa', he:'חיפה', en:'Haifa', keys:'חיפה', lat:32.794, lon:34.989 },
+  { fr:'Krayot', he:'הקריות', en:'Krayot', keys:'קריית אתא,קריית ביאליק,קריית מוצקין,קריית ים', lat:32.835, lon:35.074 },
+  { fr:'Kiryat Shmona', he:'קריית שמונה', en:'Kiryat Shmona', keys:'קריית שמונה', lat:33.207, lon:35.572 },
+  { fr:'Nahariya', he:'נהריה', en:'Nahariya', keys:'נהריה', lat:33.015, lon:35.098 },
+  { fr:'Acre (Akko)', he:'עכו', en:'Akko', keys:'עכו', lat:32.927, lon:35.083 },
+  { fr:'Zefat (Safed)', he:'צפת', en:'Safed', keys:'צפת', lat:32.964, lon:35.499 },
+  { fr:'Tibériade', he:'טבריה', en:'Tiberias', keys:'טבריה', lat:32.794, lon:35.533 },
+  { fr:'Metulla', he:'מטולה', en:'Metulla', keys:'מטולה', lat:33.282, lon:35.579 },
+  { fr:'Karmiel', he:'כרמיאל', en:'Karmiel', keys:'כרמיאל', lat:32.914, lon:35.297 },
+  { fr:'Katzrin', he:'קצרין', en:'Katzrin', keys:'קצרין', lat:32.993, lon:35.688 },
+  { fr:'Rosh Pina', he:'ראש פינה', en:'Rosh Pinna', keys:'ראש פינה', lat:32.969, lon:35.539 },
+  { fr:'Nazareth', he:'נצרת', en:'Nazareth', keys:'נצרת', lat:32.701, lon:35.296 },
+  { fr:'Afula', he:'עפולה', en:'Afula', keys:'עפולה', lat:32.606, lon:35.289 }
 ];
 
 // GESTION DU MULTI-ZONE (V3)
@@ -514,724 +514,724 @@ try { savedZones = JSON.parse(localStorage.getItem('zonesV3')) || []; } catch(e)
 if (savedZones.length === 0) savedZones = ['ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון']; // Default
 
 const CONFIG = {
-  zones:           savedZones,
-  durationSec:     parseInt(localStorage.getItem('durationSec')          || '600'),
-  pollIntervalSec: parseInt(localStorage.getItem('pollIntervalSec')      || '5'),
-  vibration:       localStorage.getItem('vibration') !== 'false',
-  sound:           localStorage.getItem('sound')     !== 'false',
-  lang:            localStorage.getItem('lang')                          || 'he',
+  zones:           savedZones,
+  durationSec:     parseInt(localStorage.getItem('durationSec')          || '600'),
+  pollIntervalSec: parseInt(localStorage.getItem('pollIntervalSec')      || '5'),
+  vibration:       localStorage.getItem('vibration') !== 'false',
+  sound:           localStorage.getItem('sound')     !== 'false',
+  lang:            localStorage.getItem('lang')                          || 'he',
 };
 
-let currentState   = 'idle';
-let currentLang    = CONFIG.lang;
-let timerInterval  = null;
+let currentState   = 'idle';
+let currentLang    = CONFIG.lang;
+let timerInterval  = null;
 let timerRemaining = 0;
-let pollInterval   = null;
-let pollCountdown  = 0;
-let audioCtx       = null;
-let faviconFlash   = null;
-let isTestMode     = false;
+let pollInterval   = null;
+let pollCountdown  = 0;
+let audioCtx       = null;
+let faviconFlash   = null;
+let isTestMode     = false;
 
-let lastManualReset = 0; 
-let appInitTime = Math.floor(Date.now() / 1000); 
+let lastManualReset = 0; 
+let appInitTime = Math.floor(Date.now() / 1000); 
 
 // Variables PWA
 let deferredPrompt;
 
 // ── FETCH AVEC ANTI-FREEZE ────────────────────────────────────────
 async function fetchAndSync() {
-  if (isTestMode) return;
-  const dot = document.getElementById('status-dot');
-  const txt = document.getElementById('header-status-txt');
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); 
+  if (isTestMode) return;
+  const dot = document.getElementById('status-dot');
+  const txt = document.getElementById('header-status-txt');
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); 
 
-    const res = await fetch(PROXY_URL, { cache:'no-store', signal: controller.signal });
-    clearTimeout(timeoutId);
+    const res = await fetch(PROXY_URL, { cache:'no-store', signal: controller.signal });
+    clearTimeout(timeoutId);
 
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    
-    dot.className = 'status-dot';
-    txt.textContent = T[currentLang].online;
-    
-    computeState(data);
-    updateDashboard(data.history || []); // Met à jour le Dashboard national V3
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    
+    dot.className = 'status-dot';
+    txt.textContent = T[currentLang].online;
+    
+    computeState(data);
+    updateDashboard(data.history || []); // Met à jour le Dashboard national V3
 
-  } catch(e) {
-    dot.className = 'status-dot offline';
-    txt.textContent = T[currentLang].offline;
-  }
+  } catch(e) {
+    dot.className = 'status-dot offline';
+    txt.textContent = T[currentLang].offline;
+  }
 }
 
 // ── LE CERVEAU LINEAIRE ───────────────────────────────────────────
 function computeState(data) {
-  const nowSec = Math.floor((data.ts || Date.now()) / 1000);
-  const zones = parseZones();
+  const nowSec = Math.floor((data.ts || Date.now()) / 1000);
+  const zones = parseZones();
 
-  let allEvents = [...(data.history || [])];
+  let allEvents = [...(data.history || [])];
 
-  // 🛡️ CORRECTION DU CHRONOMÈTRE (RAFRAÎCHISSEMENT) 🛡️
-  if (data.active) {
-    // On cherche la VRAIE heure de début dans l'historique (dans les 20 dernières min)
-    const realOrigin = allEvents.find(h => 
-      h.cat === data.active.cat && 
-      h.cities[0] === data.active.cities[0] &&
-      (nowSec - h.time) < 1200 
-    );
-    if (realOrigin) {
-      data.active.time = realOrigin.time; // On restaure l'heure exacte d'origine !
-    }
-    allEvents.push(data.active);
-  }
+  // 🛡️ CORRECTION DU CHRONOMÈTRE (RAFRAÎCHISSEMENT) 🛡️
+  if (data.active) {
+    // On cherche la VRAIE heure de début dans l'historique (dans les 20 dernières min)
+    const realOrigin = allEvents.find(h => 
+      h.cat === data.active.cat && 
+      h.cities[0] === data.active.cities[0] &&
+      (nowSec - h.time) < 1200 
+    );
+    if (realOrigin) {
+      data.active.time = realOrigin.time; // On restaure l'heure exacte d'origine !
+    }
+    allEvents.push(data.active);
+  }
 
-  const zoneEvents = allEvents.filter(h =>
-    !CAT_DRILL.includes(h.cat) && zoneMatches(normCities(h.cities), zones)
-  ).sort((a, b) => b.time - a.time);
+  const zoneEvents = allEvents.filter(h =>
+    !CAT_DRILL.includes(h.cat) && zoneMatches(normCities(h.cities), zones)
+  ).sort((a, b) => b.time - a.time);
 
-  let uniqueEvents = [];
-  for (const ev of zoneEvents) {
-    const evCity = (zones.includes('__ALL__')) ? (ev.cities[0] || '?') : getMatchedCity(normCities(ev.cities), zones);
-    const isDup = uniqueEvents.some(u => {
-      const uCity = (zones.includes('__ALL__')) ? (u.cities[0] || '?') : getMatchedCity(normCities(u.cities), zones);
-      return Math.abs(u.time - ev.time) < 60 && uCity === evCity && u.cat === ev.cat;
-    });
-    if (!isDup) uniqueEvents.push(ev);
-  }
+  let uniqueEvents = [];
+  for (const ev of zoneEvents) {
+    const evCity = (zones.includes('__ALL__')) ? (ev.cities[0] || '?') : getMatchedCity(normCities(ev.cities), zones);
+    const isDup = uniqueEvents.some(u => {
+      const uCity = (zones.includes('__ALL__')) ? (u.cities[0] || '?') : getMatchedCity(normCities(u.cities), zones);
+      return Math.abs(u.time - ev.time) < 60 && uCity === evCity && u.cat === ev.cat;
+    });
+    if (!isDup) uniqueEvents.push(ev);
+  }
 
-  let newestAlert = null;
-  let newestSortie = null;
-  let newestPre = null;
+  let newestAlert = null;
+  let newestSortie = null;
+  let newestPre = null;
 
-  for (const h of uniqueEvents) {
-    if (h.time <= lastManualReset) continue; 
-    if (h.cat === CAT_END && !newestSortie) newestSortie = h;
-    if ((h.cat === 1 || h.cat === 2) && !newestAlert) newestAlert = h;
-    if (h.cat === CAT_PRE && !newestPre) newestPre = h;
-  }
+  for (const h of uniqueEvents) {
+    if (h.time <= lastManualReset) continue; 
+    if (h.cat === CAT_END && !newestSortie) newestSortie = h;
+    if ((h.cat === 1 || h.cat === 2) && !newestAlert) newestAlert = h;
+    if (h.cat === CAT_PRE && !newestPre) newestPre = h;
+  }
 
-  let activeEvent = null; 
+  let activeEvent = null; 
 
-  // -- RÈGLE A : Alerte Rouge --
-  if (newestAlert) {
-    const hasSortie = newestSortie && newestSortie.time > newestAlert.time;
-    if (!hasSortie) {
-      const ageSeconds = nowSec - newestAlert.time;
-      
-      if (ageSeconds < CONFIG.durationSec) {
-        activeEvent = newestAlert; 
-        const remaining = CONFIG.durationSec - ageSeconds;
-        const city = getMatchedCity(normCities(newestAlert.cities), zones);
-        if (currentState !== 'alert') {
-          showLastAlert(city, newestAlert.time);
-          buzz('alert', newestAlert.cat);
-          const notifTxt = newestAlert.cat === 2 ? T[currentLang].notifDrone : T[currentLang].notifAlert;
-          notify(...notifTxt);
-        }
-        applyState('alert', { remaining, city, alertTime: newestAlert.time, cat: newestAlert.cat }, nowSec);
-      } else {
-        if (newestAlert.time + CONFIG.durationSec >= appInitTime) {
-          activeEvent = newestAlert; 
-          applyState('waiting', null, nowSec);
-        }
-      }
-    } else {
-      const ageSortie = nowSec - newestSortie.time;
-      if (ageSortie < 120) { 
-        activeEvent = newestSortie;
-        if (currentState !== 'safe') {
-          buzz('safe'); notify(...T[currentLang].notifSafe);
-        }
-        applyState('safe', null, nowSec);
-      }
-    }
-  }
+  // -- RÈGLE A : Alerte Rouge --
+  if (newestAlert) {
+    const hasSortie = newestSortie && newestSortie.time > newestAlert.time;
+    if (!hasSortie) {
+      const ageSeconds = nowSec - newestAlert.time;
+      
+      if (ageSeconds < CONFIG.durationSec) {
+        activeEvent = newestAlert; 
+        const remaining = CONFIG.durationSec - ageSeconds;
+        const city = getMatchedCity(normCities(newestAlert.cities), zones);
+        if (currentState !== 'alert') {
+          showLastAlert(city, newestAlert.time);
+          buzz('alert', newestAlert.cat);
+          const notifTxt = newestAlert.cat === 2 ? T[currentLang].notifDrone : T[currentLang].notifAlert;
+          notify(...notifTxt);
+        }
+        applyState('alert', { remaining, city, alertTime: newestAlert.time, cat: newestAlert.cat }, nowSec);
+      } else {
+        if (newestAlert.time + CONFIG.durationSec >= appInitTime) {
+          activeEvent = newestAlert; 
+          applyState('waiting', null, nowSec);
+        }
+      }
+    } else {
+      const ageSortie = nowSec - newestSortie.time;
+      if (ageSortie < 120) { 
+        activeEvent = newestSortie;
+        if (currentState !== 'safe') {
+          buzz('safe'); notify(...T[currentLang].notifSafe);
+        }
+        applyState('safe', null, nowSec);
+      }
+    }
+  }
 
-  // -- RÈGLE B : Pré-Alerte --
-  if (!activeEvent && newestPre) {
-    const hasSortie = newestSortie && newestSortie.time > newestPre.time;
-    if (!hasSortie) {
-      const ageSeconds = nowSec - newestPre.time;
-      if (ageSeconds < 600) { 
-        activeEvent = newestPre;
-        if (currentState !== 'pre-alert') {
-          const city = getMatchedCity(normCities(newestPre.cities), zones);
-          showLastAlert(city, newestPre.time);
-          buzz('pre'); notify(...T[currentLang].notifPre);
-        }
-        applyState('pre-alert', null, nowSec);
-      }
-    }
-  }
+  // -- RÈGLE B : Pré-Alerte --
+  if (!activeEvent && newestPre) {
+    const hasSortie = newestSortie && newestSortie.time > newestPre.time;
+    if (!hasSortie) {
+      const ageSeconds = nowSec - newestPre.time;
+      if (ageSeconds < 600) { 
+        activeEvent = newestPre;
+        if (currentState !== 'pre-alert') {
+          const city = getMatchedCity(normCities(newestPre.cities), zones);
+          showLastAlert(city, newestPre.time);
+          buzz('pre'); notify(...T[currentLang].notifPre);
+        }
+        applyState('pre-alert', null, nowSec);
+      }
+    }
+  }
 
-  // -- RÈGLE C : Sortie Isolée --
-  if (!activeEvent && newestSortie) {
-    const ageSortie = nowSec - newestSortie.time;
-    if (ageSortie < 120) { 
-      activeEvent = newestSortie;
-      if (currentState !== 'safe') {
-        buzz('safe'); notify(...T[currentLang].notifSafe);
-      }
-      applyState('safe', null, nowSec);
-    }
-  }
+  // -- RÈGLE C : Sortie Isolée --
+  if (!activeEvent && newestSortie) {
+    const ageSortie = nowSec - newestSortie.time;
+    if (ageSortie < 120) { 
+      activeEvent = newestSortie;
+      if (currentState !== 'safe') {
+        buzz('safe'); notify(...T[currentLang].notifSafe);
+      }
+      applyState('safe', null, nowSec);
+    }
+  }
 
-  // -- RÈGLE D : Retour au calme --
-  if (!activeEvent && currentState !== 'waiting') {
-    applyState('idle', null, nowSec);
-  }
+  // -- RÈGLE D : Retour au calme --
+  if (!activeEvent && currentState !== 'waiting') {
+    applyState('idle', null, nowSec);
+  }
 
-  const historyEvents = uniqueEvents.filter(e => e !== activeEvent).slice(0, 5);
-  renderHistoryList(historyEvents, zones, nowSec);
+  const historyEvents = uniqueEvents.filter(e => e !== activeEvent).slice(0, 5);
+  renderHistoryList(historyEvents, zones, nowSec);
 }
 
 // ── V3 : DASHBOARD (Roquettes vs Drones au niveau national) ──
 function updateDashboard(history) {
-  const uniqueNationalEvents = [];
-  for (const ev of history) {
-    if (CAT_DRILL.includes(ev.cat) || ev.cat === CAT_PRE || ev.cat === CAT_END) continue;
-    const isDup = uniqueNationalEvents.some(u => 
-      Math.abs(u.time - ev.time) < 60 && u.cities[0] === ev.cities[0] && u.cat === ev.cat
-    );
-    if (!isDup) uniqueNationalEvents.push(ev);
-  }
-  
-  let rockets = 0; let drones = 0;
-  uniqueNationalEvents.forEach(ev => {
-    if (ev.cat === 1) rockets++;
-    else if (ev.cat === 2) drones++;
-  });
+  const uniqueNationalEvents = [];
+  for (const ev of history) {
+    if (CAT_DRILL.includes(ev.cat) || ev.cat === CAT_PRE || ev.cat === CAT_END) continue;
+    const isDup = uniqueNationalEvents.some(u => 
+      Math.abs(u.time - ev.time) < 60 && u.cities[0] === ev.cities[0] && u.cat === ev.cat
+    );
+    if (!isDup) uniqueNationalEvents.push(ev);
+  }
+  
+  let rockets = 0; let drones = 0;
+  uniqueNationalEvents.forEach(ev => {
+    if (ev.cat === 1) rockets++;
+    else if (ev.cat === 2) drones++;
+  });
 
-  document.getElementById('stat-total').textContent = rockets + drones;
-  document.getElementById('stat-rockets').textContent = rockets;
-  document.getElementById('stat-drones').textContent = drones;
+  document.getElementById('stat-total').textContent = rockets + drones;
+  document.getElementById('stat-rockets').textContent = rockets;
+  document.getElementById('stat-drones').textContent = drones;
 }
 
 function renderHistoryList(historyEvents, zones, nowSec) {
-  const card = document.getElementById('history-card');
-  const list = document.getElementById('history-list');
-  const t    = T[currentLang];
+  const card = document.getElementById('history-card');
+  const list = document.getElementById('history-list');
+  const t    = T[currentLang];
 
-  document.getElementById('t-history-title').textContent = t.historyTitle;
+  document.getElementById('t-history-title').textContent = t.historyTitle;
 
-  if (historyEvents.length === 0) {
-    card.style.display = 'none';
-    return;
-  }
+  if (historyEvents.length === 0) {
+    card.style.display = 'none';
+    return;
+  }
 
-  card.style.display = 'block';
+  card.style.display = 'block';
 
-  list.innerHTML = historyEvents.map(item => {
-    const cat      = item.cat || 1;
-    const label    = t.catLabel[cat]   || t.catLabel.default;
-    const badgeCls = t.badgeClass[cat] || t.badgeClass.default;
-    const heCity   = (zones.includes('__ALL__')) ? (item.cities[0] || '?') : getMatchedCity(normCities(item.cities), zones);
-    const cityName = translateCity(heCity);
-    const minAgo   = Math.round((nowSec - item.time) / 60);
+  list.innerHTML = historyEvents.map(item => {
+    const cat      = item.cat || 1;
+    const label    = t.catLabel[cat]   || t.catLabel.default;
+    const badgeCls = t.badgeClass[cat] || t.badgeClass.default;
+    const heCity   = (zones.includes('__ALL__')) ? (item.cities[0] || '?') : getMatchedCity(normCities(item.cities), zones);
+    const cityName = translateCity(heCity);
+    const minAgo   = Math.round((nowSec - item.time) / 60);
 
-    return '<div class="history-item">'
-      + '<span class="history-badge ' + badgeCls + '">' + label + '</span>'
-      + '<span class="history-city">' + cityName + '</span>'
-      + '<span class="history-ago">' + t.agoFn(minAgo) + '</span>'
-      + '</div>';
-  }).join('');
+    return '<div class="history-item">'
+      + '<span class="history-badge ' + badgeCls + '">' + label + '</span>'
+      + '<span class="history-city">' + cityName + '</span>'
+      + '<span class="history-ago">' + t.agoFn(minAgo) + '</span>'
+      + '</div>';
+  }).join('');
 }
 
 function applyState(newState, params, nowSec) {
-  if (newState === 'alert' && currentState === 'alert' && params) {
-    updateTimer(params.remaining);
-    return;
-  }
+  if (newState === 'alert' && currentState === 'alert' && params) {
+    updateTimer(params.remaining);
+    return;
+  }
 
-  currentState = newState;
-  clearInterval(timerInterval);
+  currentState = newState;
+  clearInterval(timerInterval);
 
-  const card     = document.getElementById('phase-card');
-  const timerBox = document.getElementById('timer-container');
-  const overlay  = document.getElementById('alert-overlay');
-  const resetBtn = document.getElementById('reset-btn'); 
+  const card     = document.getElementById('phase-card');
+  const timerBox = document.getElementById('timer-container');
+  const overlay  = document.getElementById('alert-overlay');
+  const resetBtn = document.getElementById('reset-btn'); 
 
-  card.className = 'phase-card';
-  overlay.classList.remove('show');
-  timerBox.style.display = 'none';
-  if (resetBtn) resetBtn.style.display = 'none';
-  document.getElementById('alert-info').textContent = '';
+  card.className = 'phase-card';
+  overlay.classList.remove('show');
+  timerBox.style.display = 'none';
+  if (resetBtn) resetBtn.style.display = 'none';
+  document.getElementById('alert-info').textContent = '';
 
-  const p = T[currentLang].phases[newState] || T[currentLang].phases.idle;
-  document.getElementById('phase-title').textContent = p.title;
-  document.getElementById('phase-icon').textContent  = p.icon;
-  const msgEl = document.getElementById('phase-msg');
-  
-  if (newState === 'alert' && params && params.cat === 2) {
-      document.getElementById('phase-title').textContent = currentLang === 'he' ? '🚨 חדירת כטב"מ 🚨' : '🚨 DRONE 🚨';
-  }
+  const p = T[currentLang].phases[newState] || T[currentLang].phases.idle;
+  document.getElementById('phase-title').textContent = p.title;
+  document.getElementById('phase-icon').textContent  = p.icon;
+  const msgEl = document.getElementById('phase-msg');
+  
+  if (newState === 'alert' && params && params.cat === 2) {
+      document.getElementById('phase-title').textContent = currentLang === 'he' ? '🚨 חדירת כטב"מ 🚨' : '🚨 DRONE 🚨';
+  }
 
-  msgEl.textContent = p.msg;
-  msgEl.setAttribute('dir', T[currentLang].dir);
-  setFavicon(newState);
+  msgEl.textContent = p.msg;
+  msgEl.setAttribute('dir', T[currentLang].dir);
+  setFavicon(newState);
 
-  switch(newState) {
-    case 'idle':
-      card.classList.add('idle');
-      document.getElementById('status-dot').className = 'status-dot';
-      break;
-    case 'pre-alert':
-      card.classList.add('pre-alert');
-      break;
-    case 'alert':
-      card.classList.add('alert-active');
-      timerBox.style.display = 'flex';
-      overlay.classList.add('show');
-      document.getElementById('status-dot').className = 'status-dot alerting';
-      if (params && params.alertTime && nowSec && (nowSec - params.alertTime) > 5) {
-        const minAgo = Math.round((nowSec - params.alertTime) / 60);
-        document.getElementById('alert-info').textContent = '⏱ ' + T[currentLang].agoFn(minAgo);
-      }
-      startTimer(params ? params.remaining : CONFIG.durationSec);
-      break;
-    case 'safe':
-      card.classList.add('safe');
-      document.getElementById('status-dot').className = 'status-dot';
-      break;
-    case 'waiting':
-      card.classList.add('waiting');
-      document.getElementById('status-dot').className = 'status-dot';
-      if (resetBtn) {
-        resetBtn.style.display = 'block';
-        resetBtn.textContent = T[currentLang].resetBtn;
-      }
-      break;
-  }
+  switch(newState) {
+    case 'idle':
+      card.classList.add('idle');
+      document.getElementById('status-dot').className = 'status-dot';
+      break;
+    case 'pre-alert':
+      card.classList.add('pre-alert');
+      break;
+    case 'alert':
+      card.classList.add('alert-active');
+      timerBox.style.display = 'flex';
+      overlay.classList.add('show');
+      document.getElementById('status-dot').className = 'status-dot alerting';
+      if (params && params.alertTime && nowSec && (nowSec - params.alertTime) > 5) {
+        const minAgo = Math.round((nowSec - params.alertTime) / 60);
+        document.getElementById('alert-info').textContent = '⏱ ' + T[currentLang].agoFn(minAgo);
+      }
+      startTimer(params ? params.remaining : CONFIG.durationSec);
+      break;
+    case 'safe':
+      card.classList.add('safe');
+      document.getElementById('status-dot').className = 'status-dot';
+      break;
+    case 'waiting':
+      card.classList.add('waiting');
+      document.getElementById('status-dot').className = 'status-dot';
+      if (resetBtn) {
+        resetBtn.style.display = 'block';
+        resetBtn.textContent = T[currentLang].resetBtn;
+      }
+      break;
+  }
 }
 
-function resetToIdle() { 
-  isTestMode = false; 
-  lastManualReset = Math.floor(Date.now() / 1000); 
-  applyState('idle', null, lastManualReset); 
-  fetchAndSync();
+function resetToIdle() { 
+  isTestMode = false; 
+  lastManualReset = Math.floor(Date.now() / 1000); 
+  applyState('idle', null, lastManualReset); 
+  fetchAndSync();
 }
 
 function startTimer(remainingSec) {
-  timerRemaining = Math.max(0, Math.round(remainingSec));
-  renderTimer();
-  timerInterval = setInterval(() => {
-    if (timerRemaining <= 0) {
-      clearInterval(timerInterval);
-      renderTimerDone();
-      if (!isTestMode) setTimeout(() => { if (currentState === 'alert') { applyState('waiting', null, Math.floor(Date.now()/1000)); fetchAndSync(); } }, 800);
-      return;
-    }
-    timerRemaining--;
-    renderTimer();
-  }, 1000);
+  timerRemaining = Math.max(0, Math.round(remainingSec));
+  renderTimer();
+  timerInterval = setInterval(() => {
+    if (timerRemaining <= 0) {
+      clearInterval(timerInterval);
+      renderTimerDone();
+      if (!isTestMode) setTimeout(() => { if (currentState === 'alert') { applyState('waiting', null, Math.floor(Date.now()/1000)); fetchAndSync(); } }, 800);
+      return;
+    }
+    timerRemaining--;
+    renderTimer();
+  }, 1000);
 }
 
 function updateTimer(remainingSec) {
-  const r = Math.max(0, Math.round(remainingSec));
-  if (Math.abs(r - timerRemaining) > 5) { timerRemaining = r; renderTimer(); }
+  const r = Math.max(0, Math.round(remainingSec));
+  if (Math.abs(r - timerRemaining) > 5) { timerRemaining = r; renderTimer(); }
 }
 
 function renderTimer() {
-  const m = Math.floor(timerRemaining / 60), s = timerRemaining % 60;
-  document.getElementById('timer-display').textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-  const pct = (CONFIG.durationSec - timerRemaining) / CONFIG.durationSec * 100;
-  const fill = document.getElementById('progress-fill');
-  fill.style.width = Math.min(100, pct) + '%';
-  fill.style.background = 'linear-gradient(90deg,var(--red),var(--orange))';
-  fill.className = 'progress-fill';
-  document.getElementById('timer-display').className = timerRemaining <= 60 ? 'timer-display warning' : 'timer-display';
-  document.getElementById('timer-label').textContent = timerRemaining <= 60 ? T[currentLang].timerAlmost : T[currentLang].timerLabel;
+  const m = Math.floor(timerRemaining / 60), s = timerRemaining % 60;
+  document.getElementById('timer-display').textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  const pct = (CONFIG.durationSec - timerRemaining) / CONFIG.durationSec * 100;
+  const fill = document.getElementById('progress-fill');
+  fill.style.width = Math.min(100, pct) + '%';
+  fill.style.background = 'linear-gradient(90deg,var(--red),var(--orange))';
+  fill.className = 'progress-fill';
+  document.getElementById('timer-display').className = timerRemaining <= 60 ? 'timer-display warning' : 'timer-display';
+  document.getElementById('timer-label').textContent = timerRemaining <= 60 ? T[currentLang].timerAlmost : T[currentLang].timerLabel;
 }
 
 function renderTimerDone() {
-  document.getElementById('timer-display').textContent = '00:00';
-  document.getElementById('timer-display').className   = 'timer-display safe-color';
-  const fill = document.getElementById('progress-fill');
-  fill.style.width = '100%'; fill.style.background = 'var(--green)'; fill.className = 'progress-fill done';
+  document.getElementById('timer-display').textContent = '00:00';
+  document.getElementById('timer-display').className   = 'timer-display safe-color';
+  const fill = document.getElementById('progress-fill');
+  fill.style.width = '100%'; fill.style.background = 'var(--green)'; fill.className = 'progress-fill done';
 }
 
 function showLastAlert(city, timeSec) {
-  document.getElementById('last-alert-card').style.display = 'block';
-  document.getElementById('last-alert-content').textContent = '📍 ' + city;
-  document.getElementById('last-alert-time').textContent = (timeSec ? new Date(timeSec*1000) : new Date()).toLocaleTimeString();
+  document.getElementById('last-alert-card').style.display = 'block';
+  document.getElementById('last-alert-content').textContent = '📍 ' + city;
+  document.getElementById('last-alert-time').textContent = (timeSec ? new Date(timeSec*1000) : new Date()).toLocaleTimeString();
 }
 
 function startPolling() {
-  pollCountdown = CONFIG.pollIntervalSec;
-  document.getElementById('next-poll-txt').textContent = '↻ ' + pollCountdown + 's';
-  fetchAndSync();
-  pollInterval = setInterval(() => {
-    pollCountdown--;
-    if (pollCountdown <= 0) { pollCountdown = CONFIG.pollIntervalSec; fetchAndSync(); }
-    document.getElementById('next-poll-txt').textContent = '↻ ' + Math.max(0, pollCountdown) + 's';
-  }, 1000);
+  pollCountdown = CONFIG.pollIntervalSec;
+  document.getElementById('next-poll-txt').textContent = '↻ ' + pollCountdown + 's';
+  fetchAndSync();
+  pollInterval = setInterval(() => {
+    pollCountdown--;
+    if (pollCountdown <= 0) { pollCountdown = CONFIG.pollIntervalSec; fetchAndSync(); }
+    document.getElementById('next-poll-txt').textContent = '↻ ' + Math.max(0, pollCountdown) + 's';
+  }, 1000);
 }
 function restartPolling() { clearInterval(pollInterval); startPolling(); }
 
 // ── V3 : MISE A JOUR DU RENDU DES ZONES (CHIPS) ──
 function renderZoneChips() {
-  const container = document.getElementById('zone-chips-container');
-  container.innerHTML = '';
-  
-  if (CONFIG.zones.length === 0) {
-    document.getElementById('t-location').textContent = '?';
-    return;
-  }
+  const container = document.getElementById('zone-chips-container');
+  container.innerHTML = '';
+  
+  if (CONFIG.zones.length === 0) {
+    document.getElementById('t-location').textContent = '?';
+    return;
+  }
 
-  // Mettre à jour l'en-tête (Si 1 ville, on met le nom. Si plusieurs, on met "Multi-Zones")
-  if (CONFIG.zones.includes('__ALL__')) {
-    document.getElementById('t-location').textContent = T[currentLang].location.replace('Multi-Zones', CITIES[0][currentLang]); // Hack rapide pour afficher "Toutes"
-  } else if (CONFIG.zones.length === 1) {
-    const cM = CITIES.find(c => c.keys === CONFIG.zones[0]);
-    document.getElementById('t-location').textContent = cM ? (cM[currentLang] || cM.fr) : '...';
-  } else {
-    document.getElementById('t-location').textContent = T[currentLang].location; // "Multi-Zones"
-  }
+  // Mettre à jour l'en-tête (Si 1 ville, on met le nom. Si plusieurs, on met "Multi-Zones")
+  if (CONFIG.zones.includes('__ALL__')) {
+    document.getElementById('t-location').textContent = T[currentLang].location.replace('Multi-Zones', CITIES[0][currentLang]); // Hack rapide pour afficher "Toutes"
+  } else if (CONFIG.zones.length === 1) {
+    const cM = CITIES.find(c => c.keys === CONFIG.zones[0]);
+    document.getElementById('t-location').textContent = cM ? (cM[currentLang] || cM.fr) : '...';
+  } else {
+    document.getElementById('t-location').textContent = T[currentLang].location; // "Multi-Zones"
+  }
 
-  CONFIG.zones.forEach(zoneKey => {
-    const cityObj = CITIES.find(c => c.keys === zoneKey);
-    if (!cityObj) return;
-    const name = cityObj[currentLang] || cityObj.fr;
-    
-    const chip = document.createElement('div');
-    chip.className = 'zone-chip';
-    chip.innerHTML = `<span>${name}</span> <span class="chip-close" onclick="removeZone('${zoneKey}')">✖</span>`;
-    container.appendChild(chip);
-  });
+  CONFIG.zones.forEach(zoneKey => {
+    const cityObj = CITIES.find(c => c.keys === zoneKey);
+    if (!cityObj) return;
+    const name = cityObj[currentLang] || cityObj.fr;
+    
+    const chip = document.createElement('div');
+    chip.className = 'zone-chip';
+    chip.innerHTML = `<span>${name}</span> <span class="chip-close" onclick="removeZone('${zoneKey}')">✖</span>`;
+    container.appendChild(chip);
+  });
 }
 
 function removeZone(zoneKeyToRemove) {
-  CONFIG.zones = CONFIG.zones.filter(z => z !== zoneKeyToRemove);
-  if (CONFIG.zones.length === 0) CONFIG.zones = ['__ALL__']; // Fallback sécurité
-  localStorage.setItem('zonesV3', JSON.stringify(CONFIG.zones));
-  renderZoneChips();
-  fetchAndSync();
+  CONFIG.zones = CONFIG.zones.filter(z => z !== zoneKeyToRemove);
+  if (CONFIG.zones.length === 0) CONFIG.zones = ['__ALL__']; // Fallback sécurité
+  localStorage.setItem('zonesV3', JSON.stringify(CONFIG.zones));
+  renderZoneChips();
+  fetchAndSync();
 }
 
 function setLang(lang) {
-  currentLang = lang;
-  localStorage.setItem('lang', lang);
-  const t = T[lang];
+  currentLang = lang;
+  localStorage.setItem('lang', lang);
+  const t = T[lang];
 
-  document.documentElement.lang = lang;
-  document.documentElement.dir  = lang === 'he' ? 'rtl' : 'ltr';
-  document.body.classList.toggle('rtl', lang === 'he');
+  document.documentElement.lang = lang;
+  document.documentElement.dir  = lang === 'he' ? 'rtl' : 'ltr';
+  document.body.classList.toggle('rtl', lang === 'he');
 
-  document.querySelectorAll('.lang-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.lang === lang);
-  });
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
 
-  const ids = {
-    't-notif-msg':t.notifMsg, 't-notif-btn':t.notifBtn,
-    't-settings':t.settings, 't-zone-label':t.zoneLabel, 't-zone-desc':t.zoneDesc,
-    't-dur-label':t.durLabel, 't-dur-desc':t.durDesc,
-    't-poll-label':t.pollLabel, 't-poll-desc':t.pollDesc,
-    't-vib-label':t.vibLabel, 't-vib-desc':t.vibDesc,
-    't-snd-label':t.sndLabel, 't-snd-desc':t.sndDesc,
-    't-last-alert-title':t.lastAlert, 't-history-title':t.historyTitle,
-    't-stats-title':t.statsTitle, 't-stat-total':t.statTot, 't-stat-rock':t.statRock, 't-stat-drone':t.statDrone,
-    't-install-label':t.installLabel, 't-install-desc':t.installDesc, 't-install-btn':t.installBtn,
-    't-btn-pre':t.btnPre, 't-btn-safe':t.btnSafe,
-    'timer-label':t.timerLabel, 'reset-btn':t.resetBtn,
-  };
-  for (const [id, val] of Object.entries(ids)) {
-    const el = document.getElementById(id);
-    if (el && val) el.textContent = val;
-  }
+  const ids = {
+    't-notif-msg':t.notifMsg, 't-notif-btn':t.notifBtn,
+    't-settings':t.settings, 't-zone-label':t.zoneLabel, 't-zone-desc':t.zoneDesc,
+    't-dur-label':t.durLabel, 't-dur-desc':t.durDesc,
+    't-poll-label':t.pollLabel, 't-poll-desc':t.pollDesc,
+    't-vib-label':t.vibLabel, 't-vib-desc':t.vibDesc,
+    't-snd-label':t.sndLabel, 't-snd-desc':t.sndDesc,
+    't-last-alert-title':t.lastAlert, 't-history-title':t.historyTitle,
+    't-stats-title':t.statsTitle, 't-stat-total':t.statTot, 't-stat-rock':t.statRock, 't-stat-drone':t.statDrone,
+    't-install-label':t.installLabel, 't-install-desc':t.installDesc, 't-install-btn':t.installBtn,
+    't-btn-pre':t.btnPre, 't-btn-safe':t.btnSafe,
+    'timer-label':t.timerLabel, 'reset-btn':t.resetBtn,
+  };
+  for (const [id, val] of Object.entries(ids)) {
+    const el = document.getElementById(id);
+    if (el && val) el.textContent = val;
+  }
 
-  const isTV = document.getElementById('test-row').style.display !== 'none';
-  document.getElementById('t-test-btn').textContent = isTV ? t.testHide : t.testBtn;
+  const isTV = document.getElementById('test-row').style.display !== 'none';
+  document.getElementById('t-test-btn').textContent = isTV ? t.testHide : t.testBtn;
 
-  renderZoneChips(); // Met à jour les puces avec la bonne langue
+  renderZoneChips(); // Met à jour les puces avec la bonne langue
 
-  const p = T[lang].phases[currentState] || T[lang].phases.idle;
-  document.getElementById('phase-title').textContent = p.title;
-  document.getElementById('phase-icon').textContent  = p.icon;
-  const msgEl = document.getElementById('phase-msg');
-  if (msgEl) { msgEl.textContent = p.msg; msgEl.setAttribute('dir', t.dir); }
+  const p = T[lang].phases[currentState] || T[lang].phases.idle;
+  document.getElementById('phase-title').textContent = p.title;
+  document.getElementById('phase-icon').textContent  = p.icon;
+  const msgEl = document.getElementById('phase-msg');
+  if (msgEl) { msgEl.textContent = p.msg; msgEl.setAttribute('dir', t.dir); }
 
-  const dot = document.getElementById('status-dot');
-  const txt = document.getElementById('header-status-txt');
-  if (txt) txt.textContent = dot.classList.contains('offline') ? t.offline : t.online;
+  const dot = document.getElementById('status-dot');
+  const txt = document.getElementById('header-status-txt');
+  if (txt) txt.textContent = dot.classList.contains('offline') ? t.offline : t.online;
 }
 
 function setFavicon(state) {
-  clearInterval(faviconFlash);
-  const link = document.getElementById('favicon-link');
-  const map = { idle:['#22d07a','✓'], 'pre-alert':['#f7c84f','!'], safe:['#22d07a','✓'], waiting:['#6b6b8a','?'] };
-  if (state === 'alert') {
-    let tog = true;
-    faviconFlash = setInterval(() => { link.href = makeFavicon(tog?'#f74f4f':'#1a0000','!'); tog=!tog; }, 600);
-  } else {
-    const [bg,sym] = map[state] || map.idle;
-    link.href = makeFavicon(bg, sym);
-  }
+  clearInterval(faviconFlash);
+  const link = document.getElementById('favicon-link');
+  const map = { idle:['#22d07a','✓'], 'pre-alert':['#f7c84f','!'], safe:['#22d07a','✓'], waiting:['#6b6b8a','?'] };
+  if (state === 'alert') {
+    let tog = true;
+    faviconFlash = setInterval(() => { link.href = makeFavicon(tog?'#f74f4f':'#1a0000','!'); tog=!tog; }, 600);
+  } else {
+    const [bg,sym] = map[state] || map.idle;
+    link.href = makeFavicon(bg, sym);
+  }
 }
 function makeFavicon(bg, sym) {
-  return 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 32 32\'><circle cx=\'16\' cy=\'16\' r=\'15\' fill=\'' + bg + '\'/><text x=\'16\' y=\'22\' font-size=\'18\' text-anchor=\'middle\' fill=\'white\' font-family=\'sans-serif\' font-weight=\'bold\'>' + sym + '</text></svg>');
+  return 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 32 32\'><circle cx=\'16\' cy=\'16\' r=\'15\' fill=\'' + bg + '\'/><text x=\'16\' y=\'22\' font-size=\'18\' text-anchor=\'middle\' fill=\'white\' font-family=\'sans-serif\' font-weight=\'bold\'>' + sym + '</text></svg>');
 }
 
 function getAudioCtx() { if (!audioCtx) audioCtx = new(window.AudioContext||window.webkitAudioContext)(); return audioCtx; }
 function buzz(type, cat = 1) {
-  try {
-    if (CONFIG.vibration && navigator.vibrate) {
-      if (type === 'alert' && cat === 1) navigator.vibrate([300,100,300,100,300,100,1000]); 
-      else if (type === 'alert' && cat === 2) navigator.vibrate([100,50,100,50,100,50,100,50,100]); 
-      else if (type === 'pre') navigator.vibrate([200,100,200]);
-      else if (type === 'safe') navigator.vibrate([500]);
-    }
-  } catch(e) {}
-  
-  if (!CONFIG.sound) return;
-  try {
-    const ctx = getAudioCtx();
-    const patterns = { 
-      pre:[[440,.15],[523,.15],[659,.3]], 
-      alert1:[[880,.1],[880,.1],[880,.1],[440,.3],[880,.5]], 
-      alert2:[[1200,.1],[1500,.1],[1200,.1],[1500,.1],[1200,.1],[1500,.1]], 
-      safe:[[523,.2],[659,.2],[784,.4]] 
-    };
-    
-    const key = (type === 'alert') ? 'alert' + cat : type;
-    let t = ctx.currentTime;
-    for (const [freq,dur] of (patterns[key]||[])) {
-      const osc=ctx.createOscillator(), gain=ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.frequency.value=freq; 
-      osc.type = (type==='alert' && cat===1) ? 'sawtooth' : 'sine';
-      gain.gain.setValueAtTime(0.3,t); gain.gain.exponentialRampToValueAtTime(0.001,t+dur);
-      osc.start(t); osc.stop(t+dur); t+=dur+0.05;
-    }
-  } catch(e) {}
+  try {
+    if (CONFIG.vibration && navigator.vibrate) {
+      if (type === 'alert' && cat === 1) navigator.vibrate([300,100,300,100,300,100,1000]); 
+      else if (type === 'alert' && cat === 2) navigator.vibrate([100,50,100,50,100,50,100,50,100]); 
+      else if (type === 'pre') navigator.vibrate([200,100,200]);
+      else if (type === 'safe') navigator.vibrate([500]);
+    }
+  } catch(e) {}
+  
+  if (!CONFIG.sound) return;
+  try {
+    const ctx = getAudioCtx();
+    const patterns = { 
+      pre:[[440,.15],[523,.15],[659,.3]], 
+      alert1:[[880,.1],[880,.1],[880,.1],[440,.3],[880,.5]], 
+      alert2:[[1200,.1],[1500,.1],[1200,.1],[1500,.1],[1200,.1],[1500,.1]], 
+      safe:[[523,.2],[659,.2],[784,.4]] 
+    };
+    
+    const key = (type === 'alert') ? 'alert' + cat : type;
+    let t = ctx.currentTime;
+    for (const [freq,dur] of (patterns[key]||[])) {
+      const osc=ctx.createOscillator(), gain=ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value=freq; 
+      osc.type = (type==='alert' && cat===1) ? 'sawtooth' : 'sine';
+      gain.gain.setValueAtTime(0.3,t); gain.gain.exponentialRampToValueAtTime(0.001,t+dur);
+      osc.start(t); osc.stop(t+dur); t+=dur+0.05;
+    }
+  } catch(e) {}
 }
 
 function checkNotifPermission() {
-  if ('Notification' in window && Notification.permission === 'default')
-    document.getElementById('notif-bar').classList.add('show');
+  if ('Notification' in window && Notification.permission === 'default')
+    document.getElementById('notif-bar').classList.add('show');
 }
 function requestNotif() {
-  Notification.requestPermission().then(p => { if (p==='granted') document.getElementById('notif-bar').classList.remove('show'); });
+  Notification.requestPermission().then(p => { if (p==='granted') document.getElementById('notif-bar').classList.remove('show'); });
 }
 
 function notify(title, body) {
-  if ('Notification' in window && Notification.permission === 'granted') {
-    try {
-      new Notification(title, { body, requireInteraction:true });
-    } catch(e) {
-      console.log("Service worker requis");
-    }
-  }
+  if ('Notification' in window && Notification.permission === 'granted') {
+    try {
+      new Notification(title, { body, requireInteraction:true });
+    } catch(e) {
+      console.log("Service worker requis");
+    }
+  }
 }
 
 function toggleSettings() {
-  document.getElementById('settings-body').classList.toggle('open');
-  document.getElementById('chevron').classList.toggle('open');
+  document.getElementById('settings-body').classList.toggle('open');
+  document.getElementById('chevron').classList.toggle('open');
 }
 function adjustDuration(d) {
-  CONFIG.durationSec = Math.max(60, Math.min(1800, CONFIG.durationSec + d*60));
-  localStorage.setItem('durationSec', CONFIG.durationSec);
-  document.getElementById('duration-val').textContent = CONFIG.durationSec/60;
+  CONFIG.durationSec = Math.max(60, Math.min(1800, CONFIG.durationSec + d*60));
+  localStorage.setItem('durationSec', CONFIG.durationSec);
+  document.getElementById('duration-val').textContent = CONFIG.durationSec/60;
 }
 function adjustPoll(d) {
-  CONFIG.pollIntervalSec = Math.max(5, Math.min(60, CONFIG.pollIntervalSec + d));
-  localStorage.setItem('pollIntervalSec', CONFIG.pollIntervalSec);
-  document.getElementById('poll-val').textContent = CONFIG.pollIntervalSec+'s';
-  restartPolling();
+  CONFIG.pollIntervalSec = Math.max(5, Math.min(60, CONFIG.pollIntervalSec + d));
+  localStorage.setItem('pollIntervalSec', CONFIG.pollIntervalSec);
+  document.getElementById('poll-val').textContent = CONFIG.pollIntervalSec+'s';
+  restartPolling();
 }
 function toggleOption(key) {
-  CONFIG[key] = !CONFIG[key];
-  localStorage.setItem(key, CONFIG[key]);
-  document.getElementById('toggle-'+key).classList.toggle('on', CONFIG[key]);
+  CONFIG[key] = !CONFIG[key];
+  localStorage.setItem(key, CONFIG[key]);
+  document.getElementById('toggle-'+key).classList.toggle('on', CONFIG[key]);
 }
 
 function translateCity(heCity) {
-  if (!heCity || heCity === '?') return '?';
-  const matches = CITIES.filter(c => 
-    c.he === heCity || 
-    c.keys.split(',').some(k => k.trim() === heCity)
-  );
-  if (matches.length > 0) {
-    matches.sort((a, b) => a.keys.length - b.keys.length);
-    return matches[0][currentLang] || matches[0].fr;
-  }
-  return heCity;
+  if (!heCity || heCity === '?') return '?';
+  const matches = CITIES.filter(c => 
+    c.he === heCity || 
+    c.keys.split(',').some(k => k.trim() === heCity)
+  );
+  if (matches.length > 0) {
+    matches.sort((a, b) => a.keys.length - b.keys.length);
+    return matches[0][currentLang] || matches[0].fr;
+  }
+  return heCity;
 }
 
 function parseZones() {
-  // Concatène toutes les clés de toutes les zones sélectionnées pour le Worker
-  if (CONFIG.zones.includes('__ALL__')) return '__ALL__';
-  let allKeys = [];
-  CONFIG.zones.forEach(z => { allKeys.push(...z.split(',')); });
-  return allKeys.map(z => z.trim()).filter(Boolean);
+  // Concatène toutes les clés de toutes les zones sélectionnées pour le Worker
+  if (CONFIG.zones.includes('__ALL__')) return '__ALL__';
+  let allKeys = [];
+  CONFIG.zones.forEach(z => { allKeys.push(...z.split(',')); });
+  return allKeys.map(z => z.trim()).filter(Boolean);
 }
 function normCities(cities) {
-  if (!cities) return [];
-  if (Array.isArray(cities)) return cities;
-  if (typeof cities === 'string') return [cities];
-  return [];
+  if (!cities) return [];
+  if (Array.isArray(cities)) return cities;
+  if (typeof cities === 'string') return [cities];
+  return [];
 }
 function zoneMatches(cities, zones) {
-  const arr = normCities(cities);
-  if (!arr.length) return false;
-  if (zones === '__ALL__') return true;
-  return arr.some(c => zones.some(z => c.includes(z)));
+  const arr = normCities(cities);
+  if (!arr.length) return false;
+  if (zones === '__ALL__') return true;
+  return arr.some(c => zones.some(z => c.includes(z)));
 }
 function getMatchedCity(cities, zones) {
-  const arr = normCities(cities);
-  if (!arr.length) return '?';
-  if (zones === '__ALL__') return arr[0];
-  return arr.find(c => zones.some(z => c.includes(z))) || arr[0];
+  const arr = normCities(cities);
+  if (!arr.length) return '?';
+  if (zones === '__ALL__') return arr[0];
+  return arr.find(c => zones.some(z => c.includes(z))) || arr[0];
 }
 
 function filterCities(val) {
-  const q  = val.trim().toLowerCase();
-  const dd = document.getElementById('city-dropdown');
-  if (!q) { dd.style.display='none'; return; }
-  
-  const matches = CITIES.filter(c =>
-    c.fr.toLowerCase().includes(q) || c.he.includes(q) ||
-    c.en.toLowerCase().includes(q) || c.keys.toLowerCase().includes(q)
-  ).slice(0, 40); 
-  
-  if (!matches.length) { dd.style.display='none'; return; }
-  dd.innerHTML = matches.map(c =>
-    '<div class="city-option" onmousedown="selectCity(event)"'
-    + ' data-keys="' + c.keys + '" data-fr="' + c.fr + '" data-he="' + c.he + '" data-en="' + c.en + '">'
-    + '<span style="font-weight:600;">' + (c[currentLang]||c.fr) + '</span>'
-    + '<span style="font-size:11px;color:var(--muted);direction:rtl;">' + c.he + '</span>'
-    + '</div>'
-  ).join('');
-  dd.style.display = 'block';
+  const q  = val.trim().toLowerCase();
+  const dd = document.getElementById('city-dropdown');
+  if (!q) { dd.style.display='none'; return; }
+  
+  const matches = CITIES.filter(c =>
+    c.fr.toLowerCase().includes(q) || c.he.includes(q) ||
+    c.en.toLowerCase().includes(q) || c.keys.toLowerCase().includes(q)
+  ).slice(0, 40); 
+  
+  if (!matches.length) { dd.style.display='none'; return; }
+  dd.innerHTML = matches.map(c =>
+    '<div class="city-option" onmousedown="selectCity(event)"'
+    + ' data-keys="' + c.keys + '" data-fr="' + c.fr + '" data-he="' + c.he + '" data-en="' + c.en + '">'
+    + '<span style="font-weight:600;">' + (c[currentLang]||c.fr) + '</span>'
+    + '<span style="font-size:11px;color:var(--muted);direction:rtl;">' + c.he + '</span>'
+    + '</div>'
+  ).join('');
+  dd.style.display = 'block';
 }
 
 function selectCity(e) {
-  e.preventDefault();
-  const opt = e.currentTarget;
-  const newKey = opt.dataset.keys;
+  e.preventDefault();
+  const opt = e.currentTarget;
+  const newKey = opt.dataset.keys;
 
-  if (newKey === '__ALL__') {
-    CONFIG.zones = ['__ALL__'];
-  } else {
-    // Si on avait "Toutes" ou qu'on n'a rien, on écrase. Sinon on ajoute.
-    if (CONFIG.zones.includes('__ALL__')) CONFIG.zones = [];
-    if (!CONFIG.zones.includes(newKey)) CONFIG.zones.push(newKey);
-  }
+  if (newKey === '__ALL__') {
+    CONFIG.zones = ['__ALL__'];
+  } else {
+    // Si on avait "Toutes" ou qu'on n'a rien, on écrase. Sinon on ajoute.
+    if (CONFIG.zones.includes('__ALL__')) CONFIG.zones = [];
+    if (!CONFIG.zones.includes(newKey)) CONFIG.zones.push(newKey);
+  }
 
-  localStorage.setItem('zonesV3', JSON.stringify(CONFIG.zones));
-  document.getElementById('zone-search').value = '';
-  document.getElementById('city-dropdown').style.display = 'none';
-  
-  renderZoneChips();
-  
-  appInitTime = Math.floor(Date.now() / 1000);
-  applyState('idle', null, appInitTime); 
-  fetchAndSync();
+  localStorage.setItem('zonesV3', JSON.stringify(CONFIG.zones));
+  document.getElementById('zone-search').value = '';
+  document.getElementById('city-dropdown').style.display = 'none';
+  
+  renderZoneChips();
+  
+  appInitTime = Math.floor(Date.now() / 1000);
+  applyState('idle', null, appInitTime); 
+  fetchAndSync();
 }
 function showCityDropdown() { filterCities(document.getElementById('zone-search').value); }
 function hideCityDropdown() { setTimeout(() => { document.getElementById('city-dropdown').style.display='none'; }, 200); }
 
 // ── V3 : FONCTION GPS ──
 function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-  const R = 6371; 
-  const dLat = (lat2-lat1) * (Math.PI/180);
-  const dLon = (lon2-lon1) * (Math.PI/180); 
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * (Math.PI/180)) * Math.cos(lat2 * (Math.PI/180)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-  return R * c;
+  const R = 6371; 
+  const dLat = (lat2-lat1) * (Math.PI/180);
+  const dLon = (lon2-lon1) * (Math.PI/180); 
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * (Math.PI/180)) * Math.cos(lat2 * (Math.PI/180)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  return R * c;
 }
 
 function geolocate() {
-  if (!navigator.geolocation) { alert("GPS non supporté par ce navigateur."); return; }
-  
-  document.getElementById('zone-search').value = "Recherche...";
-  
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const uLat = position.coords.latitude;
-      const uLon = position.coords.longitude;
-      
-      let closestCity = null;
-      let minDistance = 99999;
+  if (!navigator.geolocation) { alert("GPS non supporté par ce navigateur."); return; }
+  
+  document.getElementById('zone-search').value = "Recherche...";
+  
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const uLat = position.coords.latitude;
+      const uLon = position.coords.longitude;
+      
+      let closestCity = null;
+      let minDistance = 99999;
 
-      CITIES.forEach(city => {
-        if (city.lat && city.lon) {
-          const d = getDistanceFromLatLonInKm(uLat, uLon, city.lat, city.lon);
-          if (d < minDistance) { minDistance = d; closestCity = city; }
-        }
-      });
+      CITIES.forEach(city => {
+        if (city.lat && city.lon) {
+          const d = getDistanceFromLatLonInKm(uLat, uLon, city.lat, city.lon);
+          if (d < minDistance) { minDistance = d; closestCity = city; }
+        }
+      });
 
-      if (closestCity) {
-        document.getElementById('zone-search').value = "";
-        if (CONFIG.zones.includes('__ALL__')) CONFIG.zones = [];
-        if (!CONFIG.zones.includes(closestCity.keys)) CONFIG.zones.push(closestCity.keys);
-        
-        localStorage.setItem('zonesV3', JSON.stringify(CONFIG.zones));
-        renderZoneChips();
-        fetchAndSync();
-      }
-    },
-    (error) => {
-      document.getElementById('zone-search').value = "";
-      alert("Impossible de vous localiser. Veuillez autoriser le GPS.");
-    },
-    { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
-  );
+      if (closestCity) {
+        document.getElementById('zone-search').value = "";
+        if (CONFIG.zones.includes('__ALL__')) CONFIG.zones = [];
+        if (!CONFIG.zones.includes(closestCity.keys)) CONFIG.zones.push(closestCity.keys);
+        
+        localStorage.setItem('zonesV3', JSON.stringify(CONFIG.zones));
+        renderZoneChips();
+        fetchAndSync();
+      }
+    },
+    (error) => {
+      document.getElementById('zone-search').value = "";
+      alert("Impossible de vous localiser. Veuillez autoriser le GPS.");
+    },
+    { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
+  );
 }
 
 function toggleTests() {
-  const row = document.getElementById('test-row');
-  const visible = row.style.display !== 'none';
-  row.style.display = visible ? 'none' : 'flex';
-  document.getElementById('t-test-btn').textContent = visible ? T[currentLang].testBtn : T[currentLang].testHide;
-  if (visible) { isTestMode = false; clearInterval(timerInterval); applyState('idle', null, null); }
-  else isTestMode = true;
+  const row = document.getElementById('test-row');
+  const visible = row.style.display !== 'none';
+  row.style.display = visible ? 'none' : 'flex';
+  document.getElementById('t-test-btn').textContent = visible ? T[currentLang].testBtn : T[currentLang].testHide;
+  if (visible) { isTestMode = false; clearInterval(timerInterval); applyState('idle', null, null); }
+  else isTestMode = true;
 }
 
 function simulatePhase(phase, cat = 1) {
-  if (!isTestMode) return;
-  clearInterval(timerInterval);
-  const now = Math.floor(Date.now()/1000);
-  if (phase === 'pre-alert') { currentState='idle'; applyState('pre-alert', null, now); }
-  else if (phase === 'alert') {
-    currentState='idle';
-    showLastAlert('TEST — ירושלים', now);
-    try { buzz('alert', cat); } catch(e) {}
-    const notifTxt = cat === 2 ? T[currentLang].notifDrone : T[currentLang].notifAlert;
-    try { notify(...notifTxt); } catch(e) {}
-    applyState('alert', { remaining:CONFIG.durationSec, city:'TEST', alertTime:now, cat: cat }, now);
-  }
-  else if (phase === 'safe') { currentState='alert'; applyState('safe', null, now); }
+  if (!isTestMode) return;
+  clearInterval(timerInterval);
+  const now = Math.floor(Date.now()/1000);
+  if (phase === 'pre-alert') { currentState='idle'; applyState('pre-alert', null, now); }
+  else if (phase === 'alert') {
+    currentState='idle';
+    showLastAlert('TEST — ירושלים', now);
+    try { buzz('alert', cat); } catch(e) {}
+    const notifTxt = cat === 2 ? T[currentLang].notifDrone : T[currentLang].notifAlert;
+    try { notify(...notifTxt); } catch(e) {}
+    applyState('alert', { remaining:CONFIG.durationSec, city:'TEST', alertTime:now, cat: cat }, now);
+  }
+  else if (phase === 'safe') { currentState='alert'; applyState('safe', null, now); }
 }
 
 window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('install-row').style.display = 'flex';
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-row').style.display = 'flex';
 });
 
 function installApp() {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then((choiceResult) => {
-      if (choiceResult.outcome === 'accepted') {
-        document.getElementById('install-row').style.display = 'none';
-      }
-      deferredPrompt = null;
-    });
-  }
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        document.getElementById('install-row').style.display = 'none';
+      }
+      deferredPrompt = null;
+    });
+  }
 }
 
 window.addEventListener('load', () => {
-  document.getElementById('duration-val').textContent = CONFIG.durationSec / 60;
-  document.getElementById('poll-val').textContent     = CONFIG.pollIntervalSec + 's';
-  document.getElementById('toggle-vibration').classList.toggle('on', CONFIG.vibration);
-  document.getElementById('toggle-sound').classList.toggle('on', CONFIG.sound);
+  document.getElementById('duration-val').textContent = CONFIG.durationSec / 60;
+  document.getElementById('poll-val').textContent     = CONFIG.pollIntervalSec + 's';
+  document.getElementById('toggle-vibration').classList.toggle('on', CONFIG.vibration);
+  document.getElementById('toggle-sound').classList.toggle('on', CONFIG.sound);
 
-  setLang(currentLang);
-  setFavicon('idle');
-  checkNotifPermission();
-  startPolling();
+  setLang(currentLang);
+  setFavicon('idle');
+  checkNotifPermission();
+  startPolling();
 });
 </script>
 </body>
