@@ -169,6 +169,21 @@
 
   footer { margin-top:24px; text-align:center; font-size:11px; color:var(--muted); font-family:var(--mono); }
 
+  /* BARRE LATERALE TIMELINE (Radar 24h) */
+  #side-timeline {
+    position:fixed; top:0; bottom:0; right:0; width:6px;
+    background:rgba(255,255,255,0.02); border-left:1px solid var(--border); z-index:99;
+  }
+  body.rtl #side-timeline {
+    right:auto; left:0; border-left:none; border-right:1px solid var(--border);
+  }
+  .timeline-dot {
+    position:absolute; left:50%; transform:translateX(-50%);
+    width:6px; height:6px; border-radius:50%;
+  }
+  .timeline-dot.rocket { background:var(--red); box-shadow:0 0 6px var(--red); }
+  .timeline-dot.drone { background:var(--purple); box-shadow:0 0 6px var(--purple); }
+
   /* RTL */
   body.rtl .header-right { flex-direction:row-reverse; }
   body.rtl .location-badge { flex-direction:row-reverse; }
@@ -185,6 +200,7 @@
 </style>
 </head>
 <body>
+<div id="side-timeline"></div>
 <div id="alert-overlay"></div>
 <div id="app">
 
@@ -565,6 +581,7 @@ let deferredPrompt;
 
 // ── FETCH AVEC ANTI-FREEZE ────────────────────────────────────────
 async function fetchAndSync() {
+  updateSideTimeline(data.history || []);
   if (isTestMode) return;
   const dot = document.getElementById('status-dot');
   const txt = document.getElementById('header-status-txt');
@@ -735,6 +752,43 @@ function updateTimeline(history) {
   });
 }
 
+  // ── V3 : BARRE LATERALE (RADAR 24H) ──
+function updateSideTimeline(history) {
+  const container = document.getElementById('side-timeline');
+  if (!container) return;
+  container.innerHTML = ''; // On vide la barre
+
+  const uniqueNationalEvents = [];
+  for (const ev of history) {
+    if (CAT_DRILL.includes(ev.cat) || ev.cat === CAT_PRE || ev.cat === CAT_END) continue;
+    const isDup = uniqueNationalEvents.some(u => 
+      Math.abs(u.time - ev.time) < 60 && u.cities[0] === ev.cities[0] && u.cat === ev.cat
+    );
+    if (!isDup) uniqueNationalEvents.push(ev);
+  }
+
+  const nowSec = Math.floor(Date.now() / 1000);
+  const duration24hSec = 24 * 60 * 60; // 24 heures en secondes
+
+  uniqueNationalEvents.forEach(ev => {
+    const ageSeconds = nowSec - ev.time;
+    if (ageSeconds > duration24hSec) return; // Ignore ce qui est plus vieux que 24h
+
+    // Calcul de la position : 0% = tout en haut (maintenant), 100% = tout en bas (il y a 24h)
+    const topPercentage = (ageSeconds / duration24hSec) * 100;
+
+    const point = document.createElement('div');
+    point.className = 'timeline-dot ' + (ev.cat === 2 ? 'drone' : 'rocket');
+    point.style.top = `${topPercentage}%`;
+    
+    // Bonus : si on laisse le doigt/souris sur le point, ça affiche l'heure !
+    const date = new Date(ev.time * 1000);
+    point.title = `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+
+    container.appendChild(point);
+  });
+}
+  
 // ── V3 : DASHBOARD (Roquettes vs Drones au niveau national) ──
 function updateDashboard(history) {
   const uniqueNationalEvents = [];
