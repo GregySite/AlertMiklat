@@ -711,8 +711,8 @@ function computeState(data) {
   renderHistoryList(historyEvents, zones, nowSec);
 }
 
-// ── V3.1 : BARRE LATERALE (RADAR 24H) AVEC CORRECTION DES TEMPS ──
-function updateSideTimeline(history) {
+// ── V3.1 : BARRE LATERALE (RADAR 24H) CORRECTION MILLISECONDES ──
+function updateSideTimeline(history, serverTs) {
   const container = document.getElementById('side-timeline');
   if (!container) return;
   container.innerHTML = ''; 
@@ -726,14 +726,16 @@ function updateSideTimeline(history) {
     if (!isDup) uniqueNationalEvents.push(ev);
   }
 
-  const nowSec = Math.floor(Date.now() / 1000);
+  // CORRECTION CRUCIALE : Le serveur (ts) est en ms (13 chiffres), les alertes en sec (10 chiffres).
+  let nowSec = serverTs || Date.now();
+  if (nowSec > 10000000000) {
+    nowSec = Math.floor(nowSec / 1000); 
+  }
+
   const duration24hSec = 24 * 60 * 60; 
 
   uniqueNationalEvents.forEach(ev => {
     let evTimeSec = ev.time;
-    
-    // CORRECTION VITALE : L'API Worker renvoie des Millisecondes ! 
-    // On convertit en Secondes. (Tout timestamp > 10 milliards est en ms)
     if (evTimeSec > 10000000000) { 
       evTimeSec = Math.floor(evTimeSec / 1000);
     }
@@ -744,7 +746,7 @@ function updateSideTimeline(history) {
     if (ageSeconds < 0 || ageSeconds > duration24hSec) return; 
 
     // Calcul de la position : 0 = Haut, 100 = Bas
-    const topPercentage = Math.max(0, Math.min(100, (ageSeconds / duration24hSec) * 100));
+    const topPercentage = Math.max(1, Math.min(99, (ageSeconds / duration24hSec) * 100));
 
     const point = document.createElement('div');
     point.className = 'timeline-dot ' + (ev.cat === 2 ? 'drone' : 'rocket');
