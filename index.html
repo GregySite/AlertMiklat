@@ -568,10 +568,23 @@ async function fetchAndSync() {
 // ── LE CERVEAU LINEAIRE ───────────────────────────────────────────
 function computeState(data) {
   const nowSec = Math.floor((data.ts || Date.now()) / 1000);
-  const zones = parseZones(); // Renvoie un tableau plat de tous les mots clés de toutes les zones sélectionnées
+  const zones = parseZones();
 
   let allEvents = [...(data.history || [])];
-  if (data.active) allEvents.push(data.active);
+
+  // 🛡️ CORRECTION DU CHRONOMÈTRE (RAFRAÎCHISSEMENT) 🛡️
+  if (data.active) {
+    // On cherche la VRAIE heure de début dans l'historique (dans les 20 dernières min)
+    const realOrigin = allEvents.find(h => 
+      h.cat === data.active.cat && 
+      h.cities[0] === data.active.cities[0] &&
+      (nowSec - h.time) < 1200 
+    );
+    if (realOrigin) {
+      data.active.time = realOrigin.time; // On restaure l'heure exacte d'origine !
+    }
+    allEvents.push(data.active);
+  }
 
   const zoneEvents = allEvents.filter(h =>
     !CAT_DRILL.includes(h.cat) && zoneMatches(normCities(h.cities), zones)
