@@ -157,7 +157,7 @@
   footer { margin-top:24px; text-align:center; font-size:11px; color:var(--muted); font-family:var(--mono); }
 
   /* ================================================================= */
-  /* V3.1 : LIGNE RADAR 24H (Exactement l'ancien design validé)        */
+  /* V3.1 : LIGNE RADAR 24H                                            */
   /* ================================================================= */
   #side-timeline {
     position: absolute; /* Reste coincé dans le cadre #app */
@@ -589,7 +589,7 @@ async function fetchAndSync() {
     
     computeState(data);
     updateDashboard(data.history || []); 
-    updateSideTimeline(data.history || [], data.ts); 
+    updateSideTimeline(data.history || []); // Appel sans l'horloge forcée pour respecter le Worker
 
   } catch(e) {
     dot.className = 'status-dot offline';
@@ -711,8 +711,8 @@ function computeState(data) {
   renderHistoryList(historyEvents, zones, nowSec);
 }
 
-// ── V3.1 : BARRE LATERALE (RADAR 24H) ──
-function updateSideTimeline(history, serverTs) {
+// ── V3.1 : BARRE LATERALE (RADAR 24H) AVEC CORRECTION DES TEMPS ──
+function updateSideTimeline(history) {
   const container = document.getElementById('side-timeline');
   if (!container) return;
   container.innerHTML = ''; 
@@ -726,35 +726,36 @@ function updateSideTimeline(history, serverTs) {
     if (!isDup) uniqueNationalEvents.push(ev);
   }
 
-  const nowSec = Math.floor((serverTs || Date.now()) / 1000);
+  const nowSec = Math.floor(Date.now() / 1000);
   const duration24hSec = 24 * 60 * 60; 
 
   uniqueNationalEvents.forEach(ev => {
-    // ---- CORRECTION DU BUG DES TEMPS ----
-    let evTime = ev.time;
-    if (typeof evTime === 'string') {
-      evTime = Math.floor(Date.parse(evTime.replace(' ', 'T')) / 1000);
-    } else if (evTime > 2000000000) { 
-      evTime = Math.floor(evTime / 1000);
-    }
-    if (isNaN(evTime)) return;
-    // -------------------------------------
-
-    const ageSeconds = nowSec - evTime;
+    let evTimeSec = ev.time;
     
-    if (ageSeconds > duration24hSec || ageSeconds < -60) return; 
+    // CORRECTION VITALE : L'API Worker renvoie des Millisecondes ! 
+    // On convertit en Secondes. (Tout timestamp > 10 milliards est en ms)
+    if (evTimeSec > 10000000000) { 
+      evTimeSec = Math.floor(evTimeSec / 1000);
+    }
 
-    // Bloqué entre 0% et 100%
+    const ageSeconds = nowSec - evTimeSec;
+    
+    // On ignore si l'événement est dans le futur ou plus vieux que 24h
+    if (ageSeconds < 0 || ageSeconds > duration24hSec) return; 
+
+    // Calcul de la position : 0 = Haut, 100 = Bas
     const topPercentage = Math.max(0, Math.min(100, (ageSeconds / duration24hSec) * 100));
 
     const point = document.createElement('div');
     point.className = 'timeline-dot ' + (ev.cat === 2 ? 'drone' : 'rocket');
     point.style.top = `${topPercentage}%`;
     
-    const jitter = (Math.random() - 0.5) * 5; 
+    // Tout petit décalage pour voir les essaims (-2 à +2 px)
+    const jitter = (Math.random() - 0.5) * 4; 
     point.style.transform = `translate(calc(-50% + ${jitter}px), -50%)`;
     
-    const date = new Date(evTime * 1000);
+    // Affiche l'heure au survol de la souris
+    const date = new Date(evTimeSec * 1000);
     point.title = `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
 
     container.appendChild(point);
