@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0a0f"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="mobile-web-app-capable" content="yes"/>
-<title>AlertMiklat V3</title>
+<title>AlertMiklat v3.1</title>
 <link rel="icon" type="image/svg+xml" id="favicon-link" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%2322d07a'/%3E%3Ctext x='16' y='22' font-size='18' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'%3E✓%3C/text%3E%3C/svg%3E"/>
 <link rel="manifest" href="manifest.json"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -74,19 +74,6 @@
 
   .reset-btn { margin-top:16px; background:none; border:1px solid var(--muted); color:var(--muted); border-radius:999px; padding:8px 20px; font-family:var(--font); font-size:13px; cursor:pointer; transition:all 0.2s; display:block; width:100%; }
   .reset-btn:hover { border-color:var(--accent); color:var(--accent); }
-
-  /* TIMELINE CHRONOLOGIE V3 (Nouveau) */
-  .timeline-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; position:relative; }
-  .timeline-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:12px; font-family:var(--mono); }
-  .timeline-axis { position:relative; height:200px; width:100%; padding-top:20px; padding-bottom:20px; }
-  .axis-line { position:absolute; top:20px; bottom:20px; left:50%; width:1px; background:var(--border); transform:translateX(-50%); }
-  .axis-label { position:absolute; font-family:var(--mono); font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; width:40px; text-align:center; transform:translateY(-50%); }
-  .axis-label.top { top:0; left:calc(50% + 10px); }
-  .axis-label.bottom { bottom:0; left:calc(50% + 10px); }
-  #timeline-points-container { position:absolute; inset:20px 0; }
-  .timeline-point { position:absolute; left:calc(50% - 4px); width:8px; height:8px; border-radius:50%; transform:translateY(-50%); transition:top 0.3s; }
-  .timeline-point.alert { background:var(--red); box-shadow:0 0 8px var(--red); }
-  .timeline-point.drone { background:var(--purple); box-shadow:0 0 8px var(--purple); }
 
   /* DASHBOARD DES STATS V3 */
   .stats-card { display:flex; gap:10px; margin-bottom:16px; }
@@ -169,17 +156,18 @@
 
   footer { margin-top:24px; text-align:center; font-size:11px; color:var(--muted); font-family:var(--mono); }
 
-  /* BARRE LATERALE TIMELINE (Radar 24h) */
+  /* V3.1 : BARRE LATERALE TIMELINE (Radar 24h) */
   #side-timeline {
     position:fixed; top:0; bottom:0; right:0; width:6px;
-    background:rgba(255,255,255,0.02); border-left:1px solid var(--border); z-index:99;
+    background:rgba(255,255,255,0.02); border-left:1px solid var(--border); z-index:99; pointer-events:none;
   }
   body.rtl #side-timeline {
     right:auto; left:0; border-left:none; border-right:1px solid var(--border);
   }
   .timeline-dot {
-    position:absolute; left:50%; transform:translateX(-50%);
-    width:6px; height:6px; border-radius:50%;
+    position:absolute; left:50%; transform:translateX(-50%) translateY(-50%);
+    width:6px; height:6px; border-radius:50%; transition: top 0.5s ease;
+    pointer-events:auto; /* Pour permettre le survol (tooltip) */
   }
   .timeline-dot.rocket { background:var(--red); box-shadow:0 0 6px var(--red); }
   .timeline-dot.drone { background:var(--purple); box-shadow:0 0 6px var(--purple); }
@@ -205,7 +193,7 @@
 <div id="app">
 
   <header>
-    <div class="logo"><span style="font-weight:900;">alert</span><span style="font-weight:200;opacity:0.6;">miklat</span><span style="font-size:10px; color:var(--accent); margin-left:4px; vertical-align:top;">v3</span></div>
+    <div class="logo"><span style="font-weight:900;">alert</span><span style="font-weight:200;opacity:0.6;">miklat</span><span style="font-size:10px; color:var(--accent); margin-left:4px; vertical-align:top;">v3.1</span></div>
     <div class="header-right">
       <div class="lang-switcher">
         <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
@@ -243,21 +231,11 @@
     <button class="reset-btn" id="reset-btn" style="display:none;" onclick="resetToIdle()">↺ Retour au calme</button>
   </div>
 
-  <div class="timeline-card" id="timeline-card">
-    <div class="timeline-title" id="t-timeline-title">📊 Chronologie Nationale (24h)</div>
-    <div class="timeline-axis">
-        <div class="axis-line"></div>
-        <span class="axis-label top" id="t-now">Maintenant</span>
-        <span class="axis-label bottom" id="t-24h-ago">Il y a 24h</span>
-        <div id="timeline-points-container">
-            </div>
-    </div>
-  </div>
-
+  <div class="history-title" id="t-stats-title" style="margin-bottom: 8px;">📊 Statistiques Nationales (24h)</div>
   <div class="stats-card" id="stats-card">
     <div class="stat-box tot">
       <div class="stat-val" id="stat-total">0</div>
-      <div class="stat-label" id="t-stat-total">Total Alertes</div>
+      <div class="stat-label" id="t-stat-total">Total</div>
     </div>
     <div class="stat-box rck">
       <div class="stat-val" id="stat-rockets">0</div>
@@ -270,7 +248,7 @@
   </div>
 
   <div class="history-card" id="history-card" style="display:none;">
-    <div class="history-title" id="t-history-title">📋 Historique (24h)</div>
+    <div class="history-title" id="t-history-title">📋 Historique</div>
     <div id="history-list"></div>
   </div>
 
@@ -363,7 +341,7 @@
     <button class="test-btn g" onclick="simulatePhase('safe')" id="t-btn-safe">✅ Sortie</button>
   </div>
 
-  <footer>© Greg u. V3</footer>
+  <footer>© Greg u. v3.1</footer>
 </div>
 
 <script>
@@ -384,9 +362,8 @@ const T = {
     installLabel:'Installer l\'App', installDesc:'Ajouter à l\'écran d\'accueil', installBtn:'Installer',
     testBtn:'tests', testHide:'masquer tests',
     btnPre:'⚠️ Pré-alerte', btnAlert:'🚨 ALERTE', btnSafe:'✅ Sortie',
-    lastAlert:'⚡ Dernière alerte', historyTitle:'📋 Historique (24h)',
-    timelineTitle:'📊 Chronologie Nationale (24h)', now:'Maintenant',ago24h:'Il y a 24h',
-    statTot:'Total Alertes', statRock:'Roquettes', statDrone:'Drones',
+    lastAlert:'⚡ Dernière alerte', historyTitle:'📋 Historique',
+    statsTitle:'📊 Statistiques Nationales (24h)', statTot:'Total', statRock:'Roquettes', statDrone:'Drones',
     catLabel:{ [CAT_PRE]:'Pré-alerte', [CAT_END]:'Sortie', 1:'Roquette', 2:'Drone', default:'Alerte' },
     badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', 2:'drone', default:'alert' },
     agoFn: (m) => { 
@@ -422,9 +399,8 @@ const T = {
     installLabel:'התקן אפליקציה', installDesc:'הוסף למסך הבית', installBtn:'התקן',
     testBtn:'בדיקות', testHide:'הסתר בדיקות',
     btnPre:'⚠️ טרום-אזעקה', btnAlert:'🚨 אזעקה', btnSafe:'✅ יציאה',
-    lastAlert:'⚡ אזעקה אחרונה', historyTitle:'📋 היסטוריה (24 שעות)',
-    timelineTitle:'📊 כרונולוגיה ארצית (24 שעות)', now:'עכשיו',ago24h:'לפני 24 שעות',
-    statTot:'סה"כ התראות', statRock:'רקטות', statDrone:'כטב"מים',
+    lastAlert:'⚡ אזעקה אחרונה', historyTitle:'📋 היסטוריה',
+    statsTitle:'📊 סטטיסטיקה ארצית (24 שעות)', statTot:'סה"כ', statRock:'רקטות', statDrone:'כטב"מים',
     catLabel:{ [CAT_PRE]:'טרום-אזעקה', [CAT_END]:'יציאה', 1:'רקטה', 2:'כטב"מ', default:'אזעקה' },
     badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', 2:'drone', default:'alert' },
     agoFn: (m) => { 
@@ -460,9 +436,8 @@ const T = {
     installLabel:'Install App', installDesc:'Add to home screen', installBtn:'Install',
     testBtn:'tests', testHide:'hide tests',
     btnPre:'⚠️ Pre-alert', btnAlert:'🚨 ALERT', btnSafe:'✅ All clear',
-    lastAlert:'⚡ Last alert', historyTitle:'📋 History (24h)',
-    timelineTitle:'📊 National Timeline (24h)', now:'Now',ago24h:'24h Ago',
-    statTot:'Total Alerts', statRock:'Rockets', statDrone:'Drones',
+    lastAlert:'⚡ Last alert', historyTitle:'📋 History',
+    statsTitle:'📊 National Stats (24h)', statTot:'Total', statRock:'Rockets', statDrone:'Drones',
     catLabel:{ [CAT_PRE]:'Pre-alert', [CAT_END]:'All clear', 1:'Rocket', 2:'UAV/Drone', default:'Alert' },
     badgeClass:{ [CAT_PRE]:'pre', [CAT_END]:'safe', 2:'drone', default:'alert' },
     agoFn: (m) => { 
@@ -499,7 +474,7 @@ const CITIES = [
   { fr:'Jérusalem Ouest', he:'ירושלים מערב', en:'Jerusalem West', keys:'ירושלים - מערב', lat:31.780, lon:35.180 },
   { fr:'Jérusalem Nord', he:'ירושלים צפון', en:'Jerusalem North', keys:'ירושלים - צפון', lat:31.820, lon:35.220 },
   { fr:'Beit Shemesh', he:'בית שמש', en:'Beit Shemesh', keys:'בית שמש', lat:31.747, lon:34.988 },
-  { fr:'Gush Etzion', he:'גוש עציון', en:'Gush Etzion', keys:'Gush Etzion', lat:31.650, lon:35.120 },
+  { fr:'Gush Etzion', he:'גוש עציון', en:'Gush Etzion', keys:'גוש עציון', lat:31.650, lon:35.120 },
   { fr:'Tel Aviv', he:'תל אביב', en:'Tel Aviv', keys:'תל אביב', lat:32.085, lon:34.781 },
   { fr:'Rishon LeZion', he:'ראשון לציון', en:'Rishon LeZion', keys:'ראשון לציון', lat:31.973, lon:34.792 },
   { fr:'Petah Tikva', he:'פתח תקווה', en:'Petah Tikva', keys:'פתח תקווה', lat:32.084, lon:34.887 },
@@ -517,39 +492,40 @@ const CITIES = [
   { fr:'Kiryat Ono', he:'קריית אונו', en:'Kiryat Ono', keys:'קריית אונו', lat:32.052, lon:34.861 },
   { fr:'Rosh HaAyin', he:'ראש העין', en:'Rosh HaAyin', keys:'ראש העין', lat:32.095, lon:34.956 },
   { fr:'Netanya', he:'נתניה', en:'Netanya', keys:'נתניה', lat:32.328, lon:34.853 },
-  { fr:'Herzliya', he:'הרצליה', en:'Herzliya', keys:'Herzliya', lat:32.162, lon:34.844 },
-  { fr:'Kfar Saba', he:'כפר סבא', en:'Kfar Saba', keys:'Kfar Saba', lat:32.171, lon:34.908 },
+  { fr:'Herzliya', he:'הרצליה', en:'Herzliya', keys:'הרצליה', lat:32.162, lon:34.844 },
+  { fr:'Kfar Saba', he:'כפר סבא', en:'Kfar Saba', keys:'כפר סבא', lat:32.171, lon:34.908 },
   { fr:'Raanana', he:'רעננה', en:"Ra'anana", keys:'רעננה', lat:32.184, lon:34.871 },
-  { fr:'Hod HaSharon', he:'הוד השרון', en:'Hod HaSharon', keys:'Hod HaSharon', lat:32.151, lon:34.894 },
+  { fr:'Hod HaSharon', he:'הוד השרון', en:'Hod HaSharon', keys:'הוד השרון', lat:32.151, lon:34.894 },
   { fr:'Hadera', he:'חדרה', en:'Hadera', keys:'חדרה', lat:32.435, lon:34.914 },
   { fr:'Beer Sheva', he:'באר שבע', en:'Beer Sheva', keys:'באר שבע', lat:31.252, lon:34.791 },
-  { fr:'Ashdod', he:'אשדוד', en:'Ashdod', keys:'אשdod', lat:31.801, lon:34.643 },
-  { fr:'Ashkelon', he:'אשקלון', en:'Ashkelon', keys:'Ashkelon', lat:31.669, lon:34.571 },
-  { fr:'Sdérot', he:'שדרות', en:'Sderot', keys:'Sderot', lat:31.523, lon:34.595 },
-  { fr:'Netivot', he:'נתיבות', en:'Netivot', keys:'Netivot', lat:31.416, lon:34.587 },
-  { fr:'Ofakim', he:'אופקים', en:'Ofakim', keys:'Ofakim', lat:31.314, lon:34.620 },
-  { fr:'Qiryat Gat', he:'קריית גת', en:'Kiryat Gat', keys:'Kiryat Gat', lat:31.611, lon:34.764 },
-  { fr:'Kiryat Malakhi', he:'קריית מלאכי', en:'Kiryat Malachi', keys:'Kiryat Malachi', lat:31.727, lon:34.743 },
-  { fr:'Dimona', he:'דימונה', en:'Dimona', keys:'Dimona', lat:31.066, lon:35.033 },
-  { fr:'Arad', he:'ערד', en:'Arad', keys:'Arad', lat:31.258, lon:35.212 },
-  { fr:'Eilat', he:'אילת', en:'Eilat', keys:'Eilat', lat:29.558, lon:34.948 },
+  { fr:'Ashdod', he:'אשדוד', en:'Ashdod', keys:'אשדוד', lat:31.801, lon:34.643 },
+  { fr:'Ashkelon', he:'אשקלון', en:'Ashkelon', keys:'אשקלון', lat:31.669, lon:34.571 },
+  { fr:'Sdérot', he:'שדרות', en:'Sderot', keys:'שדרות', lat:31.523, lon:34.595 },
+  { fr:'Netivot', he:'נתיבות', en:'Netivot', keys:'נתיבות', lat:31.416, lon:34.587 },
+  { fr:'Ofakim', he:'אופקים', en:'Ofakim', keys:'אופקים', lat:31.314, lon:34.620 },
+  { fr:'Qiryat Gat', he:'קריית גת', en:'Kiryat Gat', keys:'קריית גת', lat:31.611, lon:34.764 },
+  { fr:'Kiryat Malakhi', he:'קריית מלאכי', en:'Kiryat Malachi', keys:'קריית מלאכי', lat:31.727, lon:34.743 },
+  { fr:'Dimona', he:'דימונה', en:'Dimona', keys:'דימונה', lat:31.066, lon:35.033 },
+  { fr:'Arad', he:'ערד', en:'Arad', keys:'ערד', lat:31.258, lon:35.212 },
+  { fr:'Eilat', he:'אילת', en:'Eilat', keys:'אילת', lat:29.558, lon:34.948 },
   { fr:'Gaza (environs)', he:'עוטף עזה', en:'Gaza Envelope', keys:'עוטף עזה', lat:31.400, lon:34.500 },
-  { fr:'Haïfa', he:'חיפה', en:'Haifa', keys:'Haifa', lat:32.794, lon:34.989 },
+  { fr:'Haïfa', he:'חיפה', en:'Haifa', keys:'חיפה', lat:32.794, lon:34.989 },
   { fr:'Krayot', he:'הקריות', en:'Krayot', keys:'קריית אתא,קריית ביאליק,קריית מוצקין,קריית ים', lat:32.835, lon:35.074 },
-  { fr:'Kiryat Shmona', he:'קריית שמונה', en:'Kiryat Shmona', keys:'Kiryat Shmona', lat:33.207, lon:35.572 },
-  { fr:'Nahariya', he:'נהריה', en:'Nahariya', keys:'Nahariya', lat:33.015, lon:35.098 },
-  { fr:'Acre (Akko)', he:'עכו', en:'Akko', keys:'Akko', lat:32.927, lon:35.083 },
-  { fr:'Zefat (Safed)', he:'צפת', en:'Safed', keys:'Safed', lat:32.964, lon:35.499 },
-  { fr:'Tibériade', he:'טבריה', en:'Tiberias', keys:'Tiberias', lat:32.794, lon:35.533 },
-  { fr:'Metulla', he:'מטולה', en:'Metulla', keys:'Metulla', lat:33.282, lon:35.579 },
-  { fr:'Karmiel', he:'כרמיאל', en:'Karmiel', keys:'Karmiel', lat:32.914, lon:35.297 },
-  { fr:'Katzrin', he:'קצרין', en:'Katzrin', keys:'Katzrin', lat:32.993, lon:35.688 },
-  { fr:'Rosh Pina', he:'ראש פינה', en:'Rosh Pinna', keys:'Rosh Pinna', lat:32.969, lon:35.539 },
-  { fr:'Nazareth', he:'נצרת', en:'Nazareth', keys:'Nazareth', lat:32.701, lon:35.296 },
-  { fr:'Afula', he:'עפולה', en:'Afula', keys:'Afula', lat:32.606, lon:35.289 }
+  { fr:'Kiryat Shmona', he:'קריית שמונה', en:'Kiryat Shmona', keys:'קריית שמונה', lat:33.207, lon:35.572 },
+  { fr:'Nahariya', he:'נהריה', en:'Nahariya', keys:'נהריה', lat:33.015, lon:35.098 },
+  { fr:'Acre (Akko)', he:'עכו', en:'Akko', keys:'עכו', lat:32.927, lon:35.083 },
+  { fr:'Zefat (Safed)', he:'צפת', en:'Safed', keys:'צפת', lat:32.964, lon:35.499 },
+  { fr:'Tibériade', he:'טבריה', en:'Tiberias', keys:'טבריה', lat:32.794, lon:35.533 },
+  { fr:'Metulla', he:'מטולה', en:'Metulla', keys:'מטולה', lat:33.282, lon:35.579 },
+  { fr:'Karmiel', he:'כרמיאל', en:'Karmiel', keys:'כרמיאל', lat:32.914, lon:35.297 },
+  { fr:'Katzrin', he:'קצרין', en:'Katzrin', keys:'קצרין', lat:32.993, lon:35.688 },
+  { fr:'Rosh Pina', he:'ראש פינה', en:'Rosh Pinna', keys:'ראש פינה', lat:32.969, lon:35.539 },
+  { fr:'Nazareth', he:'נצרת', en:'Nazareth', keys:'נצרת', lat:32.701, lon:35.296 },
+  { fr:'Afula', he:'עפולה', en:'Afula', keys:'עפולה', lat:32.606, lon:35.289 }
 ];
 
 // GESTION DU MULTI-ZONE (V3)
+// On stocke désormais un tableau de clés dans localStorage
 let savedZones = [];
 try { savedZones = JSON.parse(localStorage.getItem('zonesV3')) || []; } catch(e){}
 if (savedZones.length === 0) savedZones = ['ירושלים - דרום,ירושלים - מזרח,ירושלים - מערב,ירושלים - מרכז,ירושלים - צפון']; // Default
@@ -581,7 +557,6 @@ let deferredPrompt;
 
 // ── FETCH AVEC ANTI-FREEZE ────────────────────────────────────────
 async function fetchAndSync() {
-  updateSideTimeline(data.history || []);
   if (isTestMode) return;
   const dot = document.getElementById('status-dot');
   const txt = document.getElementById('header-status-txt');
@@ -600,7 +575,7 @@ async function fetchAndSync() {
     
     computeState(data);
     updateDashboard(data.history || []); // Met à jour le Dashboard national V3
-    updateTimeline(data.history || []); // Met à jour la Chronologie nationale V3
+    updateSideTimeline(data.history || []); // V3.1 : Mise à jour du radar latéral
 
   } catch(e) {
     dot.className = 'status-dot offline';
@@ -611,10 +586,23 @@ async function fetchAndSync() {
 // ── LE CERVEAU LINEAIRE ───────────────────────────────────────────
 function computeState(data) {
   const nowSec = Math.floor((data.ts || Date.now()) / 1000);
-  const zones = parseZones(); // Renvoie un tableau plat de tous les mots clés de toutes les zones sélectionnées
+  const zones = parseZones();
 
   let allEvents = [...(data.history || [])];
-  if (data.active) allEvents.push(data.active);
+
+  // 🛡️ CORRECTION DU CHRONOMÈTRE (RAFRAÎCHISSEMENT) 🛡️
+  if (data.active) {
+    // On cherche la VRAIE heure de début dans l'historique (dans les 20 dernières min)
+    const realOrigin = allEvents.find(h => 
+      h.cat === data.active.cat && 
+      h.cities[0] === data.active.cities[0] &&
+      (nowSec - h.time) < 1200 
+    );
+    if (realOrigin) {
+      data.active.time = realOrigin.time; // On restaure l'heure exacte d'origine !
+    }
+    allEvents.push(data.active);
+  }
 
   const zoneEvents = allEvents.filter(h =>
     !CAT_DRILL.includes(h.cat) && zoneMatches(normCities(h.cities), zones)
@@ -716,43 +704,7 @@ function computeState(data) {
   renderHistoryList(historyEvents, zones, nowSec);
 }
 
-// ── V3 : CHRONOLOGIE (Live Radar Timeline) ──
-function updateTimeline(history) {
-  const container = document.getElementById('timeline-points-container');
-  container.innerHTML = ''; // Clear existing points
-
-  const uniqueNationalEvents = [];
-  for (const ev of history) {
-    if (CAT_DRILL.includes(ev.cat) || ev.cat === CAT_PRE || ev.cat === CAT_END) continue;
-    const isDup = uniqueNationalEvents.some(u => 
-      Math.abs(u.time - ev.time) < 60 && u.cities[0] === ev.cities[0] && u.cat === ev.cat
-    );
-    if (!isDup) uniqueNationalEvents.push(ev);
-  }
-
-  const nowSec = Math.floor(Date.now() / 1000);
-  const duration24hSec = 24 * 60 * 60;
-  const time24hAgoSec = nowSec - duration24hSec;
-
-  uniqueNationalEvents.forEach(ev => {
-    if (ev.time < time24hAgoSec) return; // Ignore very old events (just in case worker sends more)
-
-    // Calculate age and vertical position (percentage from top)
-    const ageSeconds = nowSec - ev.time;
-    const topPercentage = (ageSeconds / duration24hSec) * 100;
-
-    // Create point element
-    const point = document.createElement('div');
-    // Map existing badge class names to point color scheme
-    const badgeClass = T[currentLang].badgeClass[ev.cat] || T[currentLang].badgeClass.default;
-    point.className = 'timeline-point ' + badgeClass; // alert/drone color class
-    point.style.top = `${topPercentage}%`;
-
-    container.appendChild(point);
-  });
-}
-
-  // ── V3 : BARRE LATERALE (RADAR 24H) ──
+// ── V3.1 : BARRE LATERALE (RADAR 24H) ──
 function updateSideTimeline(history) {
   const container = document.getElementById('side-timeline');
   if (!container) return;
@@ -772,7 +724,8 @@ function updateSideTimeline(history) {
 
   uniqueNationalEvents.forEach(ev => {
     const ageSeconds = nowSec - ev.time;
-    if (ageSeconds > duration24hSec) return; // Ignore ce qui est plus vieux que 24h
+    // On ignore si c'est dans le futur (bug) ou plus vieux que 24h
+    if (ageSeconds > duration24hSec || ageSeconds < 0) return; 
 
     // Calcul de la position : 0% = tout en haut (maintenant), 100% = tout en bas (il y a 24h)
     const topPercentage = (ageSeconds / duration24hSec) * 100;
@@ -788,7 +741,7 @@ function updateSideTimeline(history) {
     container.appendChild(point);
   });
 }
-  
+
 // ── V3 : DASHBOARD (Roquettes vs Drones au niveau national) ──
 function updateDashboard(history) {
   const uniqueNationalEvents = [];
@@ -982,14 +935,14 @@ function renderZoneChips() {
     return;
   }
 
+  // Mettre à jour l'en-tête (Si 1 ville, on met le nom. Si plusieurs, on met "Multi-Zones")
   if (CONFIG.zones.includes('__ALL__')) {
-    const allCitiesLabel = CITIES[0][currentLang] || CITIES[0].fr;
-    document.getElementById('t-location').textContent = allCitiesLabel;
+    document.getElementById('t-location').textContent = T[currentLang].location.replace('Multi-Zones', CITIES[0][currentLang]); // Hack rapide pour afficher "Toutes"
   } else if (CONFIG.zones.length === 1) {
     const cM = CITIES.find(c => c.keys === CONFIG.zones[0]);
     document.getElementById('t-location').textContent = cM ? (cM[currentLang] || cM.fr) : '...';
   } else {
-    document.getElementById('t-location').textContent = T[currentLang].location;
+    document.getElementById('t-location').textContent = T[currentLang].location; // "Multi-Zones"
   }
 
   CONFIG.zones.forEach(zoneKey => {
@@ -1033,8 +986,7 @@ function setLang(lang) {
     't-vib-label':t.vibLabel, 't-vib-desc':t.vibDesc,
     't-snd-label':t.sndLabel, 't-snd-desc':t.sndDesc,
     't-last-alert-title':t.lastAlert, 't-history-title':t.historyTitle,
-    't-timeline-title':t.timelineTitle, 't-now':t.now, 't-24h-ago':t.ago24h,
-    't-stat-total':t.statTot, 't-stat-rock':t.statRock, 't-stat-drone':t.statDrone,
+    't-stats-title':t.statsTitle, 't-stat-total':t.statTot, 't-stat-rock':t.statRock, 't-stat-drone':t.statDrone,
     't-install-label':t.installLabel, 't-install-desc':t.installDesc, 't-install-btn':t.installBtn,
     't-btn-pre':t.btnPre, 't-btn-safe':t.btnSafe,
     'timer-label':t.timerLabel, 'reset-btn':t.resetBtn,
@@ -1163,7 +1115,6 @@ function translateCity(heCity) {
 }
 
 function parseZones() {
-  // Concatène toutes les clés de toutes les zones sélectionnées pour le Worker
   if (CONFIG.zones.includes('__ALL__')) return '__ALL__';
   let allKeys = [];
   CONFIG.zones.forEach(z => { allKeys.push(...z.split(',')); });
@@ -1217,7 +1168,6 @@ function selectCity(e) {
   if (newKey === '__ALL__') {
     CONFIG.zones = ['__ALL__'];
   } else {
-    // Si on avait "Toutes" ou qu'on n'a rien, on écrase. Sinon on ajoute.
     if (CONFIG.zones.includes('__ALL__')) CONFIG.zones = [];
     if (!CONFIG.zones.includes(newKey)) CONFIG.zones.push(newKey);
   }
@@ -1235,7 +1185,6 @@ function selectCity(e) {
 function showCityDropdown() { filterCities(document.getElementById('zone-search').value); }
 function hideCityDropdown() { setTimeout(() => { document.getElementById('city-dropdown').style.display='none'; }, 200); }
 
-// ── V3 : FONCTION GPS ──
 function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
   const R = 6371; 
   const dLat = (lat2-lat1) * (Math.PI/180);
