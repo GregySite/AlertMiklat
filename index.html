@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0a0a0f"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="mobile-web-app-capable" content="yes"/>
-<title>AlertMiklat v3</title>
+<title>AlertMiklat v3.1</title>
 <link rel="icon" type="image/svg+xml" id="favicon-link" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%2322d07a'/%3E%3Ctext x='16' y='22' font-size='18' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='bold'%3E✓%3C/text%3E%3C/svg%3E"/>
 <link rel="manifest" href="manifest.json"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -156,6 +156,22 @@
 
   footer { margin-top:24px; text-align:center; font-size:11px; color:var(--muted); font-family:var(--mono); }
 
+  /* V3.1 : BARRE LATERALE TIMELINE (Radar 24h) */
+  #side-timeline {
+    position:fixed; top:0; bottom:0; right:0; width:6px;
+    background:rgba(255,255,255,0.02); border-left:1px solid var(--border); z-index:99; pointer-events:none;
+  }
+  body.rtl #side-timeline {
+    right:auto; left:0; border-left:none; border-right:1px solid var(--border);
+  }
+  .timeline-dot {
+    position:absolute; left:50%; transform:translateX(-50%) translateY(-50%);
+    width:6px; height:6px; border-radius:50%; transition: top 0.5s ease;
+    pointer-events:auto; /* Pour permettre le survol (tooltip) */
+  }
+  .timeline-dot.rocket { background:var(--red); box-shadow:0 0 6px var(--red); }
+  .timeline-dot.drone { background:var(--purple); box-shadow:0 0 6px var(--purple); }
+
   /* RTL */
   body.rtl .header-right { flex-direction:row-reverse; }
   body.rtl .location-badge { flex-direction:row-reverse; }
@@ -172,11 +188,12 @@
 </style>
 </head>
 <body>
+<div id="side-timeline"></div>
 <div id="alert-overlay"></div>
 <div id="app">
 
   <header>
-    <div class="logo"><span style="font-weight:900;">alert</span><span style="font-weight:200;opacity:0.6;">miklat</span><span style="font-size:10px; color:var(--accent); margin-left:4px; vertical-align:top;">v3</span></div>
+    <div class="logo"><span style="font-weight:900;">alert</span><span style="font-weight:200;opacity:0.6;">miklat</span><span style="font-size:10px; color:var(--accent); margin-left:4px; vertical-align:top;">v3.1</span></div>
     <div class="header-right">
       <div class="lang-switcher">
         <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
@@ -324,7 +341,7 @@
     <button class="test-btn g" onclick="simulatePhase('safe')" id="t-btn-safe">✅ Sortie</button>
   </div>
 
-  <footer>© Greg u. v3</footer>
+  <footer>© Greg u. v3.1</footer>
 </div>
 
 <script>
@@ -558,6 +575,7 @@ async function fetchAndSync() {
     
     computeState(data);
     updateDashboard(data.history || []); // Met à jour le Dashboard national V3
+    updateSideTimeline(data.history || []); // V3.1 : Mise à jour du radar latéral
 
   } catch(e) {
     dot.className = 'status-dot offline';
@@ -684,6 +702,44 @@ function computeState(data) {
 
   const historyEvents = uniqueEvents.filter(e => e !== activeEvent).slice(0, 5);
   renderHistoryList(historyEvents, zones, nowSec);
+}
+
+// ── V3.1 : BARRE LATERALE (RADAR 24H) ──
+function updateSideTimeline(history) {
+  const container = document.getElementById('side-timeline');
+  if (!container) return;
+  container.innerHTML = ''; // On vide la barre
+
+  const uniqueNationalEvents = [];
+  for (const ev of history) {
+    if (CAT_DRILL.includes(ev.cat) || ev.cat === CAT_PRE || ev.cat === CAT_END) continue;
+    const isDup = uniqueNationalEvents.some(u => 
+      Math.abs(u.time - ev.time) < 60 && u.cities[0] === ev.cities[0] && u.cat === ev.cat
+    );
+    if (!isDup) uniqueNationalEvents.push(ev);
+  }
+
+  const nowSec = Math.floor(Date.now() / 1000);
+  const duration24hSec = 24 * 60 * 60; // 24 heures en secondes
+
+  uniqueNationalEvents.forEach(ev => {
+    const ageSeconds = nowSec - ev.time;
+    // On ignore si c'est dans le futur (bug) ou plus vieux que 24h
+    if (ageSeconds > duration24hSec || ageSeconds < 0) return; 
+
+    // Calcul de la position : 0% = tout en haut (maintenant), 100% = tout en bas (il y a 24h)
+    const topPercentage = (ageSeconds / duration24hSec) * 100;
+
+    const point = document.createElement('div');
+    point.className = 'timeline-dot ' + (ev.cat === 2 ? 'drone' : 'rocket');
+    point.style.top = `${topPercentage}%`;
+    
+    // Bonus : si on laisse le doigt/souris sur le point, ça affiche l'heure !
+    const date = new Date(ev.time * 1000);
+    point.title = `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+
+    container.appendChild(point);
+  });
 }
 
 // ── V3 : DASHBOARD (Roquettes vs Drones au niveau national) ──
@@ -1059,7 +1115,6 @@ function translateCity(heCity) {
 }
 
 function parseZones() {
-  // Concatène toutes les clés de toutes les zones sélectionnées pour le Worker
   if (CONFIG.zones.includes('__ALL__')) return '__ALL__';
   let allKeys = [];
   CONFIG.zones.forEach(z => { allKeys.push(...z.split(',')); });
@@ -1113,7 +1168,6 @@ function selectCity(e) {
   if (newKey === '__ALL__') {
     CONFIG.zones = ['__ALL__'];
   } else {
-    // Si on avait "Toutes" ou qu'on n'a rien, on écrase. Sinon on ajoute.
     if (CONFIG.zones.includes('__ALL__')) CONFIG.zones = [];
     if (!CONFIG.zones.includes(newKey)) CONFIG.zones.push(newKey);
   }
@@ -1131,7 +1185,6 @@ function selectCity(e) {
 function showCityDropdown() { filterCities(document.getElementById('zone-search').value); }
 function hideCityDropdown() { setTimeout(() => { document.getElementById('city-dropdown').style.display='none'; }, 200); }
 
-// ── V3 : FONCTION GPS ──
 function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
   const R = 6371; 
   const dLat = (lat2-lat1) * (Math.PI/180);
