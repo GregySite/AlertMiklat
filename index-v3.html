@@ -157,13 +157,13 @@
   footer { margin-top:24px; text-align:center; font-size:11px; color:var(--muted); font-family:var(--mono); }
 
   /* ================================================================= */
-  /* V3.1 : LIGNE RADAR 24H                                            */
+  /* V3.1 : LIGNE RADAR 24H (Exactement l'ancien design validé)        */
   /* ================================================================= */
   #side-timeline {
-    position: absolute; /* Reste coincé dans le cadre #app */
-    top: 80px; /* Démarre juste sous le header */
-    bottom: 30px; /* S'arrête avant le pied de page */
-    right: 4px; /* Collé au bord droit */
+    position: absolute; 
+    top: 80px; 
+    bottom: 30px; 
+    right: 4px; 
     width: 4px; 
     background: var(--border); 
     border-radius: 4px;
@@ -173,7 +173,7 @@
   
   body.rtl #side-timeline {
     right: auto;
-    left: 4px; /* Collé au bord gauche en hébreu */
+    left: 4px; 
   }
   
   .timeline-dot {
@@ -183,7 +183,7 @@
     height: 6px;
     border-radius: 50%;
     pointer-events: auto; 
-    opacity: 0.6; /* Plus transparent pour gérer les centaines de points */
+    opacity: 0.6; 
     transition: top 0.5s ease;
   }
   
@@ -589,7 +589,7 @@ async function fetchAndSync() {
     
     computeState(data);
     updateDashboard(data.history || []); 
-    updateSideTimeline(data.history || []); // Appel sans l'horloge forcée pour respecter le Worker
+    updateSideTimeline(data.history || []); 
 
   } catch(e) {
     dot.className = 'status-dot offline';
@@ -711,8 +711,36 @@ function computeState(data) {
   renderHistoryList(historyEvents, zones, nowSec);
 }
 
-// ── V3.1 : BARRE LATERALE (RADAR 24H) CORRECTION MILLISECONDES ──
-function updateSideTimeline(history, serverTs) {
+// ── V3.1 : L'EXTRACTEUR DE TEMPS UNIVERSEL ──
+// Cette fonction récupère la VRAIE heure de la roquette pour l'afficher sur le radar,
+// peu importe les bizarreries envoyées par le serveur (Worker).
+function getTrueTimeSec(ev, nowSec) {
+  // 1. On cherche d'abord des dates texte cachées par l'API (ex: "2026-03-30 14:30:00")
+  const textDates = [ev.alertDate, ev.date, ev.time, ev.datetime];
+  for (let val of textDates) {
+    if (typeof val === 'string' && val.length > 5) {
+      let safeStr = val.replace(' ', 'T'); 
+      if (safeStr.length <= 8) { // Si c'est juste "14:30:00", on ajoute la date du jour
+        const today = new Date().toISOString().split('T')[0];
+        safeStr = today + 'T' + safeStr;
+      }
+      const parsed = Date.parse(safeStr);
+      if (!isNaN(parsed)) return Math.floor(parsed / 1000);
+    }
+  }
+
+  // 2. Si c'est un timestamp en Millisecondes ou Secondes
+  if (typeof ev.time === 'number') {
+    if (ev.time > 10000000000) return Math.floor(ev.time / 1000);
+    return ev.time;
+  }
+
+  // En dernier recours, on renvoie l'heure actuelle
+  return nowSec;
+}
+
+// ── V3.1 : BARRE LATERALE (RADAR 24H) ──
+function updateSideTimeline(history) {
   const container = document.getElementById('side-timeline');
   if (!container) return;
   container.innerHTML = ''; 
@@ -726,37 +754,26 @@ function updateSideTimeline(history, serverTs) {
     if (!isDup) uniqueNationalEvents.push(ev);
   }
 
-  // CORRECTION CRUCIALE : Le serveur (ts) est en ms (13 chiffres), les alertes en sec (10 chiffres).
-  let nowSec = serverTs || Date.now();
-  if (nowSec > 10000000000) {
-    nowSec = Math.floor(nowSec / 1000); 
-  }
-
+  const nowSec = Math.floor(Date.now() / 1000);
   const duration24hSec = 24 * 60 * 60; 
 
   uniqueNationalEvents.forEach(ev => {
-    let evTimeSec = ev.time;
-    if (evTimeSec > 10000000000) { 
-      evTimeSec = Math.floor(evTimeSec / 1000);
-    }
-
+    // Appel du nouvel extracteur universel !
+    const evTimeSec = getTrueTimeSec(ev, nowSec);
     const ageSeconds = nowSec - evTimeSec;
     
-    // On ignore si l'événement est dans le futur ou plus vieux que 24h
-    if (ageSeconds < 0 || ageSeconds > duration24hSec) return; 
+    // Ignore les bugs futurs ou les events de plus de 24h
+    if (ageSeconds < -60 || ageSeconds > duration24hSec) return; 
 
-    // Calcul de la position : 0 = Haut, 100 = Bas
     const topPercentage = Math.max(1, Math.min(99, (ageSeconds / duration24hSec) * 100));
 
     const point = document.createElement('div');
     point.className = 'timeline-dot ' + (ev.cat === 2 ? 'drone' : 'rocket');
     point.style.top = `${topPercentage}%`;
     
-    // Tout petit décalage pour voir les essaims (-2 à +2 px)
     const jitter = (Math.random() - 0.5) * 4; 
     point.style.transform = `translate(calc(-50% + ${jitter}px), -50%)`;
     
-    // Affiche l'heure au survol de la souris
     const date = new Date(evTimeSec * 1000);
     point.title = `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
 
