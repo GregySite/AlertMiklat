@@ -40,7 +40,6 @@
   .logo { font-size:20px; letter-spacing:-0.5px; }
   .header-right { display:flex; align-items:center; gap:10px; }
   
-  /* NOUVELLES ICONES SVG THEME */
   .theme-btn { background:none; border:none; color:var(--text); cursor:pointer; padding:6px; border-radius:50%; transition: background 0.2s; display:flex; align-items:center; justify-content:center; }
   .theme-btn:hover { background:var(--border); }
   .theme-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -53,10 +52,8 @@
   .status-dot.alerting { background:var(--red); box-shadow:0 0 12px var(--red); }
   @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.8);} }
 
-  /* LE LAYOUT GLOBAL (Refondu pour protéger la timeline mobile) */
   .main-layout { display: flex; width: 100%; position: relative; }
   
-  /* Colonne Gauche : Sur mobile, elle a un padding pour éviter la timeline */
   .left-column { flex: 1; min-width: 0; padding-right: 24px; display: flex; flex-direction: column; }
   body.rtl .left-column { padding-right: 0; padding-left: 24px; }
   .right-column { display: none; } 
@@ -177,13 +174,16 @@
   #alert-overlay.show { display:block; }
   @keyframes flash-bg { from{background:rgba(180,0,0,0.06);} to{background:rgba(180,0,0,0.18);} }
 
-  footer { margin-top:16px; text-align:center; font-size:10px; color:var(--muted); font-family:var(--mono); }
+  /* V4: Police Footer modifiée */
+  footer { margin-top:16px; text-align:center; font-size:11px; color:var(--muted); font-family:var(--font); font-weight: 400; letter-spacing: 0.5px; }
 
   /* ================================================================= */
-  /* TIMELINE RESPONSIVE (MOBILE = ABSOLUTE, DESKTOP = STICKY FLEX)    */
+  /* TIMELINE RESPONSIVE (MOBILE)                                      */
   /* ================================================================= */
   #side-timeline {
-    position: absolute; right: 4px; top: 20px; bottom: 20px;
+    position: absolute; right: 4px; 
+    top: 35px; /* Démarre plus bas pour ne pas toucher la carte ville */
+    bottom: 35px; /* Plus d'espace en bas */
     width: 2px; background: var(--border); z-index: 10;
     pointer-events: none; transition: background 0.3s;
   }
@@ -196,11 +196,13 @@
   }
 
   .timeline-label { 
-    position: absolute; font-family: var(--mono); font-size: 9px; color: var(--muted); 
-    text-transform: uppercase; white-space: nowrap; left: 50%; transform: translateX(-50%); 
+    position: absolute; font-family: var(--mono); 
+    font-size: 7px; /* Police très petite pour ne pas déborder */
+    color: var(--muted); text-transform: uppercase; white-space: nowrap; 
+    left: 50%; transform: translateX(-50%); 
   }
-  .timeline-label.top { top: -18px; }
-  .timeline-label.bottom { bottom: -18px; }
+  .timeline-label.top { top: -14px; }
+  .timeline-label.bottom { bottom: -14px; }
 
   #timeline-dots-container { position: absolute; inset: 0; }
   
@@ -211,27 +213,29 @@
   .timeline-dot.drone { background: var(--purple); box-shadow: 0 0 4px var(--purple); }
 
   /* ================================================================= */
-  /* V4 : DESKTOP VIEW (MAP + TIMELINE CENTRALE)                       */
+  /* V4 : DESKTOP VIEW & MODE PAYSAGE (MAP + TIMELINE CENTRALE)        */
   /* ================================================================= */
-  @media(min-width: 850px) {
-    #app { max-width: 1100px; padding: 30px 24px; }
+  /* S'active sur PC (>850px) OU sur Smartphone incliné (Paysage) */
+  @media(min-width: 650px) and (orientation: landscape), (min-width: 850px) {
+    #app { max-width: 1200px; padding: 20px 24px; }
     
-    .main-layout { gap: 24px; align-items: flex-start; }
+    .main-layout { gap: 20px; align-items: flex-start; flex-direction: row; }
     
-    .left-column { flex: 0 0 420px; padding-right: 0; }
-    body.rtl .left-column { padding-left: 0; }
+    .left-column { flex: 0 0 380px; padding-right: 0; }
+    body.rtl .left-column { padding-left: 0; padding-right: 0; }
 
-    /* Sur PC, la timeline devient une colonne à part entière au milieu ! */
+    /* La timeline devient une colonne au centre */
     #side-timeline {
-        position: sticky; top: 30px; 
-        height: calc(100vh - 120px); min-height: 400px; max-height: 800px;
+        position: sticky; top: 40px; 
+        height: calc(100vh - 80px); min-height: 300px; max-height: 800px;
         flex: 0 0 2px; right: auto; left: auto;
+        margin: 0 10px; /* Espace respirable autour de la ligne */
     }
 
     .right-column { 
       display: block; flex: 1; 
-      height: calc(100vh - 120px); min-height: 400px; max-height: 800px; /* BORNÉE POUR LE ZOOM */
-      position: sticky; top: 30px; 
+      height: calc(100vh - 80px); min-height: 300px; max-height: 800px; /* Empêche l'allongement abusif au dézoom */
+      position: sticky; top: 40px; 
       border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); 
       box-shadow: 0 8px 32px rgba(0,0,0,0.15); z-index: 5; transition: border-color 0.3s; 
     }
@@ -251,7 +255,7 @@
   .leaflet-control-attribution { display: none !important; }
 
   /* RTL Général */
-  body.rtl .main-layout { flex-direction:row-reverse; } /* Inverse les 3 colonnes sur PC */
+  body.rtl .main-layout { flex-direction:row-reverse; } 
   body.rtl .header-right { flex-direction:row-reverse; }
   body.rtl .location-badge { flex-direction:row-reverse; }
   body.rtl .setting-label { text-align:right; display:block; }
@@ -438,7 +442,8 @@
       <div id="map"></div>
     </div>
 
-  </div> </div>
+  </div>
+</div>
 
 <script>
 const PROXY_URL = 'https://miklat-v2.gregyman.workers.dev/'; 
@@ -658,11 +663,14 @@ let currentTileLayer;
 let isMapInitialized = false;
 
 function initMap() {
-  if (typeof L === 'undefined' || window.innerWidth < 850) return; 
+  const mapDiv = document.getElementById('map-container');
+  // Vérifie si la colonne carte est visible (CSS l'affiche sur Desktop ou Paysage)
+  if (window.getComputedStyle(mapDiv).display === 'none' || typeof L === 'undefined') return;
+
   if (!map) {
     map = L.map('map', { zoomControl: false, attributionControl: false }).setView([31.5, 34.8], 7);
     updateMapTheme();
-    updateMapMarkers([], true); // Force zoom at init
+    updateMapMarkers([], true); // Force zoom au tout début
   }
 }
 
@@ -675,7 +683,6 @@ function updateMapTheme() {
   currentTileLayer = L.tileLayer(url).addTo(map);
 }
 
-// Map markers: forceZoom empêche la carte de faire un reset agaçant
 function updateMapMarkers(history = [], forceZoom = false) {
   if (!map) return;
   
@@ -684,7 +691,6 @@ function updateMapMarkers(history = [], forceZoom = false) {
   
   let bounds = L.latLngBounds();
   
-  // Toutes les villes du pays en points discrets
   CITIES.forEach(c => {
     if (c.lat === 0) return;
     L.circleMarker([c.lat, c.lon], {radius: 2, color: 'var(--muted)', fillOpacity: 0.3, stroke: false}).addTo(map);
@@ -710,7 +716,6 @@ function updateMapMarkers(history = [], forceZoom = false) {
     bounds.extend([c.lat, c.lon]);
   });
   
-  // Historique 3h
   const nowSec = Math.floor(Date.now() / 1000);
   history.forEach(ev => {
     if (CAT_DRILL.includes(ev.cat) || ev.cat === CAT_PRE || ev.cat === CAT_END) return;
@@ -789,7 +794,7 @@ async function fetchAndSync() {
     computeState(data);
     updateDashboard(data.history || []); 
     updateSideTimeline(data.history || []); 
-    updateMapMarkers(data.history || [], false); // false = ne force pas le re-zoom
+    updateMapMarkers(data.history || [], false); 
 
   } catch(e) {
     dot.className = 'status-dot offline';
@@ -818,6 +823,7 @@ function computeState(data) {
   let uniqueEvents = [];
   for (const ev of zoneEvents) {
     const evCity = (zones.includes('__ALL__')) ? (ev.cities[0] || '?') : getMatchedCity(normCities(ev.cities), zones);
+    
     const isDup = uniqueEvents.some(u => {
       const uCity = (zones.includes('__ALL__')) ? (u.cities[0] || '?') : getMatchedCity(normCities(u.cities), zones);
       return Math.abs(u.time - ev.time) < 300 && uCity === evCity && u.cat === ev.cat;
@@ -900,7 +906,6 @@ function computeState(data) {
   renderHistoryList(historyEvents, zones, nowSec);
 }
 
-// ── V4 : TIMELINE "RELATIF" (Anti-Timezone) ──
 function updateSideTimeline(history) {
   const container = document.getElementById('side-timeline');
   if (!container) return;
@@ -932,7 +937,6 @@ function updateSideTimeline(history) {
 
   const nowSec = Math.floor(Date.now() / 1000);
   
-  // ALGORITHME RELATIF : La "ligne de départ" est l'alerte la plus récente.
   let baselineTime = nowSec;
   uniqueNationalEvents.forEach(ev => {
     let t = ev.time;
@@ -946,7 +950,6 @@ function updateSideTimeline(history) {
     let evTimeSec = ev.time;
     if (evTimeSec > 10000000000) evTimeSec = Math.floor(evTimeSec / 1000);
     
-    // Calcul relatif
     const ageSeconds = baselineTime - evTimeSec;
     if (ageSeconds < 0 || ageSeconds > duration24hSec) return; 
 
@@ -1182,7 +1185,7 @@ function renderZoneChips() {
     container.appendChild(chip);
   });
   
-  updateMapMarkers([], true); // On force le zoom quand on change de ville
+  updateMapMarkers([], true); 
 }
 
 function removeZone(zoneKeyToRemove) {
@@ -1524,8 +1527,10 @@ window.addEventListener('load', () => {
   startPolling();
 });
 
+// Assure que la carte s'affiche bien si on tourne l'écran
 window.addEventListener('resize', () => {
   initMap(); 
+  if (map) setTimeout(() => map.invalidateSize(), 300);
 });
 </script>
 </body>
