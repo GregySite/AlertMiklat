@@ -157,23 +157,51 @@
   footer { margin-top:24px; text-align:center; font-size:11px; color:var(--muted); font-family:var(--mono); }
 
   /* ================================================================= */
-  /* V3.1 : LIGNE RADAR 24H (Exactement l'ancien design validé)        */
+  /* V3.2 : LIGNE RADAR 24H AVEC GRADUATIONS                           */
   /* ================================================================= */
   #side-timeline {
     position: absolute; 
-    top: 80px; 
-    bottom: 30px; 
-    right: 4px; 
-    width: 4px; 
+    top: 90px; /* Un peu d'espace pour le texte "Maintenant" */
+    bottom: 40px; /* Un peu d'espace pour le texte "-24h" */
+    right: 12px; /* On le décale un tout petit peu du bord */
+    width: 2px; /* Ligne centrale fine */
     background: var(--border); 
-    border-radius: 4px;
     z-index: 10;
     pointer-events: none; 
   }
   
   body.rtl #side-timeline {
     right: auto;
-    left: 4px; 
+    left: 12px; 
+  }
+
+  /* Les 24 petites graduations (1 par heure) dessinées en pur CSS ! */
+  .timeline-ticks {
+    position: absolute;
+    inset: 0;
+    width: 6px; /* Largeur des tirets */
+    left: -2px; /* Centré sur la ligne de 2px */
+    background: repeating-linear-gradient(to bottom, transparent, transparent calc(100% / 24 - 1px), var(--muted) calc(100% / 24 - 1px), var(--muted) calc(100% / 24));
+    opacity: 0.5;
+  }
+
+  /* Le texte en haut et en bas */
+  .timeline-label {
+    position: absolute;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .timeline-label.top { top: -20px; right: -10px; }
+  body.rtl .timeline-label.top { right: auto; left: -10px; }
+  
+  .timeline-label.bottom { bottom: -20px; right: -10px; }
+  body.rtl .timeline-label.bottom { right: auto; left: -10px; }
+
+  #timeline-dots-container {
+    position: absolute; inset: 0;
   }
   
   .timeline-dot {
@@ -183,7 +211,7 @@
     height: 6px;
     border-radius: 50%;
     pointer-events: auto; 
-    opacity: 0.6; 
+    opacity: 0.65; 
     transition: top 0.5s ease;
   }
   
@@ -739,11 +767,26 @@ function getTrueTimeSec(ev, nowSec) {
   return nowSec;
 }
 
-// ── V3.1 : BARRE LATERALE (RADAR 24H) ──
+// ── V3.2 : BARRE LATERALE (RADAR 24H AVEC AXE) ──
 function updateSideTimeline(history) {
   const container = document.getElementById('side-timeline');
   if (!container) return;
-  container.innerHTML = ''; 
+
+  // Si l'axe n'a pas encore été créé (1ère exécution), on le dessine
+  let dotsContainer = document.getElementById('timeline-dots-container');
+  if (!dotsContainer) {
+    const textNow = T[currentLang].now || 'Now';
+    container.innerHTML = `
+      <div class="timeline-label top">${textNow}</div>
+      <div class="timeline-ticks"></div>
+      <div id="timeline-dots-container"></div>
+      <div class="timeline-label bottom">-24h</div>
+    `;
+    dotsContainer = document.getElementById('timeline-dots-container');
+  }
+
+  // On vide uniquement les points, pas l'axe !
+  dotsContainer.innerHTML = ''; 
 
   const uniqueNationalEvents = [];
   for (const ev of history) {
@@ -758,14 +801,13 @@ function updateSideTimeline(history) {
   const duration24hSec = 24 * 60 * 60; 
 
   uniqueNationalEvents.forEach(ev => {
-    // Appel du nouvel extracteur universel !
-    const evTimeSec = getTrueTimeSec(ev, nowSec);
-    const ageSeconds = nowSec - evTimeSec;
+    let evTimeSec = ev.time;
+    if (evTimeSec > 10000000000) evTimeSec = Math.floor(evTimeSec / 1000); // Corrige les ms
     
-    // Ignore les bugs futurs ou les events de plus de 24h
-    if (ageSeconds < -60 || ageSeconds > duration24hSec) return; 
+    const ageSeconds = nowSec - evTimeSec;
+    if (ageSeconds < 0 || ageSeconds > duration24hSec) return; 
 
-    const topPercentage = Math.max(1, Math.min(99, (ageSeconds / duration24hSec) * 100));
+    const topPercentage = Math.max(0, Math.min(100, (ageSeconds / duration24hSec) * 100));
 
     const point = document.createElement('div');
     point.className = 'timeline-dot ' + (ev.cat === 2 ? 'drone' : 'rocket');
@@ -777,7 +819,7 @@ function updateSideTimeline(history) {
     const date = new Date(evTimeSec * 1000);
     point.title = `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
 
-    container.appendChild(point);
+    dotsContainer.appendChild(point);
   });
 }
 
