@@ -24,7 +24,6 @@
     --radius:16px; --font:'Rubik',sans-serif; --mono:'Share Tech Mono',monospace;
   }
   
-  /* V4: MODE CLAIR */
   body.light-mode {
     --bg: #f3f4f6; --surface: #ffffff; --border: #d1d5db;
     --text: #111827; --muted: #6b7280; --accent: #3b82f6;
@@ -32,19 +31,19 @@
   }
 
   * { margin:0; padding:0; box-sizing:border-box; }
-  /* COMPACT UI : Ajout de padding-bottom réduit */
   body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center; overflow-x:hidden; transition: background-color 0.3s, color 0.3s; }
   body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(79,110,247,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(79,110,247,0.04) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
   
-  /* COMPACT UI : padding 20px -> 12px */
   #app { position:relative; z-index:1; width:100%; max-width:480px; padding:12px 16px 20px; transition: max-width 0.3s; }
 
   header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; padding:10px 16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); transition: all 0.3s; }
   .logo { font-size:20px; letter-spacing:-0.5px; }
   .header-right { display:flex; align-items:center; gap:10px; }
   
-  .theme-btn { background:none; border:none; font-size:18px; cursor:pointer; padding:4px; border-radius:50%; transition: background 0.2s; display:flex; align-items:center; justify-content:center; }
+  /* NOUVELLES ICONES SVG THEME */
+  .theme-btn { background:none; border:none; color:var(--text); cursor:pointer; padding:6px; border-radius:50%; transition: background 0.2s; display:flex; align-items:center; justify-content:center; }
   .theme-btn:hover { background:var(--border); }
+  .theme-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
   .lang-switcher { display:flex; gap:4px; background:var(--border); border-radius:999px; padding:3px; }
   .lang-btn { border:none; background:none; color:var(--muted); font-family:var(--mono); font-size:11px; padding:3px 8px; border-radius:999px; cursor:pointer; transition:all 0.2s; font-weight:600; }
@@ -54,6 +53,14 @@
   .status-dot.alerting { background:var(--red); box-shadow:0 0 12px var(--red); }
   @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.8);} }
 
+  /* LE LAYOUT GLOBAL (Refondu pour protéger la timeline mobile) */
+  .main-layout { display: flex; width: 100%; position: relative; }
+  
+  /* Colonne Gauche : Sur mobile, elle a un padding pour éviter la timeline */
+  .left-column { flex: 1; min-width: 0; padding-right: 24px; display: flex; flex-direction: column; }
+  body.rtl .left-column { padding-right: 0; padding-left: 24px; }
+  .right-column { display: none; } 
+
   .location-badge { display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:8px 16px; font-size:13px; font-weight:500; margin-bottom:12px; width:100%; transition: all 0.3s; }
   .location-badge .dot { width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0; }
   .location-text { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -62,11 +69,6 @@
   .notif-bar.show { display:flex; }
   .notif-bar button { margin-left:auto; background:var(--accent); color:white; border:none; border-radius:6px; padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; font-family:var(--font); white-space:nowrap; }
 
-  .main-layout { display: flex; flex-direction: column; width: 100%; position: relative; }
-  .left-column { display: flex; flex-direction: column; position: relative; width: 100%; }
-  .right-column { display: none; } 
-
-  /* COMPACT UI : Marges et Paddings réduits */
   .phase-card { border-radius:var(--radius); padding:20px 20px; margin-bottom:12px; border:1.5px solid var(--border); background:var(--surface); transition:border-color 0.4s,background 0.4s; position:relative; overflow:hidden; }
   .phase-card::before { content:''; position:absolute; inset:0; opacity:0; transition:opacity 0.4s; pointer-events:none; }
   .phase-icon { font-size:48px; text-align:center; margin-bottom:8px; display:block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2)); }
@@ -178,18 +180,12 @@
   footer { margin-top:16px; text-align:center; font-size:10px; color:var(--muted); font-family:var(--mono); }
 
   /* ================================================================= */
-  /* V4 : LIGNE RADAR 24H AVEC GRADUATIONS ET TEXTES CENTRES           */
+  /* TIMELINE RESPONSIVE (MOBILE = ABSOLUTE, DESKTOP = STICKY FLEX)    */
   /* ================================================================= */
   #side-timeline {
-    position: absolute; 
-    top: 90px; 
-    bottom: 30px; 
-    right: 4px; 
-    width: 2px; 
-    background: var(--border); 
-    z-index: 10;
-    pointer-events: none; 
-    transition: background 0.3s;
+    position: absolute; right: 4px; top: 20px; bottom: 20px;
+    width: 2px; background: var(--border); z-index: 10;
+    pointer-events: none; transition: background 0.3s;
   }
   body.rtl #side-timeline { right: auto; left: 4px; }
 
@@ -199,19 +195,12 @@
     opacity: 0.3;
   }
 
-  /* TEXTES PARFAITEMENT CENTRÉS SUR LA LIGNE */
   .timeline-label { 
-    position: absolute; 
-    font-family: var(--mono); 
-    font-size: 8px; /* Plus petit */
-    color: var(--muted); 
-    text-transform: uppercase; 
-    white-space: nowrap; 
-    left: 50%; /* Centre */
-    transform: translateX(-50%); /* Ajuste le centre mathématiquement */
+    position: absolute; font-family: var(--mono); font-size: 9px; color: var(--muted); 
+    text-transform: uppercase; white-space: nowrap; left: 50%; transform: translateX(-50%); 
   }
-  .timeline-label.top { top: -16px; }
-  .timeline-label.bottom { bottom: -16px; }
+  .timeline-label.top { top: -18px; }
+  .timeline-label.bottom { bottom: -18px; }
 
   #timeline-dots-container { position: absolute; inset: 0; }
   
@@ -222,33 +211,29 @@
   .timeline-dot.drone { background: var(--purple); box-shadow: 0 0 4px var(--purple); }
 
   /* ================================================================= */
-  /* V4 : RESPONSIVE DESKTOP (MAP CONTRAINTE EN HAUTEUR)               */
+  /* V4 : DESKTOP VIEW (MAP + TIMELINE CENTRALE)                       */
   /* ================================================================= */
   @media(min-width: 850px) {
     #app { max-width: 1100px; padding: 30px 24px; }
-    .main-layout { flex-direction: row; gap: 32px; align-items: flex-start; }
-    .left-column { flex: 0 0 420px; padding-right: 32px; }
-    #side-timeline { right: 0; } 
     
-    body.rtl .main-layout { flex-direction: row-reverse; }
-    body.rtl .left-column { padding-right: 0; padding-left: 32px; }
-    body.rtl #side-timeline { left: 0; right: auto; }
+    .main-layout { gap: 24px; align-items: flex-start; }
+    
+    .left-column { flex: 0 0 420px; padding-right: 0; }
+    body.rtl .left-column { padding-left: 0; }
 
-    /* Fix strict pour éviter l'allongement lors du dézoom */
+    /* Sur PC, la timeline devient une colonne à part entière au milieu ! */
+    #side-timeline {
+        position: sticky; top: 30px; 
+        height: calc(100vh - 120px); min-height: 400px; max-height: 800px;
+        flex: 0 0 2px; right: auto; left: auto;
+    }
+
     .right-column { 
-      display: block; 
-      flex: 1; 
-      height: calc(100vh - 120px); 
-      min-height: 400px;
-      max-height: 800px; /* Limite stricte ! */
-      position: sticky; 
-      top: 30px; 
-      border-radius: var(--radius); 
-      overflow: hidden; 
-      border: 1px solid var(--border); 
-      box-shadow: 0 8px 32px rgba(0,0,0,0.15); 
-      z-index: 5; 
-      transition: border-color 0.3s; 
+      display: block; flex: 1; 
+      height: calc(100vh - 120px); min-height: 400px; max-height: 800px; /* BORNÉE POUR LE ZOOM */
+      position: sticky; top: 30px; 
+      border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); 
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15); z-index: 5; transition: border-color 0.3s; 
     }
     #map { width: 100%; height: 100%; background: var(--surface); transition: background 0.3s; }
   }
@@ -266,6 +251,7 @@
   .leaflet-control-attribution { display: none !important; }
 
   /* RTL Général */
+  body.rtl .main-layout { flex-direction:row-reverse; } /* Inverse les 3 colonnes sur PC */
   body.rtl .header-right { flex-direction:row-reverse; }
   body.rtl .location-badge { flex-direction:row-reverse; }
   body.rtl .setting-label { text-align:right; display:block; }
@@ -287,7 +273,7 @@
   <header>
     <div class="logo"><span style="font-weight:900;">alert</span><span style="font-weight:200;opacity:0.6;">miklat</span><span style="font-size:10px; color:var(--accent); margin-left:4px; vertical-align:top;">v4</span></div>
     <div class="header-right">
-      <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Mode Sombre/Clair">☀️</button>
+      <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Theme"></button>
       <div class="lang-switcher">
         <button class="lang-btn" data-lang="fr" onclick="setLang('fr')">FR</button>
         <button class="lang-btn" data-lang="he" onclick="setLang('he')">עב</button>
@@ -298,21 +284,20 @@
     </div>
   </header>
 
-  <div class="location-badge">
-    <div class="dot"></div>
-    <span class="location-text" id="t-location">ירושלים כולה</span>
-    <span style="font-size:11px;color:var(--muted);font-family:var(--mono);flex-shrink:0;" id="next-poll-txt"></span>
-  </div>
-
-  <div class="notif-bar" id="notif-bar">
-    <span id="t-notif-msg">🔔 Activer les notifications</span>
-    <button onclick="requestNotif()" id="t-notif-btn">Activer</button>
-  </div>
-
   <div class="main-layout">
     
     <div class="left-column">
-      <div id="side-timeline"></div>
+      
+      <div class="location-badge">
+        <div class="dot"></div>
+        <span class="location-text" id="t-location">ירושלים כולה</span>
+        <span style="font-size:11px;color:var(--muted);font-family:var(--mono);flex-shrink:0;" id="next-poll-txt"></span>
+      </div>
+
+      <div class="notif-bar" id="notif-bar">
+        <span id="t-notif-msg">🔔 Activer les notifications</span>
+        <button onclick="requestNotif()" id="t-notif-btn">Activer</button>
+      </div>
 
       <div class="phase-card idle" id="phase-card">
         <span class="phase-icon" id="phase-icon">🛡️</span>
@@ -442,6 +427,13 @@
       <footer>© Greg u. V4</footer>
     </div>
     
+    <div id="side-timeline">
+      <div class="timeline-label top" id="t-timeline-now">Now</div>
+      <div class="timeline-ticks"></div>
+      <div id="timeline-dots-container"></div>
+      <div class="timeline-label bottom">-24h</div>
+    </div>
+
     <div class="right-column" id="map-container">
       <div id="map"></div>
     </div>
@@ -454,10 +446,13 @@ const CAT_PRE   = 14;
 const CAT_END   = 13;
 const CAT_DRILL = [3,4,5,6,101,102,103,104,107]; 
 
+// SVGs Propres pour le Thème
+const ICON_SUN = `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+const ICON_MOON = `<svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+
 const T = {
   fr: {
-    now:'Maintenant',
-    searchPlaceholder:'Ajouter une ville…',
+    now:'Maintenant', searchPlaceholder:'Ajouter une ville…',
     btnPre:'⚠️ Pré', btnAlertR:'🚨 Roquette', btnAlertD:'🚨 Drone', btnSafe:'✅ Sortie',
     notifMsg:'🔔 Activer les notifications', notifBtn:'Activer',
     settings:'Paramètres', zoneLabel:'Zones surveillées', zoneDesc:'Cherchez ou utilisez le GPS',
@@ -494,8 +489,7 @@ const T = {
     dir:'ltr',
   },
   he: {
-    now:'עכשיו',
-    searchPlaceholder:'…הוסף עיר', 
+    now:'עכשיו', searchPlaceholder:'…הוסף עיר', 
     btnPre:'⚠️ טרום', btnAlertR:'🚨 רקטה', btnAlertD:'🚨 כטב"מ', btnSafe:'✅ יציאה',
     notifMsg:'🔔 אפשר התראות', notifBtn:'אפשר',
     settings:'הגדרות', zoneLabel:'אזורי מעקב', zoneDesc:'חפש או השתמש ב-GPS',
@@ -532,8 +526,7 @@ const T = {
     dir:'rtl',
   },
   en: {
-    now:'Now',
-    searchPlaceholder:'Add a city…', 
+    now:'Now', searchPlaceholder:'Add a city…', 
     btnPre:'⚠️ Pre', btnAlertR:'🚨 Rocket', btnAlertD:'🚨 Drone', btnSafe:'✅ Safe',
     notifMsg:'🔔 Enable notifications', notifBtn:'Enable',
     settings:'Settings', zoneLabel:'Monitored zones', zoneDesc:'Search or use GPS',
@@ -591,7 +584,7 @@ const CITIES = [
   { fr:'Givatayim', he:'גבעתיים', en:'Givatayim', keys:'גבעתיים', lat:32.072, lon:34.809 },
   { fr:'Modiin', he:'מודיעין', en:'Modiin', keys:'מודיעין', lat:31.890, lon:35.010 },
   { fr:'Rehovot', he:'רחובות', en:'Rehovot', keys:'רחובות', lat:31.894, lon:34.808 },
-  { fr:'Lod', he:'לוד', en:'Lod', keys:'לוד', lat:31.951, lon:34.888 },
+  { fr:'Lod', he:'לוד', en:'לוד', keys:'לוד', lat:31.951, lon:34.888 },
   { fr:'Ramla', he:'רמלה', en:'Ramla', keys:'רמלה', lat:31.927, lon:34.862 },
   { fr:'Yavné', he:'יבנה', en:'Yavne', keys:'יבנה', lat:31.877, lon:34.739 },
   { fr:'Nes Ziona', he:'נס ציונה', en:'Ness Ziona', keys:'נס ציונה', lat:31.929, lon:34.798 },
@@ -643,9 +636,7 @@ const CONFIG = {
   lang:            localStorage.getItem('lang')                          || 'he',
 };
 
-// V4: Thème
 let isLightMode = localStorage.getItem('theme') === 'light';
-
 let currentState   = 'idle';
 let currentLang    = CONFIG.lang;
 let timerInterval  = null;
@@ -660,17 +651,18 @@ let lastManualReset = 0;
 let appInitTime = Math.floor(Date.now() / 1000); 
 let deferredPrompt;
 
-// V4 : Carte Leaflet
+// MAP LEAFLET
 let map;
 let mapMarkers = {};
 let currentTileLayer;
+let isMapInitialized = false;
 
 function initMap() {
   if (typeof L === 'undefined' || window.innerWidth < 850) return; 
   if (!map) {
     map = L.map('map', { zoomControl: false, attributionControl: false }).setView([31.5, 34.8], 7);
     updateMapTheme();
-    updateMapMarkers();
+    updateMapMarkers([], true); // Force zoom at init
   }
 }
 
@@ -683,7 +675,8 @@ function updateMapTheme() {
   currentTileLayer = L.tileLayer(url).addTo(map);
 }
 
-function updateMapMarkers(history = []) {
+// Map markers: forceZoom empêche la carte de faire un reset agaçant
+function updateMapMarkers(history = [], forceZoom = false) {
   if (!map) return;
   
   Object.values(mapMarkers).forEach(m => map.removeLayer(m));
@@ -691,17 +684,16 @@ function updateMapMarkers(history = []) {
   
   let bounds = L.latLngBounds();
   
-  // 1. Affiche un point gris discret pour TOUTES les villes du pays
+  // Toutes les villes du pays en points discrets
   CITIES.forEach(c => {
     if (c.lat === 0) return;
     L.circleMarker([c.lat, c.lon], {radius: 2, color: 'var(--muted)', fillOpacity: 0.3, stroke: false}).addTo(map);
   });
 
-  // 2. Affiche les villes surveillées en vert
   let monitored = [];
   if (CONFIG.zones.includes('__ALL__')) {
     monitored = CITIES.filter(c => ['תל אביב', 'ירושלים כולה', 'חיפה', 'באר שבע', 'אשדוד'].includes(c.he));
-    map.setView([31.5, 34.8], 7);
+    if (forceZoom) map.setView([31.5, 34.8], 7);
   } else {
     CONFIG.zones.forEach(zKey => {
       const c = CITIES.find(city => city.keys === zKey);
@@ -718,26 +710,29 @@ function updateMapMarkers(history = []) {
     bounds.extend([c.lat, c.lon]);
   });
   
-  // 3. Ajoute des "Impacts" rouges/violets sur la carte pour l'historique des 3 dernières heures !
+  // Historique 3h
   const nowSec = Math.floor(Date.now() / 1000);
   history.forEach(ev => {
     if (CAT_DRILL.includes(ev.cat) || ev.cat === CAT_PRE || ev.cat === CAT_END) return;
     let t = ev.time;
     if (t > 10000000000) t = Math.floor(t / 1000);
-    if (nowSec - t < 10800) { // 3 heures
+    if (nowSec - t < 10800) { 
       const city = CITIES.find(c => zoneMatches([ev.cities[0]], [c.keys]));
       if (city && city.lat) {
         L.circle([city.lat, city.lon], {
           color: ev.cat === 2 ? 'var(--purple)' : 'var(--red)', 
           fillColor: ev.cat === 2 ? 'var(--purple)' : 'var(--red)',
-          fillOpacity: 0.2, radius: 2500, stroke: false
+          fillOpacity: 0.15, radius: 2500, stroke: false
         }).addTo(map);
       }
     }
   });
 
-  if (!CONFIG.zones.includes('__ALL__') && monitored.length > 0) {
+  if (forceZoom && !CONFIG.zones.includes('__ALL__') && monitored.length > 0) {
     map.fitBounds(bounds, {padding: [50, 50], maxZoom: 11});
+  } else if (!isMapInitialized && !CONFIG.zones.includes('__ALL__') && monitored.length > 0) {
+    map.fitBounds(bounds, {padding: [50, 50], maxZoom: 11});
+    isMapInitialized = true;
   }
 }
 
@@ -753,7 +748,6 @@ function highlightMapCity(cityKeys, isAlert, cat) {
       map.flyTo([c.lat, c.lon], 11, {animate: true, duration: 1.5});
     }
   } else {
-    // Restaurer le point vert s'il n'y a plus d'alerte active
     CONFIG.zones.forEach(zKey => {
       if (mapMarkers[zKey]) {
         mapMarkers[zKey].setIcon(L.divIcon({ className: 'custom-map-marker safe', html: '<div class="marker-dot"></div>', iconSize: [14,14] }));
@@ -770,7 +764,7 @@ function toggleTheme() {
 
 function applyTheme() {
   document.body.classList.toggle('light-mode', isLightMode);
-  document.getElementById('theme-btn').textContent = isLightMode ? '🌙' : '☀️';
+  document.getElementById('theme-btn').innerHTML = isLightMode ? ICON_MOON : ICON_SUN;
   const metaTheme = document.getElementById('theme-color-meta');
   if (metaTheme) metaTheme.content = isLightMode ? '#f3f4f6' : '#0a0a0f';
   updateMapTheme();
@@ -795,7 +789,7 @@ async function fetchAndSync() {
     computeState(data);
     updateDashboard(data.history || []); 
     updateSideTimeline(data.history || []); 
-    updateMapMarkers(data.history || []); // MAJ de l'historique sur la map
+    updateMapMarkers(data.history || [], false); // false = ne force pas le re-zoom
 
   } catch(e) {
     dot.className = 'status-dot offline';
@@ -824,8 +818,6 @@ function computeState(data) {
   let uniqueEvents = [];
   for (const ev of zoneEvents) {
     const evCity = (zones.includes('__ALL__')) ? (ev.cities[0] || '?') : getMatchedCity(normCities(ev.cities), zones);
-    
-    // V4 BUG FIX: Dédoublonnage sur 5 minutes pour éviter l'affichage de Pré-alerte en double !
     const isDup = uniqueEvents.some(u => {
       const uCity = (zones.includes('__ALL__')) ? (u.cities[0] || '?') : getMatchedCity(normCities(u.cities), zones);
       return Math.abs(u.time - ev.time) < 300 && uCity === evCity && u.cat === ev.cat;
@@ -908,7 +900,7 @@ function computeState(data) {
   renderHistoryList(historyEvents, zones, nowSec);
 }
 
-// ── V4 : L'ALGORITHME TIMELINE "RELATIF" (100% Anti-Bug Timezone) ──
+// ── V4 : TIMELINE "RELATIF" (Anti-Timezone) ──
 function updateSideTimeline(history) {
   const container = document.getElementById('side-timeline');
   if (!container) return;
@@ -917,7 +909,7 @@ function updateSideTimeline(history) {
   if (!dotsContainer) {
     const textNow = T[currentLang].now || 'Maintenant';
     container.innerHTML = `
-      <div class="timeline-label top">${textNow}</div>
+      <div class="timeline-label top" id="t-timeline-now">${textNow}</div>
       <div class="timeline-ticks"></div>
       <div id="timeline-dots-container"></div>
       <div class="timeline-label bottom">-24h</div>
@@ -938,14 +930,13 @@ function updateSideTimeline(history) {
 
   if (uniqueNationalEvents.length === 0) return;
 
-  // L'ASTUCE : On détermine "Maintenant" en prenant l'événement le plus récent de l'histoire,
-  // ou l'heure de notre navigateur. Ainsi, même si l'API est décalée de +3h, l'écart reste correct !
   const nowSec = Math.floor(Date.now() / 1000);
+  
+  // ALGORITHME RELATIF : La "ligne de départ" est l'alerte la plus récente.
   let baselineTime = nowSec;
   uniqueNationalEvents.forEach(ev => {
     let t = ev.time;
     if (t > 10000000000) t = Math.floor(t / 1000);
-    // Accepte un futur allant jusqu'à +24h (décalage horaire max mondial)
     if (t > baselineTime && t < nowSec + 86400) baselineTime = t; 
   });
 
@@ -955,9 +946,8 @@ function updateSideTimeline(history) {
     let evTimeSec = ev.time;
     if (evTimeSec > 10000000000) evTimeSec = Math.floor(evTimeSec / 1000);
     
-    // Le calcul se fait par rapport à la "baseline", immunisé contre le Timezone !
+    // Calcul relatif
     const ageSeconds = baselineTime - evTimeSec;
-    
     if (ageSeconds < 0 || ageSeconds > duration24hSec) return; 
 
     const topPercentage = Math.max(0, Math.min(100, (ageSeconds / duration24hSec) * 100));
@@ -1171,7 +1161,6 @@ function renderZoneChips() {
     return;
   }
 
-  // V4 : On affiche les noms des villes au lieu de "Multi-Zones"
   if (CONFIG.zones.includes('__ALL__')) {
     document.getElementById('t-location').textContent = CITIES[0][currentLang] || CITIES[0].fr; 
   } else {
@@ -1193,7 +1182,7 @@ function renderZoneChips() {
     container.appendChild(chip);
   });
   
-  updateMapMarkers(); 
+  updateMapMarkers([], true); // On force le zoom quand on change de ville
 }
 
 function removeZone(zoneKeyToRemove) {
@@ -1252,10 +1241,10 @@ function setLang(lang) {
   const txt = document.getElementById('header-status-txt');
   if (txt) txt.textContent = dot.classList.contains('offline') ? t.offline : t.online;
   
-  const labelTop = document.querySelector('.timeline-label.top');
+  const labelTop = document.getElementById('t-timeline-now');
   if (labelTop) labelTop.textContent = t.now;
   
-  updateMapMarkers(); 
+  updateMapMarkers([], false); 
 }
 
 function setFavicon(state) {
