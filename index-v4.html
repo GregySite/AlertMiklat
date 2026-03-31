@@ -32,17 +32,17 @@
   }
 
   * { margin:0; padding:0; box-sizing:border-box; }
+  /* COMPACT UI : Ajout de padding-bottom réduit */
   body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; display:flex; flex-direction:column; align-items:center; overflow-x:hidden; transition: background-color 0.3s, color 0.3s; }
   body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(79,110,247,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(79,110,247,0.04) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; z-index:0; }
   
-  /* V4: Conteneur global qui s'élargit sur PC */
-  #app { position:relative; z-index:1; width:100%; max-width:480px; padding:20px 16px 40px; transition: max-width 0.3s; }
+  /* COMPACT UI : padding 20px -> 12px */
+  #app { position:relative; z-index:1; width:100%; max-width:480px; padding:12px 16px 20px; transition: max-width 0.3s; }
 
-  header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; padding:12px 16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); transition: all 0.3s; }
+  header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; padding:10px 16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); transition: all 0.3s; }
   .logo { font-size:20px; letter-spacing:-0.5px; }
   .header-right { display:flex; align-items:center; gap:10px; }
   
-  /* V4: Bouton Thème */
   .theme-btn { background:none; border:none; font-size:18px; cursor:pointer; padding:4px; border-radius:50%; transition: background 0.2s; display:flex; align-items:center; justify-content:center; }
   .theme-btn:hover { background:var(--border); }
 
@@ -54,25 +54,25 @@
   .status-dot.alerting { background:var(--red); box-shadow:0 0 12px var(--red); }
   @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.8);} }
 
-  .location-badge { display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:8px 16px; font-size:13px; font-weight:500; margin-bottom:16px; width:100%; transition: all 0.3s; }
+  .location-badge { display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:8px 16px; font-size:13px; font-weight:500; margin-bottom:12px; width:100%; transition: all 0.3s; }
   .location-badge .dot { width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0; }
   .location-text { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-  .notif-bar { display:none; align-items:center; gap:10px; background:rgba(79,110,247,0.1); border:1px solid var(--accent); border-radius:10px; padding:12px 14px; margin-bottom:16px; font-size:13px; }
+  .notif-bar { display:none; align-items:center; gap:10px; background:rgba(79,110,247,0.1); border:1px solid var(--accent); border-radius:10px; padding:10px 14px; margin-bottom:12px; font-size:13px; }
   .notif-bar.show { display:flex; }
   .notif-bar button { margin-left:auto; background:var(--accent); color:white; border:none; border-radius:6px; padding:6px 12px; font-size:12px; font-weight:600; cursor:pointer; font-family:var(--font); white-space:nowrap; }
 
-  /* V4: Layout Principal (Colonnes) */
   .main-layout { display: flex; flex-direction: column; width: 100%; position: relative; }
   .left-column { display: flex; flex-direction: column; position: relative; width: 100%; }
-  .right-column { display: none; } /* Caché sur mobile */
+  .right-column { display: none; } 
 
-  .phase-card { border-radius:var(--radius); padding:28px 24px; margin-bottom:16px; border:1.5px solid var(--border); background:var(--surface); transition:border-color 0.4s,background 0.4s; position:relative; overflow:hidden; }
+  /* COMPACT UI : Marges et Paddings réduits */
+  .phase-card { border-radius:var(--radius); padding:20px 20px; margin-bottom:12px; border:1.5px solid var(--border); background:var(--surface); transition:border-color 0.4s,background 0.4s; position:relative; overflow:hidden; }
   .phase-card::before { content:''; position:absolute; inset:0; opacity:0; transition:opacity 0.4s; pointer-events:none; }
-  .phase-icon { font-size:56px; text-align:center; margin-bottom:16px; display:block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2)); }
-  .phase-title { font-size:26px; font-weight:900; text-align:center; letter-spacing:-0.5px; margin-bottom:8px; }
-  .msg-block { text-align:center; margin-top:12px; }
-  .msg-main { font-size:17px; font-weight:700; color:var(--text); line-height:1.4; }
+  .phase-icon { font-size:48px; text-align:center; margin-bottom:8px; display:block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2)); }
+  .phase-title { font-size:24px; font-weight:900; text-align:center; letter-spacing:-0.5px; margin-bottom:4px; }
+  .msg-block { text-align:center; margin-top:8px; }
+  .msg-main { font-size:15px; font-weight:700; color:var(--text); line-height:1.4; }
   .phase-card.idle { border-color:var(--border); }
   .phase-card.pre-alert { border-color:var(--yellow); background:linear-gradient(135deg,var(--surface) 0%,rgba(247,200,79,0.1) 100%); }
   .phase-card.pre-alert::before { background:radial-gradient(ellipse at center,var(--glow-yellow),transparent 70%); opacity:1; }
@@ -87,32 +87,32 @@
   .phase-card.waiting { border-color:var(--muted); }
   .phase-card.waiting .phase-title { color:var(--muted); }
 
-  .timer-container { margin:20px 0 8px; display:flex; flex-direction:column; align-items:center; gap:12px; }
-  .timer-display { font-family:var(--mono); font-size:64px; font-weight:400; line-height:1; letter-spacing:2px; color:var(--text); transition:color 0.3s; }
+  .timer-container { margin:16px 0 8px; display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .timer-display { font-family:var(--mono); font-size:48px; font-weight:400; line-height:1; letter-spacing:2px; color:var(--text); transition:color 0.3s; }
   .timer-display.warning { color:var(--orange); }
   .timer-display.safe-color { color:var(--green); }
   .progress-track { width:100%; height:8px; background:var(--border); border-radius:4px; overflow:hidden; }
   .progress-fill { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--red),var(--orange)); transition:width 1s linear,background 0.5s; width:0%; }
   .progress-fill.done { background:var(--green); }
-  .timer-label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; font-family:var(--mono); text-align:center; }
-  .alert-info { font-size:11px; color:var(--muted); text-align:center; margin-top:4px; font-family:var(--mono); }
+  .timer-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; font-family:var(--mono); text-align:center; }
+  .alert-info { font-size:11px; color:var(--muted); text-align:center; margin-top:2px; font-family:var(--mono); }
 
-  .reset-btn { margin-top:16px; background:none; border:1px solid var(--muted); color:var(--muted); border-radius:999px; padding:8px 20px; font-family:var(--font); font-size:13px; cursor:pointer; transition:all 0.2s; display:block; width:100%; }
+  .reset-btn { margin-top:12px; background:none; border:1px solid var(--muted); color:var(--muted); border-radius:999px; padding:6px 20px; font-family:var(--font); font-size:12px; cursor:pointer; transition:all 0.2s; display:block; width:100%; }
   .reset-btn:hover { border-color:var(--accent); color:var(--accent); }
 
-  .stats-card { display:flex; gap:10px; margin-bottom:16px; }
-  .stat-box { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px; text-align:center; display:flex; flex-direction:column; justify-content:center; transition: all 0.3s; }
-  .stat-val { font-size:24px; font-family:var(--mono); font-weight:700; margin-bottom:4px; }
-  .stat-label { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
+  .stats-card { display:flex; gap:8px; margin-bottom:12px; }
+  .stat-box { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:10px; text-align:center; display:flex; flex-direction:column; justify-content:center; transition: all 0.3s; }
+  .stat-val { font-size:22px; font-family:var(--mono); font-weight:700; margin-bottom:2px; }
+  .stat-label { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
   .stat-box.tot .stat-val { color:var(--text); }
   .stat-box.rck .stat-val { color:var(--red); }
   .stat-box.drn .stat-val { color:var(--purple); }
 
-  .history-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; transition: all 0.3s; }
-  .history-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:12px; font-family:var(--mono); }
-  .history-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
+  .history-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px 16px; margin-bottom:12px; transition: all 0.3s; }
+  .history-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; font-family:var(--mono); }
+  .history-item { display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid var(--border); }
   .history-item:last-child { border-bottom:none; }
-  .history-badge { font-size:11px; font-weight:700; padding:3px 8px; border-radius:999px; white-space:nowrap; flex-shrink:0; }
+  .history-badge { font-size:10px; font-weight:700; padding:3px 8px; border-radius:999px; white-space:nowrap; flex-shrink:0; }
   .history-badge.alert { background:rgba(247,79,79,0.15); color:var(--red); border:1px solid rgba(247,79,79,0.3); }
   .history-badge.drone { background:rgba(177,79,247,0.15); color:var(--purple); border:1px solid rgba(177,79,247,0.3); }
   .history-badge.pre   { background:rgba(247,200,79,0.15); color:var(--yellow); border:1px solid rgba(247,200,79,0.3); }
@@ -121,64 +121,64 @@
   .history-city { font-size:12px; color:var(--muted); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .history-ago  { font-size:11px; color:var(--muted); font-family:var(--mono); white-space:nowrap; flex-shrink:0; }
 
-  .last-alert-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; transition: all 0.3s; }
-  .last-alert-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:8px; font-family:var(--mono); }
+  .last-alert-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px 16px; margin-bottom:12px; transition: all 0.3s; }
+  .last-alert-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; margin-bottom:6px; font-family:var(--mono); }
   .last-alert-content { font-size:13px; line-height:1.6; }
-  .last-alert-time { font-size:11px; color:var(--muted); margin-top:4px; font-family:var(--mono); }
+  .last-alert-time { font-size:11px; color:var(--muted); margin-top:2px; font-family:var(--mono); }
 
-  .settings-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; transition: all 0.3s; }
+  .settings-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px 16px; margin-bottom:12px; transition: all 0.3s; }
   .settings-title { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:2px; font-family:var(--mono); display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; }
-  .settings-body { display:none; margin-top:14px; }
+  .settings-body { display:none; margin-top:10px; }
   .settings-body.open { display:block; }
   .chevron { transition:transform 0.3s; display:inline-block; }
   .chevron.open { transform:rotate(180deg); }
-  .setting-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); }
+  .setting-row { display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); }
   .setting-row:last-child { border-bottom:none; }
-  .setting-row.col { flex-direction:column; align-items:flex-start; gap:8px; }
-  .setting-label { font-size:13px; font-weight:500; }
-  .setting-desc  { font-size:11px; color:var(--muted); margin-top:2px; }
-  .toggle { width:44px; height:24px; border-radius:12px; background:var(--border); position:relative; cursor:pointer; transition:background 0.3s; flex-shrink:0; border:none; outline:none; }
-  .toggle::after { content:''; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:var(--muted); transition:all 0.3s; }
+  .setting-row.col { flex-direction:column; align-items:flex-start; gap:6px; }
+  .setting-label { font-size:12px; font-weight:500; }
+  .setting-desc  { font-size:10px; color:var(--muted); margin-top:2px; }
+  .toggle { width:40px; height:22px; border-radius:11px; background:var(--border); position:relative; cursor:pointer; transition:background 0.3s; flex-shrink:0; border:none; outline:none; }
+  .toggle::after { content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:var(--muted); transition:all 0.3s; }
   .toggle.on { background:var(--accent); }
-  .toggle.on::after { left:23px; background:white; }
-  .number-input { display:flex; align-items:center; gap:8px; }
-  .num-btn { width:28px; height:28px; border-radius:6px; background:var(--border); border:none; color:var(--text); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
+  .toggle.on::after { left:20px; background:white; }
+  .number-input { display:flex; align-items:center; gap:6px; }
+  .num-btn { width:24px; height:24px; border-radius:6px; background:var(--border); border:none; color:var(--text); font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
   .num-btn:hover { background:var(--accent); color:white; }
-  .num-val { font-family:var(--mono); font-size:14px; min-width:32px; text-align:center; }
+  .num-val { font-family:var(--mono); font-size:13px; min-width:28px; text-align:center; }
   
   .search-container { display:flex; gap:8px; width:100%; position:relative; }
-  .city-input { flex:1; background:var(--bg); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:8px 10px; font-family:var(--font); font-size:13px; outline:none; transition:border 0.2s; }
+  .city-input { flex:1; background:var(--bg); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:6px 10px; font-family:var(--font); font-size:12px; outline:none; transition:border 0.2s; }
   .city-input:focus { border-color:var(--accent); }
-  .gps-btn { width:36px; height:36px; border-radius:8px; background:var(--surface); border:1px solid var(--accent); color:var(--accent); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+  .gps-btn { width:32px; height:32px; border-radius:8px; background:var(--surface); border:1px solid var(--accent); color:var(--accent); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
   .gps-btn:hover { background:var(--accent); color:white; }
   .city-dropdown { display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; background:var(--surface); border:1px solid var(--accent); border-radius:8px; z-index:50; max-height:200px; overflow-y:auto; box-shadow:0 8px 24px rgba(0,0,0,0.4); }
-  .city-option { padding:10px 12px; cursor:pointer; font-size:13px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .city-option { padding:8px 12px; cursor:pointer; font-size:12px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; gap:8px; }
   .city-option:hover { background:rgba(79,110,247,0.1); }
   .city-option:last-child { border-bottom:none; }
 
-  .chips-container { display:flex; flex-wrap:wrap; gap:6px; width:100%; margin-top:8px; }
-  .zone-chip { background:rgba(79,110,247,0.15); border:1px solid var(--accent); color:var(--text); padding:4px 10px; border-radius:16px; font-size:11px; display:inline-flex; align-items:center; gap:6px; }
+  .chips-container { display:flex; flex-wrap:wrap; gap:6px; width:100%; margin-top:6px; }
+  .zone-chip { background:rgba(79,110,247,0.15); border:1px solid var(--accent); color:var(--text); padding:4px 8px; border-radius:12px; font-size:10px; display:inline-flex; align-items:center; gap:4px; }
   .chip-close { color:var(--accent); cursor:pointer; font-weight:bold; padding:0 2px; }
   .chip-close:hover { color:var(--red); }
 
-  .install-btn { background:var(--accent); color:white; border:none; border-radius:8px; padding:8px 16px; font-size:12px; font-weight:600; cursor:pointer; font-family:var(--font); }
+  .install-btn { background:var(--accent); color:white; border:none; border-radius:8px; padding:6px 14px; font-size:11px; font-weight:600; cursor:pointer; font-family:var(--font); }
 
-  .test-row { display:flex; gap:8px; margin-bottom:16px; }
-  .test-btn { flex:1; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:var(--font); font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; }
+  .test-row { display:flex; gap:6px; margin-bottom:12px; }
+  .test-btn { flex:1; padding:8px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:var(--font); font-size:11px; font-weight:600; cursor:pointer; transition:all 0.2s; }
   .test-btn:hover { transform:translateY(-1px); }
   .test-btn.y { border-color:var(--yellow); color:var(--yellow); }
   .test-btn.r { border-color:var(--red); color:var(--red); }
   .test-btn.g { border-color:var(--green); color:var(--green); }
-  .toggle-test-btn { background:none; border:1px solid var(--border); color:var(--muted); border-radius:999px; padding:5px 14px; font-size:11px; cursor:pointer; font-family:var(--mono); letter-spacing:1px; transition:all 0.2s; display:block; margin:0 auto 8px; }
+  .toggle-test-btn { background:none; border:1px solid var(--border); color:var(--muted); border-radius:999px; padding:4px 12px; font-size:10px; cursor:pointer; font-family:var(--mono); letter-spacing:1px; transition:all 0.2s; display:block; margin:0 auto 8px; }
 
   #alert-overlay { display:none; position:fixed; inset:0; z-index:100; background:rgba(180,0,0,0.12); pointer-events:none; animation:flash-bg 0.5s ease-in-out infinite alternate; }
   #alert-overlay.show { display:block; }
   @keyframes flash-bg { from{background:rgba(180,0,0,0.06);} to{background:rgba(180,0,0,0.18);} }
 
-  footer { margin-top:24px; text-align:center; font-size:11px; color:var(--muted); font-family:var(--mono); }
+  footer { margin-top:16px; text-align:center; font-size:10px; color:var(--muted); font-family:var(--mono); }
 
   /* ================================================================= */
-  /* V3.2 : LIGNE RADAR 24H AVEC GRADUATIONS ET BORNES COMPLETES       */
+  /* V4 : LIGNE RADAR 24H AVEC GRADUATIONS ET TEXTES CENTRES           */
   /* ================================================================= */
   #side-timeline {
     position: absolute; 
@@ -199,12 +199,19 @@
     opacity: 0.3;
   }
 
-  .timeline-label { position: absolute; font-family: var(--mono); font-size: 9px; color: var(--muted); text-transform: uppercase; white-space: nowrap; }
-  .timeline-label.top { top: -20px; right: -14px; }
-  body.rtl .timeline-label.top { right: auto; left: -14px; }
-  
-  .timeline-label.bottom { bottom: -20px; right: -12px; }
-  body.rtl .timeline-label.bottom { right: auto; left: -12px; }
+  /* TEXTES PARFAITEMENT CENTRÉS SUR LA LIGNE */
+  .timeline-label { 
+    position: absolute; 
+    font-family: var(--mono); 
+    font-size: 8px; /* Plus petit */
+    color: var(--muted); 
+    text-transform: uppercase; 
+    white-space: nowrap; 
+    left: 50%; /* Centre */
+    transform: translateX(-50%); /* Ajuste le centre mathématiquement */
+  }
+  .timeline-label.top { top: -16px; }
+  .timeline-label.bottom { bottom: -16px; }
 
   #timeline-dots-container { position: absolute; inset: 0; }
   
@@ -215,35 +222,47 @@
   .timeline-dot.drone { background: var(--purple); box-shadow: 0 0 4px var(--purple); }
 
   /* ================================================================= */
-  /* V4 : RESPONSIVE DESKTOP (MAP + 2 COLONNES)                        */
+  /* V4 : RESPONSIVE DESKTOP (MAP CONTRAINTE EN HAUTEUR)               */
   /* ================================================================= */
   @media(min-width: 850px) {
-    #app { max-width: 1100px; padding: 40px 24px; }
+    #app { max-width: 1100px; padding: 30px 24px; }
     .main-layout { flex-direction: row; gap: 32px; align-items: flex-start; }
     .left-column { flex: 0 0 420px; padding-right: 32px; }
-    /* Le radar reste collé aux cartes de gauche */
     #side-timeline { right: 0; } 
     
     body.rtl .main-layout { flex-direction: row-reverse; }
     body.rtl .left-column { padding-right: 0; padding-left: 32px; }
     body.rtl #side-timeline { left: 0; right: auto; }
 
-    /* La carte apparaît à droite */
-    .right-column { display: block; flex: 1; height: calc(100vh - 150px); position: sticky; top: 40px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); box-shadow: 0 8px 32px rgba(0,0,0,0.15); z-index: 5; transition: border-color 0.3s; }
+    /* Fix strict pour éviter l'allongement lors du dézoom */
+    .right-column { 
+      display: block; 
+      flex: 1; 
+      height: calc(100vh - 120px); 
+      min-height: 400px;
+      max-height: 800px; /* Limite stricte ! */
+      position: sticky; 
+      top: 30px; 
+      border-radius: var(--radius); 
+      overflow: hidden; 
+      border: 1px solid var(--border); 
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15); 
+      z-index: 5; 
+      transition: border-color 0.3s; 
+    }
     #map { width: 100%; height: 100%; background: var(--surface); transition: background 0.3s; }
   }
 
   /* V4 : Marqueurs Leaflet Personnalisés */
   .custom-map-marker { display: flex; align-items: center; justify-content: center; }
-  .custom-map-marker .marker-dot { width: 14px; height: 14px; background: var(--green); border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 6px rgba(0,0,0,0.4); transition: all 0.3s; }
+  .custom-map-marker .marker-dot { width: 10px; height: 10px; background: var(--green); border-radius: 50%; border: 2px solid var(--surface); box-shadow: 0 0 4px rgba(0,0,0,0.4); transition: all 0.3s; }
   
-  .custom-map-marker.alert-pulsing.rocket .marker-dot { background: var(--red); box-shadow: 0 0 0 0 var(--glow-red); animation: map-pulse-red 1.5s infinite; border-color: white; }
-  .custom-map-marker.alert-pulsing.drone .marker-dot { background: var(--purple); box-shadow: 0 0 0 0 rgba(177,79,247,0.6); animation: map-pulse-purple 1.5s infinite; border-color: white; }
+  .custom-map-marker.alert-pulsing.rocket .marker-dot { background: var(--red); box-shadow: 0 0 0 0 var(--glow-red); animation: map-pulse-red 1.5s infinite; border-color: white; width: 14px; height: 14px; }
+  .custom-map-marker.alert-pulsing.drone .marker-dot { background: var(--purple); box-shadow: 0 0 0 0 rgba(177,79,247,0.6); animation: map-pulse-purple 1.5s infinite; border-color: white; width: 14px; height: 14px; }
   
   @keyframes map-pulse-red { 0% { box-shadow: 0 0 0 0 var(--glow-red); } 70% { box-shadow: 0 0 0 25px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
   @keyframes map-pulse-purple { 0% { box-shadow: 0 0 0 0 rgba(177,79,247,0.6); } 70% { box-shadow: 0 0 0 25px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
   
-  /* Masquer le logo Leaflet pour faire propre */
   .leaflet-control-attribution { display: none !important; }
 
   /* RTL Général */
@@ -258,7 +277,7 @@
   body.rtl .last-alert-content { text-align:right; }
   body.rtl .last-alert-time { text-align:right; }
 
-  @media(max-width:380px) { .timer-display{font-size:48px;} .phase-icon{font-size:44px;} }
+  @media(max-width:380px) { .timer-display{font-size:40px;} .phase-icon{font-size:40px;} }
 </style>
 </head>
 <body>
@@ -310,7 +329,7 @@
         <button class="reset-btn" id="reset-btn" style="display:none;" onclick="resetToIdle()">↺ Retour au calme</button>
       </div>
 
-      <div class="history-title" id="t-stats-title" style="margin-bottom: 8px;">📊 Statistiques Nationales (24h)</div>
+      <div class="history-title" id="t-stats-title" style="margin-bottom: 6px;">📊 Statistiques Nationales (24h)</div>
       <div class="stats-card" id="stats-card">
         <div class="stat-box tot">
           <div class="stat-val" id="stat-total">0</div>
@@ -414,10 +433,10 @@
 
       <button class="toggle-test-btn" onclick="toggleTests()">🧪 <span id="t-test-btn">tests</span></button>
       <div class="test-row" id="test-row" style="display:none;">
-        <button class="test-btn y" onclick="simulatePhase('pre-alert')" id="t-btn-pre">⚠️ Pré</button>
-        <button class="test-btn r" onclick="simulatePhase('alert', 1)" style="font-size:10px;">🚨 Roquette</button>
-        <button class="test-btn r" onclick="simulatePhase('alert', 2)" style="font-size:10px; background:rgba(177,79,247,0.1); border-color:var(--purple); color:var(--purple);">🚨 Drone</button>
-        <button class="test-btn g" onclick="simulatePhase('safe')" id="t-btn-safe">✅ Sortie</button>
+        <button class="test-btn y" id="t-btn-pre" onclick="simulatePhase('pre-alert')">⚠️ Pré</button>
+        <button class="test-btn r" id="t-btn-alert-r" onclick="simulatePhase('alert', 1)">🚨 Roquette</button>
+        <button class="test-btn r" id="t-btn-alert-d" onclick="simulatePhase('alert', 2)" style="background:rgba(177,79,247,0.1); border-color:var(--purple); color:var(--purple);">🚨 Drone</button>
+        <button class="test-btn g" id="t-btn-safe" onclick="simulatePhase('safe')">✅ Sortie</button>
       </div>
 
       <footer>© Greg u. V4</footer>
@@ -438,8 +457,9 @@ const CAT_DRILL = [3,4,5,6,101,102,103,104,107];
 const T = {
   fr: {
     now:'Maintenant',
-    searchPlaceholder:'Ajouter une ville…', // V4 Traduction
-    notifMsg:'🔔 Activer les notifications pour les alertes en arrière-plan', notifBtn:'Activer',
+    searchPlaceholder:'Ajouter une ville…',
+    btnPre:'⚠️ Pré', btnAlertR:'🚨 Roquette', btnAlertD:'🚨 Drone', btnSafe:'✅ Sortie',
+    notifMsg:'🔔 Activer les notifications', notifBtn:'Activer',
     settings:'Paramètres', zoneLabel:'Zones surveillées', zoneDesc:'Cherchez ou utilisez le GPS',
     durLabel:'Durée max au miklat', durDesc:'Filet de sécurité (minutes)',
     pollLabel:'Fréquence de vérification', pollDesc:'Toutes les N secondes',
@@ -447,7 +467,6 @@ const T = {
     sndLabel:"Son d'alerte", sndDesc:'Bip dans le navigateur',
     installLabel:'Installer l\'App', installDesc:'Ajouter à l\'écran d\'accueil', installBtn:'Installer',
     testBtn:'tests', testHide:'masquer tests',
-    btnPre:'⚠️ Pré-alerte', btnAlert:'🚨 ALERTE', btnSafe:'✅ Sortie',
     lastAlert:'⚡ Dernière alerte', historyTitle:'📋 Historique',
     statsTitle:'📊 Statistiques Nationales (24h)', statTot:'Total', statRock:'Roquettes', statDrone:'Drones',
     catLabel:{ [CAT_PRE]:'Pré-alerte', [CAT_END]:'Sortie', 1:'Roquette', 2:'Drone', default:'Alerte' },
@@ -461,7 +480,7 @@ const T = {
     online:'en ligne', offline:'erreur réseau',
     resetBtn:'↺ Retour au calme',
     phases:{
-      idle:        { title:'Calme',              msg:'Aucune alerte en cours',                      icon:'🛡️' }, // V4: Bouclier
+      idle:        { title:'Calme',              msg:'Aucune alerte en cours',                      icon:'🛡️' },
       'pre-alert': { title:'Pré-alerte',         msg:'Préparez-vous — dirigez-vous vers le miklat', icon:'⚠️' },
       alert:       { title:'🚨 ALERTE 🚨',       msg:'Entrez MAINTENANT dans le miklat !',           icon:'🚨' },
       safe:        { title:'Vous pouvez sortir', msg:'La menace est passée — sortie autorisée',      icon:'✅' },
@@ -476,8 +495,9 @@ const T = {
   },
   he: {
     now:'עכשיו',
-    searchPlaceholder:'…הוסף עיר', // V4 Traduction
-    notifMsg:'🔔 אפשר התראות לקבלת אזעקות ברקע', notifBtn:'אפשר',
+    searchPlaceholder:'…הוסף עיר', 
+    btnPre:'⚠️ טרום', btnAlertR:'🚨 רקטה', btnAlertD:'🚨 כטב"מ', btnSafe:'✅ יציאה',
+    notifMsg:'🔔 אפשר התראות', notifBtn:'אפשר',
     settings:'הגדרות', zoneLabel:'אזורי מעקב', zoneDesc:'חפש או השתמש ב-GPS',
     durLabel:'זמן מקסימלי במקלט', durDesc:'רשת ביטחון (דקות)',
     pollLabel:'תדירות בדיקה', pollDesc:'כל N שניות',
@@ -485,7 +505,6 @@ const T = {
     sndLabel:'צליל אזעקה', sndDesc:'צפצוף בדפדפן',
     installLabel:'התקן אפליקציה', installDesc:'הוסף למסך הבית', installBtn:'התקן',
     testBtn:'בדיקות', testHide:'הסתר בדיקות',
-    btnPre:'⚠️ טרום-אזעקה', btnAlert:'🚨 אזעקה', btnSafe:'✅ יציאה',
     lastAlert:'⚡ אזעקה אחרונה', historyTitle:'📋 היסטוריה',
     statsTitle:'📊 סטטיסטיקה ארצית (24 שעות)', statTot:'סה"כ', statRock:'רקטות', statDrone:'כטב"מים',
     catLabel:{ [CAT_PRE]:'טרום-אזעקה', [CAT_END]:'יציאה', 1:'רקטה', 2:'כטב"מ', default:'אזעקה' },
@@ -499,7 +518,7 @@ const T = {
     online:'מחובר', offline:'שגיאת רשת',
     resetBtn:'↺ חזרה לשקט',
     phases:{
-      idle:        { title:'שקט',         msg:'אין התרעות כרגע',                  icon:'🛡️' }, // V4: Bouclier
+      idle:        { title:'שקט',         msg:'אין התרעות כרגע',                  icon:'🛡️' },
       'pre-alert': { title:'טרום-אזעקה',  msg:'התכוננו — פנו למקלט',             icon:'⚠️' },
       alert:       { title:'🚨 אזעקה 🚨', msg:'!היכנסו למקלט עכשיו',            icon:'🚨' },
       safe:        { title:'ניתן לצאת',   msg:'הסכנה חלפה — ניתן לצאת מהמקלט', icon:'✅' },
@@ -514,8 +533,9 @@ const T = {
   },
   en: {
     now:'Now',
-    searchPlaceholder:'Add a city…', // V4 Traduction
-    notifMsg:'🔔 Enable notifications for background alerts', notifBtn:'Enable',
+    searchPlaceholder:'Add a city…', 
+    btnPre:'⚠️ Pre', btnAlertR:'🚨 Rocket', btnAlertD:'🚨 Drone', btnSafe:'✅ Safe',
+    notifMsg:'🔔 Enable notifications', notifBtn:'Enable',
     settings:'Settings', zoneLabel:'Monitored zones', zoneDesc:'Search or use GPS',
     durLabel:'Max shelter duration', durDesc:'Safety fallback (minutes)',
     pollLabel:'Check frequency', pollDesc:'Every N seconds',
@@ -523,7 +543,6 @@ const T = {
     sndLabel:'Alert sound', sndDesc:'Browser beep on alert',
     installLabel:'Install App', installDesc:'Add to home screen', installBtn:'Install',
     testBtn:'tests', testHide:'hide tests',
-    btnPre:'⚠️ Pre-alert', btnAlert:'🚨 ALERT', btnSafe:'✅ All clear',
     lastAlert:'⚡ Last alert', historyTitle:'📋 History',
     statsTitle:'📊 National Stats (24h)', statTot:'Total', statRock:'Rockets', statDrone:'Drones',
     catLabel:{ [CAT_PRE]:'Pre-alert', [CAT_END]:'All clear', 1:'Rocket', 2:'UAV/Drone', default:'Alert' },
@@ -537,7 +556,7 @@ const T = {
     online:'online', offline:'network error',
     resetBtn:'↺ Reset to calm',
     phases:{
-      idle:        { title:'All clear',    msg:'No active alerts',                       icon:'🛡️' }, // V4: Bouclier
+      idle:        { title:'All clear',    msg:'No active alerts',                       icon:'🛡️' },
       'pre-alert': { title:'Pre-alert',    msg:'Get ready — head to the shelter',        icon:'⚠️' },
       alert:       { title:'🚨 ALERT 🚨', msg:'Enter the shelter NOW!',                 icon:'🚨' },
       safe:        { title:'You may exit', msg:'Threat has passed — you may leave',      icon:'✅' },
@@ -572,7 +591,7 @@ const CITIES = [
   { fr:'Givatayim', he:'גבעתיים', en:'Givatayim', keys:'גבעתיים', lat:32.072, lon:34.809 },
   { fr:'Modiin', he:'מודיעין', en:'Modiin', keys:'מודיעין', lat:31.890, lon:35.010 },
   { fr:'Rehovot', he:'רחובות', en:'Rehovot', keys:'רחובות', lat:31.894, lon:34.808 },
-  { fr:'Lod', he:'לוד', en:'לוד', keys:'לוד', lat:31.951, lon:34.888 },
+  { fr:'Lod', he:'לוד', en:'Lod', keys:'לוד', lat:31.951, lon:34.888 },
   { fr:'Ramla', he:'רמלה', en:'Ramla', keys:'רמלה', lat:31.927, lon:34.862 },
   { fr:'Yavné', he:'יבנה', en:'Yavne', keys:'יבנה', lat:31.877, lon:34.739 },
   { fr:'Nes Ziona', he:'נס ציונה', en:'Ness Ziona', keys:'נס ציונה', lat:31.929, lon:34.798 },
@@ -624,7 +643,7 @@ const CONFIG = {
   lang:            localStorage.getItem('lang')                          || 'he',
 };
 
-// V4: Thème Clair / Sombre
+// V4: Thème
 let isLightMode = localStorage.getItem('theme') === 'light';
 
 let currentState   = 'idle';
@@ -641,15 +660,14 @@ let lastManualReset = 0;
 let appInitTime = Math.floor(Date.now() / 1000); 
 let deferredPrompt;
 
-// V4 : Variables de la Carte Leaflet
+// V4 : Carte Leaflet
 let map;
 let mapMarkers = {};
 let currentTileLayer;
 
 function initMap() {
-  if (window.innerWidth < 850) return; // Pas de carte sur mobile
+  if (typeof L === 'undefined' || window.innerWidth < 850) return; 
   if (!map) {
-    // Centre par défaut sur Israël
     map = L.map('map', { zoomControl: false, attributionControl: false }).setView([31.5, 34.8], 7);
     updateMapTheme();
     updateMapMarkers();
@@ -659,54 +677,72 @@ function initMap() {
 function updateMapTheme() {
   if (!map) return;
   if (currentTileLayer) map.removeLayer(currentTileLayer);
-  
-  // Utilisation de CartoDB (Très propre et existe en sombre/clair)
   const url = isLightMode 
     ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
     : 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-    
   currentTileLayer = L.tileLayer(url).addTo(map);
 }
 
-function updateMapMarkers() {
+function updateMapMarkers(history = []) {
   if (!map) return;
   
   Object.values(mapMarkers).forEach(m => map.removeLayer(m));
   mapMarkers = {};
   
   let bounds = L.latLngBounds();
-  let citiesToShow = [];
   
+  // 1. Affiche un point gris discret pour TOUTES les villes du pays
+  CITIES.forEach(c => {
+    if (c.lat === 0) return;
+    L.circleMarker([c.lat, c.lon], {radius: 2, color: 'var(--muted)', fillOpacity: 0.3, stroke: false}).addTo(map);
+  });
+
+  // 2. Affiche les villes surveillées en vert
+  let monitored = [];
   if (CONFIG.zones.includes('__ALL__')) {
-    // Si toutes les villes, on affiche les plus grandes pour ne pas surcharger
-    citiesToShow = CITIES.filter(c => ['תל אביב', 'ירושלים כולה', 'חיפה', 'באר שבע', 'אשדוד'].includes(c.he));
+    monitored = CITIES.filter(c => ['תל אביב', 'ירושלים כולה', 'חיפה', 'באר שבע', 'אשדוד'].includes(c.he));
     map.setView([31.5, 34.8], 7);
   } else {
     CONFIG.zones.forEach(zKey => {
       const c = CITIES.find(city => city.keys === zKey);
-      if (c && c.lat) citiesToShow.push(c);
+      if (c && c.lat) monitored.push(c);
     });
   }
   
-  citiesToShow.forEach(c => {
+  monitored.forEach(c => {
     const marker = L.marker([c.lat, c.lon], {
-      icon: L.divIcon({ className: 'custom-map-marker safe', html: '<div class="marker-dot"></div>', iconSize: [24,24] })
+      icon: L.divIcon({ className: 'custom-map-marker safe', html: '<div class="marker-dot"></div>', iconSize: [14,14] })
     }).addTo(map);
-    
     marker.bindTooltip(c[currentLang] || c.fr, {permanent: false, direction: 'top'});
     mapMarkers[c.keys] = marker;
     bounds.extend([c.lat, c.lon]);
   });
   
-  if (!CONFIG.zones.includes('__ALL__') && citiesToShow.length > 0) {
-    map.fitBounds(bounds, {padding: [50, 50], maxZoom: 12});
+  // 3. Ajoute des "Impacts" rouges/violets sur la carte pour l'historique des 3 dernières heures !
+  const nowSec = Math.floor(Date.now() / 1000);
+  history.forEach(ev => {
+    if (CAT_DRILL.includes(ev.cat) || ev.cat === CAT_PRE || ev.cat === CAT_END) return;
+    let t = ev.time;
+    if (t > 10000000000) t = Math.floor(t / 1000);
+    if (nowSec - t < 10800) { // 3 heures
+      const city = CITIES.find(c => zoneMatches([ev.cities[0]], [c.keys]));
+      if (city && city.lat) {
+        L.circle([city.lat, city.lon], {
+          color: ev.cat === 2 ? 'var(--purple)' : 'var(--red)', 
+          fillColor: ev.cat === 2 ? 'var(--purple)' : 'var(--red)',
+          fillOpacity: 0.2, radius: 2500, stroke: false
+        }).addTo(map);
+      }
+    }
+  });
+
+  if (!CONFIG.zones.includes('__ALL__') && monitored.length > 0) {
+    map.fitBounds(bounds, {padding: [50, 50], maxZoom: 11});
   }
 }
 
-// Fait pulser une ville sur la carte en cas d'alerte
 function highlightMapCity(cityKeys, isAlert, cat) {
   if (!map) return;
-  updateMapMarkers(); // Reset tout en "safe"
   
   if (isAlert && cityKeys) {
     const c = CITIES.find(city => zoneMatches(normCities(cityKeys), [city.keys]));
@@ -716,10 +752,16 @@ function highlightMapCity(cityKeys, isAlert, cat) {
       marker.setIcon(L.divIcon({ className: `custom-map-marker alert-pulsing ${colorClass}`, html: '<div class="marker-dot"></div>', iconSize:[30,30] }));
       map.flyTo([c.lat, c.lon], 11, {animate: true, duration: 1.5});
     }
+  } else {
+    // Restaurer le point vert s'il n'y a plus d'alerte active
+    CONFIG.zones.forEach(zKey => {
+      if (mapMarkers[zKey]) {
+        mapMarkers[zKey].setIcon(L.divIcon({ className: 'custom-map-marker safe', html: '<div class="marker-dot"></div>', iconSize: [14,14] }));
+      }
+    });
   }
 }
 
-// Gestion du Thème (Dark/Light)
 function toggleTheme() {
   isLightMode = !isLightMode;
   localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
@@ -741,7 +783,6 @@ async function fetchAndSync() {
   try {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000); 
-
     const res = await fetch(PROXY_URL, { cache:'no-store', signal: controller.signal });
     clearTimeout(timeoutId);
 
@@ -754,6 +795,7 @@ async function fetchAndSync() {
     computeState(data);
     updateDashboard(data.history || []); 
     updateSideTimeline(data.history || []); 
+    updateMapMarkers(data.history || []); // MAJ de l'historique sur la map
 
   } catch(e) {
     dot.className = 'status-dot offline';
@@ -769,13 +811,9 @@ function computeState(data) {
 
   if (data.active) {
     const realOrigin = allEvents.find(h => 
-      h.cat === data.active.cat && 
-      h.cities[0] === data.active.cities[0] &&
-      (nowSec - h.time) < 1200 
+      h.cat === data.active.cat && h.cities[0] === data.active.cities[0] && (nowSec - h.time) < 1200 
     );
-    if (realOrigin) {
-      data.active.time = realOrigin.time; 
-    }
+    if (realOrigin) data.active.time = realOrigin.time; 
     allEvents.push(data.active);
   }
 
@@ -787,7 +825,7 @@ function computeState(data) {
   for (const ev of zoneEvents) {
     const evCity = (zones.includes('__ALL__')) ? (ev.cities[0] || '?') : getMatchedCity(normCities(ev.cities), zones);
     
-    // V4 BUG FIX: Dédoublonnage ultra strict (Fenêtre de 5 minutes = 300s) pour éviter les doublons de Pré-alerte
+    // V4 BUG FIX: Dédoublonnage sur 5 minutes pour éviter l'affichage de Pré-alerte en double !
     const isDup = uniqueEvents.some(u => {
       const uCity = (zones.includes('__ALL__')) ? (u.cities[0] || '?') : getMatchedCity(normCities(u.cities), zones);
       return Math.abs(u.time - ev.time) < 300 && uCity === evCity && u.cat === ev.cat;
@@ -812,7 +850,6 @@ function computeState(data) {
     const hasSortie = newestSortie && newestSortie.time > newestAlert.time;
     if (!hasSortie) {
       const ageSeconds = nowSec - newestAlert.time;
-      
       if (ageSeconds < CONFIG.durationSec) {
         activeEvent = newestAlert; 
         const remaining = CONFIG.durationSec - ageSeconds;
@@ -831,12 +868,9 @@ function computeState(data) {
         }
       }
     } else {
-      const ageSortie = nowSec - newestSortie.time;
-      if (ageSortie < 120) { 
+      if (nowSec - newestSortie.time < 120) { 
         activeEvent = newestSortie;
-        if (currentState !== 'safe') {
-          buzz('safe'); notify(...T[currentLang].notifSafe);
-        }
+        if (currentState !== 'safe') { buzz('safe'); notify(...T[currentLang].notifSafe); }
         applyState('safe', null, nowSec);
       }
     }
@@ -859,12 +893,9 @@ function computeState(data) {
   }
 
   if (!activeEvent && newestSortie) {
-    const ageSortie = nowSec - newestSortie.time;
-    if (ageSortie < 120) { 
+    if (nowSec - newestSortie.time < 120) { 
       activeEvent = newestSortie;
-      if (currentState !== 'safe') {
-        buzz('safe'); notify(...T[currentLang].notifSafe);
-      }
+      if (currentState !== 'safe') { buzz('safe'); notify(...T[currentLang].notifSafe); }
       applyState('safe', null, nowSec);
     }
   }
@@ -877,7 +908,7 @@ function computeState(data) {
   renderHistoryList(historyEvents, zones, nowSec);
 }
 
-// ── V3.2 : BARRE LATERALE (RADAR 24H AVEC AXE GRADUE) ──
+// ── V4 : L'ALGORITHME TIMELINE "RELATIF" (100% Anti-Bug Timezone) ──
 function updateSideTimeline(history) {
   const container = document.getElementById('side-timeline');
   if (!container) return;
@@ -905,14 +936,28 @@ function updateSideTimeline(history) {
     if (!isDup) uniqueNationalEvents.push(ev);
   }
 
+  if (uniqueNationalEvents.length === 0) return;
+
+  // L'ASTUCE : On détermine "Maintenant" en prenant l'événement le plus récent de l'histoire,
+  // ou l'heure de notre navigateur. Ainsi, même si l'API est décalée de +3h, l'écart reste correct !
   const nowSec = Math.floor(Date.now() / 1000);
+  let baselineTime = nowSec;
+  uniqueNationalEvents.forEach(ev => {
+    let t = ev.time;
+    if (t > 10000000000) t = Math.floor(t / 1000);
+    // Accepte un futur allant jusqu'à +24h (décalage horaire max mondial)
+    if (t > baselineTime && t < nowSec + 86400) baselineTime = t; 
+  });
+
   const duration24hSec = 24 * 60 * 60; 
 
   uniqueNationalEvents.forEach(ev => {
     let evTimeSec = ev.time;
     if (evTimeSec > 10000000000) evTimeSec = Math.floor(evTimeSec / 1000);
     
-    const ageSeconds = nowSec - evTimeSec;
+    // Le calcul se fait par rapport à la "baseline", immunisé contre le Timezone !
+    const ageSeconds = baselineTime - evTimeSec;
+    
     if (ageSeconds < 0 || ageSeconds > duration24hSec) return; 
 
     const topPercentage = Math.max(0, Math.min(100, (ageSeconds / duration24hSec) * 100));
@@ -1015,7 +1060,6 @@ function applyState(newState, params, nowSec) {
   msgEl.setAttribute('dir', T[currentLang].dir);
   setFavicon(newState);
 
-  // V4 : Animation de la Carte PC
   if (newState === 'alert' && params) highlightMapCity(params.city, true, params.cat);
   else if (newState === 'pre-alert' && params) highlightMapCity(params.city, true, 14);
   else highlightMapCity(null, false);
@@ -1127,7 +1171,7 @@ function renderZoneChips() {
     return;
   }
 
-  // V4 : Affichage de la liste des villes au lieu de "Multi-Zones"
+  // V4 : On affiche les noms des villes au lieu de "Multi-Zones"
   if (CONFIG.zones.includes('__ALL__')) {
     document.getElementById('t-location').textContent = CITIES[0][currentLang] || CITIES[0].fr; 
   } else {
@@ -1149,7 +1193,7 @@ function renderZoneChips() {
     container.appendChild(chip);
   });
   
-  updateMapMarkers(); // Met à jour la carte en fonction des zones
+  updateMapMarkers(); 
 }
 
 function removeZone(zoneKeyToRemove) {
@@ -1183,7 +1227,7 @@ function setLang(lang) {
     't-last-alert-title':t.lastAlert, 't-history-title':t.historyTitle,
     't-stats-title':t.statsTitle, 't-stat-total':t.statTot, 't-stat-rock':t.statRock, 't-stat-drone':t.statDrone,
     't-install-label':t.installLabel, 't-install-desc':t.installDesc, 't-install-btn':t.installBtn,
-    't-btn-pre':t.btnPre, 't-btn-safe':t.btnSafe,
+    't-btn-pre':t.btnPre, 't-btn-alert-r':t.btnAlertR, 't-btn-alert-d':t.btnAlertD, 't-btn-safe':t.btnSafe,
     'timer-label':t.timerLabel, 'reset-btn':t.resetBtn,
   };
   for (const [id, val] of Object.entries(ids)) {
@@ -1191,7 +1235,6 @@ function setLang(lang) {
     if (el && val) el.textContent = val;
   }
 
-  // V4 : Traduction du champ recherche
   document.getElementById('zone-search').placeholder = t.searchPlaceholder;
 
   const isTV = document.getElementById('test-row').style.display !== 'none';
@@ -1209,11 +1252,10 @@ function setLang(lang) {
   const txt = document.getElementById('header-status-txt');
   if (txt) txt.textContent = dot.classList.contains('offline') ? t.offline : t.online;
   
-  // V4 : Mise à jour texte timeline
   const labelTop = document.querySelector('.timeline-label.top');
   if (labelTop) labelTop.textContent = t.now;
   
-  updateMapMarkers(); // Retraduit les tooltips de la carte
+  updateMapMarkers(); 
 }
 
 function setFavicon(state) {
@@ -1489,12 +1531,12 @@ window.addEventListener('load', () => {
   setLang(currentLang);
   setFavicon('idle');
   checkNotifPermission();
-  initMap(); // Initialise la carte si on est sur PC
+  initMap(); 
   startPolling();
 });
 
 window.addEventListener('resize', () => {
-  initMap(); // Charge la carte si on agrandit la fenêtre
+  initMap(); 
 });
 </script>
 </body>
