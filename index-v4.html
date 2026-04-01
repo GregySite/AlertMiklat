@@ -226,11 +226,16 @@
 
     /* La timeline devient une colonne au centre */
     #side-timeline {
-        position: sticky; top: 40px; 
-        height: calc(100vh - 80px); min-height: 300px; max-height: 800px;
-        flex: 0 0 2px; right: auto; left: auto;
-        margin: 0 10px; /* Espace respirable autour de la ligne */
-    }
+    position: absolute; 
+    top: 110px; /* Plus bas pour décoller du haut ! */
+    bottom: 50px; /* Plus haut pour décoller du bas ! */
+    right: 4px; 
+    width: 2px; 
+    background: var(--border); 
+    z-index: 10;
+    pointer-events: none; 
+    transition: background 0.3s;
+  }
 
     .right-column { 
       display: block; flex: 1; 
