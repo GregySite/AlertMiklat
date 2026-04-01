@@ -224,18 +224,18 @@
     .left-column { flex: 0 0 380px; padding-right: 0; }
     body.rtl .left-column { padding-left: 0; padding-right: 0; }
 
-    /* La timeline devient une colonne au centre */
+        /* La timeline devient une colonne au centre */
     #side-timeline {
-    position: absolute; 
-    top: 110px; /* Plus bas pour décoller du haut ! */
-    bottom: 50px; /* Plus haut pour décoller du bas ! */
-    right: 4px; 
-    width: 2px; 
-    background: var(--border); 
-    z-index: 10;
-    pointer-events: none; 
-    transition: background 0.3s;
-  }
+        position: sticky; top: 40px; 
+        height: calc(100vh - 80px); min-height: 300px; max-height: 800px;
+        flex: 0 0 2px; right: auto; left: auto;
+        margin: 0 10px; /* Espace respirable autour de la ligne */
+    }
+    /* Annule le "left: 4px" du mobile spécifiquement pour l'hébreu sur PC */
+    body.rtl #side-timeline {
+        left: auto;
+        right: auto;
+    }
 
     .right-column { 
       display: block; flex: 1; 
