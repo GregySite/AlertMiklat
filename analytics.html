@@ -29,7 +29,6 @@
             pointer-events: none; z-index: 999;
         }
 
-        /* ── TOP BAR ── */
         .topbar {
             background: var(--surface); border-bottom: 2px solid var(--danger);
             padding: 10px 16px; display: flex; align-items: center;
@@ -42,15 +41,12 @@
         @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
         .topbar-time { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
 
-        /* ── MOBILE TABS ── */
         .tab-bar { display: none; background: var(--surface); border-bottom: 1px solid var(--border); }
         .tab-btn { flex: 1; padding: 12px; background: transparent; border: none; font-family: var(--display); font-weight: 700; font-size: 0.9rem; letter-spacing: 1px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s; }
         .tab-btn.active { color: white; border-bottom-color: var(--danger); }
 
-        /* ── LAYOUT ── */
         .layout { display: grid; grid-template-columns: 320px 1fr; height: calc(100vh - 53px); }
 
-        /* ── SIDEBAR ── */
         .sidebar { background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
         .sidebar-header { padding: 14px 18px; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 0.65rem; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; display: flex; justify-content: space-between; }
 
@@ -84,7 +80,6 @@
         .risk-medium   { background: rgba(255,184,0,0.2); color: var(--warning); border: 1px solid rgba(255,184,0,0.4); }
         .risk-low      { background: rgba(0,230,118,0.1); color: var(--safe); border: 1px solid rgba(0,230,118,0.3); }
 
-        /* ── MAIN PANEL ── */
         .main { overflow-y: auto; padding: 20px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
         .empty-state { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); gap: 14px; text-align: center; }
         .empty-state .big-icon { font-size: 3rem; opacity: 0.3; }
@@ -115,15 +110,6 @@
         .section-title { font-family: var(--body); font-size: 0.75rem; color: var(--text); letter-spacing: 1px; text-transform: uppercase; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
         .section-title::after { content:''; flex:1; height:1px; background: var(--border); }
 
-        .hourly-list, .departure-grid { display: flex; flex-direction: column; gap: 5px; }
-        .hour-row, .dep-row { display: grid; grid-template-columns: 80px 1fr 60px; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 7px; background: rgba(255,255,255,0.02); border: 1px solid transparent; transition: 0.2s; }
-        .hour-row:hover, .dep-row:hover { background: rgba(255,255,255,0.04); }
-        
-        .hour-window, .dep-hour { font-family: var(--mono); font-size: 0.8rem; color: var(--text); }
-        .hour-bar-track, .dep-bar-track { height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
-        .hour-bar-fill, .dep-bar-fill { height: 100%; border-radius: 4px; width: 0%; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
-        .hour-val, .dep-val { font-family: var(--display); font-weight: 900; font-size: 1rem; text-align: right; }
-
         .zones-strip { display: flex; gap: 0; border-radius: 8px; overflow: hidden; margin-bottom: 16px; height: 32px; }
         .zone-segment { display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.65rem; color: rgba(0,0,0,0.8); font-weight: bold; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 0 4px; }
 
@@ -139,7 +125,6 @@
             .stats-grid { gap: 10px; }
             .city-header-name { font-size: 1.5rem; }
             .empty-state { min-height: 40vh; }
-            .hour-row, .dep-row { grid-template-columns: 70px 1fr 50px; }
         }
     </style>
 </head>
@@ -147,7 +132,7 @@
 
 <div class="topbar">
     <div class="topbar-title"><span>⚡</span> TENSION ANALYTICS</div>
-    <div class="live-badge"><div class="live-dot"></div> WORKER CONNECTÉ</div>
+    <div class="live-badge"><div class="live-dot"></div> SYNC AUTO</div>
     <div class="topbar-time" id="clock">--:--:--</div>
 </div>
 
@@ -160,13 +145,13 @@
 
     <div class="sidebar" id="panel-list">
         <div class="sidebar-header">
-            <span>— Zones de surveillance —</span>
-            <span id="sync-status" style="color:var(--safe)">Synchronisé</span>
+            <span>— Données en temps réel —</span>
+            <span id="sync-status" style="color:var(--muted)">Initialisation...</span>
         </div>
         <div style="padding:10px 14px; border-bottom:1px solid var(--border);">
             <div class="mode-switcher">
                 <button class="mode-btn active" id="mode-city-btn"  onclick="setMode('city')">📍 Villes</button>
-                <button class="mode-btn"        id="mode-route-btn" onclick="setMode('route')">🗺 Trajets (Bêta)</button>
+                <button class="mode-btn"        id="mode-route-btn" onclick="setMode('route')">🗺 Trajets</button>
             </div>
         </div>
 
@@ -179,7 +164,7 @@
         </div>
 
         <div id="route-controls" style="display:none; flex:1; flex-direction:column; overflow:hidden;">
-            <div style="padding:10px 14px; border-bottom:1px solid var(--border); font-family:var(--mono); font-size:0.65rem; color:var(--muted); letter-spacing:2px;">TRAJETS STRATÉGIQUES</div>
+            <div style="padding:10px 14px; border-bottom:1px solid var(--border); font-family:var(--mono); font-size:0.65rem; color:var(--muted); letter-spacing:2px;">TRAJETS PRINCIPAUX</div>
             <div class="route-list" id="route-list"></div>
         </div>
     </div>
@@ -198,82 +183,116 @@
 
 <script>
 /* ════════════════════════════════════════════════
-   BASE DE DONNÉES STRUCTURELLE (Alliée au Cloudflare)
+   BASE DE DONNÉES ENRICHIE (Villes d'Israël)
 ════════════════════════════════════════════════ */
-// L'API nous donne le "recent", cette DB nous donne le contexte historique (depuis 2006)
 const DB_CITIES = {
-    "Sderot":        { keys: ["שדרות"], hist: 2100, weight: 1.6, zone: "Sud" },
+    // === NORD ===
     "Kiryat Shmona": { keys: ["קריית שמונה"], hist: 4200, weight: 1.9, zone: "Nord" },
-    "Ashkelon":      { keys: ["אשקלון"], hist: 1900, weight: 1.5, zone: "Sud" },
+    "Metula":        { keys: ["מטולה"], hist: 3100, weight: 1.8, zone: "Nord" },
+    "Nahariya":      { keys: ["נהריה"], hist: 1200, weight: 1.5, zone: "Nord" },
+    "Haïfa":         { keys: ["חיפה"], hist: 850, weight: 1.4, zone: "Nord" },
+    "Safed":         { keys: ["צפת"], hist: 620, weight: 1.3, zone: "Nord" },
+    "Acre":          { keys: ["עכו"], hist: 310, weight: 1.2, zone: "Nord" },
+    "Tibériade":     { keys: ["טבריה"], hist: 430, weight: 1.2, zone: "Nord" },
+    "Karmiel":       { keys: ["כרמיאל"], hist: 180, weight: 1.1, zone: "Nord" },
+    "Katzrin":       { keys: ["קצרין"], hist: 150, weight: 1.2, zone: "Nord" },
+    "Afula":         { keys: ["עפולה"], hist: 80, weight: 1.0, zone: "Nord" },
+    "Nazareth":      { keys: ["נצרת"], hist: 60, weight: 1.0, zone: "Nord" },
+
+    // === CENTRE (Gush Dan étendu) ===
     "Tel Aviv":      { keys: ["תל אביב"], hist: 320, weight: 1.2, zone: "Centre" },
     "Jérusalem":     { keys: ["ירושלים - דרום", "ירושלים - מזרח", "ירושלים - מערב", "ירושלים - מרכז", "ירושלים - צפון", "ירושלים כולה"], hist: 580, weight: 1.3, zone: "Centre" },
-    "Haïfa":         { keys: ["חיפה"], hist: 850, weight: 1.4, zone: "Nord" },
-    "Metula":        { keys: ["מטולה"], hist: 3100, weight: 1.8, zone: "Nord" },
-    "Ashdod":        { keys: ["אשדוד"], hist: 680, weight: 1.3, zone: "Sud" },
     "Netanya":       { keys: ["נתניה"], hist: 210, weight: 1.1, zone: "Centre" },
-    "Be'er Sheva":   { keys: ["באר שבע"], hist: 150, weight: 1.1, zone: "Sud" },
-    "Eilat":         { keys: ["אילת"], hist: 45, weight: 1.0, zone: "Sud" },
-    "Nahariya":      { keys: ["נהריה"], hist: 1200, weight: 1.5, zone: "Nord" },
-    "Safed":         { keys: ["צפת"], hist: 620, weight: 1.3, zone: "Nord" },
+    "Rishon LeZion": { keys: ["ראשון לציון"], hist: 190, weight: 1.1, zone: "Centre" },
+    "Petah Tikva":   { keys: ["פתח תקווה"], hist: 175, weight: 1.1, zone: "Centre" },
+    "Holon":         { keys: ["חולון"], hist: 155, weight: 1.1, zone: "Centre" },
+    "Rehovot":       { keys: ["רחובות"], hist: 160, weight: 1.1, zone: "Centre" },
+    "Bat Yam":       { keys: ["בת ים"], hist: 140, weight: 1.0, zone: "Centre" },
+    "Ramat Gan":     { keys: ["רמת גן"], hist: 130, weight: 1.0, zone: "Centre" },
+    "Herzliya":      { keys: ["הרצליה"], hist: 115, weight: 1.0, zone: "Centre" },
     "Modi'in":       { keys: ["מודיעין"], hist: 90, weight: 1.0, zone: "Centre" },
+    "Lod":           { keys: ["לוד"], hist: 85, weight: 1.0, zone: "Centre" },
+
+    // === SUD & GAZA BELT ===
+    "Sderot":        { keys: ["שדרות"], hist: 2100, weight: 1.6, zone: "Sud" },
+    "Ashkelon":      { keys: ["אשקלון"], hist: 1900, weight: 1.5, zone: "Sud" },
     "Netivot":       { keys: ["נתיבות"], hist: 980, weight: 1.4, zone: "Sud" },
-    "Acre":          { keys: ["עכו"], hist: 310, weight: 1.2, zone: "Nord" }
+    "Ofakim":        { keys: ["אופקים"], hist: 760, weight: 1.3, zone: "Sud" },
+    "Ashdod":        { keys: ["אשדוד"], hist: 680, weight: 1.3, zone: "Sud" },
+    "Kiryat Gat":    { keys: ["קריית גת"], hist: 420, weight: 1.2, zone: "Sud" },
+    "Be'er Sheva":   { keys: ["באר שבע"], hist: 150, weight: 1.1, zone: "Sud" },
+    "Dimona":        { keys: ["דימונה"], hist: 80, weight: 1.0, zone: "Sud" },
+    "Arad":          { keys: ["ערד"], hist: 60, weight: 1.0, zone: "Sud" },
+    "Eilat":         { keys: ["אילת"], hist: 45, weight: 1.0, zone: "Sud" },
+    "Gaza Environs": { keys: ["עוטף עזה"], hist: 4500, weight: 2.0, zone: "Sud" }
 };
 
-// Injection des données Live (remplies par le Fetch)
 let LIVE_DATA = {};
-let HOURLY_DISTRIBUTION = {}; // { "Sderot": [0, 0, 5, 1, 0...] } (24 cases)
+let HOURLY_DISTRIBUTION = {}; 
 
 /* ════════════════════════════════════════════════
-   TRAJETS
+   TRAJETS ÉTENDUS
 ════════════════════════════════════════════════ */
 const ROUTES = [
-    { id: "jlm-tlv", name: "Jérusalem → Tel Aviv", duration: 55, desc: "Route 1", segments: [{ city: "Jérusalem", minutes: 25 }, { city: "Modi'in", minutes: 15 }, { city: "Tel Aviv", minutes: 15 }] },
-    { id: "hfa-tlv", name: "Haïfa → Tel Aviv", duration: 70, desc: "Autoroute 2 (Côtière)", segments: [{ city: "Haïfa", minutes: 20 }, { city: "Netanya", minutes: 30 }, { city: "Tel Aviv", minutes: 20 }] },
-    { id: "bsh-tlv", name: "Be'er Sheva → Tel Aviv", duration: 80, desc: "Autoroute 40", segments: [{ city: "Be'er Sheva", minutes: 20 }, { city: "Ashkelon", minutes: 30 }, { city: "Tel Aviv", minutes: 30 }] },
-    { id: "jlm-ksh", name: "Jérusalem → Kiryat Shmona", duration: 150, desc: "Vallée du Jourdain", segments: [{ city: "Jérusalem", minutes: 30 }, { city: "Tibériade", minutes: 60 }, { city: "Kiryat Shmona", minutes: 60 }] }
+    { id: "tlv-jlm", name: "Tel Aviv ⇄ Jérusalem", duration: 55, desc: "Route 1", segments: [{ city: "Tel Aviv", minutes: 15 }, { city: "Modi'in", minutes: 20 }, { city: "Jérusalem", minutes: 20 }] },
+    { id: "hfa-tlv", name: "Haïfa ⇄ Tel Aviv", duration: 70, desc: "Autoroute 2 (Côtière)", segments: [{ city: "Haïfa", minutes: 20 }, { city: "Netanya", minutes: 25 }, { city: "Herzliya", minutes: 10 }, { city: "Tel Aviv", minutes: 15 }] },
+    { id: "bsh-tlv", name: "Be'er Sheva ⇄ Tel Aviv", duration: 80, desc: "Autoroute 40", segments: [{ city: "Be'er Sheva", minutes: 20 }, { city: "Kiryat Gat", minutes: 20 }, { city: "Rehovot", minutes: 20 }, { city: "Tel Aviv", minutes: 20 }] },
+    { id: "tlv-eil", name: "Tel Aviv → Eilat", duration: 240, desc: "Route 40 / Arava", segments: [{ city: "Tel Aviv", minutes: 20 }, { city: "Be'er Sheva", minutes: 60 }, { city: "Dimona", minutes: 40 }, { city: "Eilat", minutes: 120 }] },
+    { id: "jlm-ksh", name: "Jérusalem → Kiryat Shmona", duration: 150, desc: "Vallée du Jourdain / Route 90", segments: [{ city: "Jérusalem", minutes: 30 }, { city: "Tibériade", minutes: 60 }, { city: "Kiryat Shmona", minutes: 60 }] },
+    { id: "ash-tlv", name: "Ashkelon ⇄ Tel Aviv", duration: 50, desc: "Autoroute 4", segments: [{ city: "Ashkelon", minutes: 15 }, { city: "Ashdod", minutes: 15 }, { city: "Rishon LeZion", minutes: 10 }, { city: "Tel Aviv", minutes: 10 }] },
+    { id: "sdr-bsh", name: "Sderot ⇄ Be'er Sheva", duration: 40, desc: "Route 25", segments: [{ city: "Sderot", minutes: 15 }, { city: "Netivot", minutes: 10 }, { city: "Be'er Sheva", minutes: 15 }] },
+    { id: "hfa-ksh", name: "Haïfa ⇄ Kiryat Shmona", duration: 90, desc: "Route 85 / 90", segments: [{ city: "Haïfa", minutes: 20 }, { city: "Acre", minutes: 10 }, { city: "Karmiel", minutes: 30 }, { city: "Kiryat Shmona", minutes: 30 }] },
 ];
 
 /* ════════════════════════════════════════════════
-   FONCTIONS MÉTIER (Analyse, pas prédiction)
+   ALGORITHMES D'ANALYSE (Score Pondéré)
 ════════════════════════════════════════════════ */
-// Calcule un score de tension de 0 à 100
 function computeTensionIndex(cityData) { 
     if (!cityData) return 0;
-    // Poids majeur sur le direct (24h) + Poids mineur sur l'historique
     const score = (cityData.hist / 200) + (cityData.recent * 15);
     return Math.min(100, score * cityData.weight); 
 }
 
 function getRiskLevel(tension) {
-    if (tension >= 75) return { label: '🔴 TENSION CRITIQUE', cls: 'risk-critical', color: '#ff3a3a' };
-    if (tension >= 40) return { label: '🟠 TENSION ÉLEVÉE',   cls: 'risk-high', color: '#ff6400' };
-    if (tension >= 15) return { label: '🟡 TENSION MODÉRÉE',  cls: 'risk-medium', color: '#ffb800' };
-    return             { label: '🟢 TENSION FAIBLE',    cls: 'risk-low', color: '#00e676' };
+    if (tension >= 75) return { label: '🔴 CRITIQUE', cls: 'risk-critical', color: '#ff3a3a' };
+    if (tension >= 40) return { label: '🟠 ÉLEVÉE',   cls: 'risk-high', color: '#ff6400' };
+    if (tension >= 15) return { label: '🟡 MODÉRÉE',  cls: 'risk-medium', color: '#ffb800' };
+    return             { label: '🟢 FAIBLE',       cls: 'risk-low', color: '#00e676' };
+}
+
+// Calcule la tension globale d'un trajet (Moyenne pondérée par le temps passé)
+function computeRouteTension(route) {
+    let totalTension = 0;
+    let totalMinutes = 0;
+    route.segments.forEach(s => {
+        const cityTension = LIVE_DATA[s.city] ? computeTensionIndex(LIVE_DATA[s.city]) : 0;
+        totalTension += cityTension * s.minutes;
+        totalMinutes += s.minutes;
+    });
+    return totalMinutes > 0 ? (totalTension / totalMinutes) : 0;
 }
 
 /* ════════════════════════════════════════════════
-   SYNCHRONISATION CLOUDFLARE WORKER
+   SYNCHRONISATION AUTOMATIQUE
 ════════════════════════════════════════════════ */
 async function fetchWorkerData() {
     try {
         const res = await fetch('https://miklat-v2.gregyman.workers.dev/');
         const data = await res.json();
         
-        // Initialisation de l'objet combiné
         for (const [name, info] of Object.entries(DB_CITIES)) {
             LIVE_DATA[name] = { ...info, recent: 0 };
             HOURLY_DISTRIBUTION[name] = new Array(24).fill(0);
         }
 
-        const now = Math.floor(Date.now() / 1000);
-        
-        // Parcours de l'historique réel des 24h
-        if (data.history && Array.isArray(data.history)) {
-            data.history.forEach(ev => {
-                if (ev.cat === 13 || ev.cat === 14 || ev.cat > 100) return; // Ignore Sortie, Pré, Exercices
+        // On inclut l'alerte active dans l'historique récent pour les stats !
+        let allEvents = data.history ? [...data.history] : [];
+        if (data.active) allEvents.push(data.active);
+
+        if (allEvents.length > 0) {
+            allEvents.forEach(ev => {
+                if (ev.cat === 13 || ev.cat === 14 || ev.cat > 100) return; 
                 
-                // Trouve la ville correspondante
                 let targetCity = null;
                 for (const [name, info] of Object.entries(DB_CITIES)) {
                     if (info.keys.some(k => ev.cities.includes(k))) { targetCity = name; break; }
@@ -281,8 +300,6 @@ async function fetchWorkerData() {
                 
                 if (targetCity) {
                     LIVE_DATA[targetCity].recent++;
-                    
-                    // Calcul de l'heure locale d'Israël de l'impact
                     const evDate = new Date(ev.time * 1000);
                     const hour = evDate.getHours();
                     HOURLY_DISTRIBUTION[targetCity][hour]++;
@@ -290,19 +307,19 @@ async function fetchWorkerData() {
             });
         }
         
-        document.getElementById('sync-status').textContent = "Connecté (Live 24h)";
+        const timeNow = new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+        document.getElementById('sync-status').innerHTML = `🔄 Actualisé à ${timeNow}`;
         document.getElementById('sync-status').style.color = "var(--safe)";
         
         renderList();
         renderRouteList();
         
-        // Rafraîchit l'affichage si une ville est déjà sélectionnée
-        if (activeCity) selectCity(activeCity);
-        else if (activeRoute) renderRoute(ROUTES.find(r => r.id === activeRoute));
+        if (activeCity && currentMode === 'city') selectCity(activeCity);
+        else if (activeRoute && currentMode === 'route') renderRoute(ROUTES.find(r => r.id === activeRoute));
 
     } catch(e) {
-        document.getElementById('sync-status').textContent = "Données hors-ligne";
-        document.getElementById('sync-status').style.color = "var(--danger)";
+        document.getElementById('sync-status').textContent = "⚠️ Mode hors-ligne";
+        document.getElementById('sync-status').style.color = "var(--warning)";
     }
 }
 
@@ -331,7 +348,8 @@ function setMode(mode) {
         document.getElementById('empty-title').textContent = 'SÉLECTIONNEZ UN TRAJET';
         document.getElementById('empty-sub').textContent   = 'pour évaluer l\'exposition par segment routier';
         if (isMobile()) showTab('detail');
-        renderRoute(ROUTES[0]);
+        if (!activeRoute) activeRoute = ROUTES[0].id;
+        renderRoute(ROUTES.find(r => r.id === activeRoute));
     } else {
         document.getElementById('empty-title').textContent = 'SÉLECTIONNEZ UNE ZONE';
         document.getElementById('empty-sub').textContent   = 'pour afficher l\'indice d\'exposition en direct';
@@ -353,7 +371,6 @@ window.addEventListener('resize', () => {
     }
 });
 
-// Zones dynamiques
 const zones = ['Tous', ...new Set(Object.values(DB_CITIES).map(d=>d.zone))];
 const zoneFilter = document.getElementById('zone-filter');
 zones.forEach(z => {
@@ -385,7 +402,7 @@ function renderList() {
             item.className = 'city-item' + (activeCity===name ? ' active' : '');
             item.innerHTML = `
                 <div><div class="city-name">${name}</div><div class="city-zone">${d.zone}</div></div>
-                <span class="city-risk-badge ${risk.cls}">${risk.label.split(' ')[1]}</span>`;
+                <span class="city-risk-badge ${risk.cls}">${risk.label.replace('TENSION ', '')}</span>`;
             item.onclick = () => { selectCity(name); if(isMobile()) showTab('detail'); };
             list.appendChild(item);
         });
@@ -394,19 +411,19 @@ function renderList() {
 function renderRouteList() {
     const list = document.getElementById('route-list');
     list.innerHTML = '';
-    ROUTES.forEach(route => {
-        // Score simple basé sur les villes traversées
-        let maxTension = 0;
-        route.segments.forEach(s => {
-            if(LIVE_DATA[s.city]) maxTension = Math.max(maxTension, computeTensionIndex(LIVE_DATA[s.city]));
-        });
-        const rl = getRiskLevel(maxTension);
+    
+    // On trie les routes par score de tension décroissant
+    const sortedRoutes = [...ROUTES].sort((a, b) => computeRouteTension(b) - computeRouteTension(a));
+
+    sortedRoutes.forEach(route => {
+        const routeTension = computeRouteTension(route);
+        const rl = getRiskLevel(routeTension);
 
         const item = document.createElement('div');
         item.className = 'route-list-item' + (activeRoute===route.id ? ' active' : '');
         item.innerHTML = `
             <div class="route-list-name">${route.name}</div>
-            <div class="route-list-meta">${route.desc} · Point critique : <span style="color:${rl.color};font-weight:700;">${rl.label.split(' ')[1]}</span></div>`;
+            <div class="route-list-meta">${route.desc} · Indice global: <span style="color:${rl.color};font-weight:700;">${routeTension.toFixed(1)}/100</span></div>`;
         item.onclick = () => { renderRoute(route); if(isMobile()) showTab('detail'); };
         list.appendChild(item);
     });
@@ -428,8 +445,8 @@ function selectCity(name) {
 
     content.innerHTML = `
         <div class="disclaimer-top">
-            <strong>⚠️ Outil d'Analyse Statistique et Historique</strong><br>
-            Les données affichées reflètent l'intensité des événements passés (base de données et Cloudflare 24h). La guerre ne répondant pas aux lois statistiques aléatoires, cet écran ne prédit pas l'avenir. Consultez le Pikud HaOref en cas d'alerte.
+            <strong>⚠️ Outil d'Analyse Historique</strong><br>
+            Les données reflètent l'intensité des événements passés (base de données et Cloudflare 24h). Cet écran ne prédit pas l'avenir. Consultez le Pikud HaOref en cas d'alerte.
         </div>
 
         <div class="city-header">
@@ -445,24 +462,24 @@ function selectCity(name) {
 
         <div class="stats-grid">
             <div class="stat-card accent-red">
-                <div class="stat-label">Alertes (24 dernières heures)</div>
+                <div class="stat-label">Alertes (24h)</div>
                 <div class="stat-number">${d.recent}</div>
-                <div class="stat-unit">Source : API Temps Réel</div>
+                <div class="stat-unit">Source : Live API</div>
             </div>
             <div class="stat-card accent-orange">
-                <div class="stat-label">Indice de Tension</div>
+                <div class="stat-label">Indice Tension</div>
                 <div class="stat-number">${tension.toFixed(0)} <span style="font-size:1rem">/ 100</span></div>
                 <div class="stat-unit">Calcul analytique</div>
             </div>
             <div class="stat-card accent-yellow">
-                <div class="stat-label">Historique Cumulé</div>
+                <div class="stat-label">Historique</div>
                 <div class="stat-number">${d.hist.toLocaleString('fr-FR')}</div>
                 <div class="stat-unit">Depuis 2006</div>
             </div>
             <div class="stat-card accent-green">
-                <div class="stat-label">Facteur Frontalier</div>
+                <div class="stat-label">Multiplicateur</div>
                 <div class="stat-number">×${d.weight.toFixed(1)}</div>
-                <div class="stat-unit">Proximité des zones de conflit</div>
+                <div class="stat-unit">Proximité frontières</div>
             </div>
         </div>
 
@@ -475,7 +492,7 @@ function selectCity(name) {
 }
 
 /* ════════════════════════════════════════════════
-   ROUTE DETAIL (Analyse par segment)
+   ROUTE DETAIL (Analyse Globale)
 ════════════════════════════════════════════════ */
 function renderRoute(route) {
     activeRoute = route.id;
@@ -486,13 +503,8 @@ function renderRoute(route) {
     content.style.display = 'block';
 
     const totalMin = route.segments.reduce((s,sg)=>s+sg.minutes,0);
-    
-    // Évaluation du point le plus critique de la route
-    let maxTension = 0;
-    route.segments.forEach(s => {
-        if(LIVE_DATA[s.city]) maxTension = Math.max(maxTension, computeTensionIndex(LIVE_DATA[s.city]));
-    });
-    const routeRisk = getRiskLevel(maxTension);
+    const routeTension = computeRouteTension(route);
+    const routeRisk = getRiskLevel(routeTension);
 
     const stripHTML = route.segments.map(seg => {
         const pct = (seg.minutes / totalMin * 100).toFixed(1);
@@ -504,7 +516,7 @@ function renderRoute(route) {
     content.innerHTML = `
         <div class="disclaimer-top">
             <strong>⚠️ Évaluation d'Exposition Routière</strong><br>
-            Cet outil segmente le trajet pour identifier les zones où le niveau de tension actuel (dernières 24h) est le plus critique. Il ne garantit pas la sécurité d'un trajet à une heure donnée.
+            Le "Score Global" évalue la tension moyenne du trajet en fonction du temps que vous passez dans chaque zone. Ce n'est pas une garantie de sécurité.
         </div>
 
         <div class="city-header">
@@ -513,13 +525,13 @@ function renderRoute(route) {
                 <div class="city-header-zone">${route.desc} · Trajet de ${route.duration} minutes</div>
             </div>
             <div class="threat-level-display">
-                <div class="threat-label">Segment le plus exposé</div>
-                <div class="threat-value" style="color:${routeRisk.color};">${routeRisk.label.split(' ')[1]}</div>
+                <div class="threat-label">Tension Globale du Trajet</div>
+                <div class="threat-value" style="color:${routeRisk.color};">${routeTension.toFixed(1)} <span style="font-size:1rem;color:var(--muted)">/ 100</span></div>
             </div>
         </div>
 
         <div class="section-card">
-            <div class="section-title">Cartographie du trajet par niveau de tension (24h)</div>
+            <div class="section-title">Cartographie du trajet par niveau de tension</div>
             <div class="zones-strip" style="height: 40px;">${stripHTML}</div>
             <div style="display:flex; flex-direction:column; gap:8px; margin-top: 16px;">
                 ${route.segments.map(seg=>{
@@ -533,7 +545,7 @@ function renderRoute(route) {
                             <span style="color:var(--muted); font-size:0.8rem; margin-left:8px;">Durée : ${seg.minutes} min</span>
                         </div>
                         <div style="text-align:right;">
-                            <span class="city-risk-badge" style="background:${rl.color}22; color:${rl.color}; border: 1px solid ${rl.color}55;">${rl.label}</span>
+                            <span class="city-risk-badge" style="background:${rl.color}22; color:${rl.color}; border: 1px solid ${rl.color}55;">${rl.label.replace('TENSION ', '')}</span>
                             <div style="font-size:0.7rem; color:var(--muted); margin-top:4px;">${recentHits} alerte(s) en 24h</div>
                         </div>
                     </div>`;
@@ -542,9 +554,6 @@ function renderRoute(route) {
         </div>`;
 }
 
-/* ════════════════════════════════════════════════
-   CHART 24H REELLE
-════════════════════════════════════════════════ */
 function render24hChart(cityName) {
     setTimeout(() => {
         const ctx = document.getElementById('trendChart');
@@ -554,7 +563,6 @@ function render24hChart(cityName) {
         const labels = Array.from({length:24}, (_,i) => i+'h');
         let data = HOURLY_DISTRIBUTION[cityName] || new Array(24).fill(0);
         
-        // Si 0 alerte aujourd'hui, on montre une courbe plate au lieu de rien (UX)
         const hasData = data.some(v => v > 0);
         
         trendChart = new Chart(ctx, {
@@ -585,7 +593,7 @@ function render24hChart(cityName) {
                         beginAtZero: true, 
                         grid: { color: 'rgba(30,42,56,0.5)' }, 
                         ticks: { stepSize: 1, color: '#6b7c8f', font: {family:'Share Tech Mono',size:11} },
-                        suggestedMax: hasData ? undefined : 3 // Empêche l'axe Y d'être écrasé si 0
+                        suggestedMax: hasData ? undefined : 3
                     }
                 }
             }
@@ -593,18 +601,16 @@ function render24hChart(cityName) {
     }, 100);
 }
 
-/* ════════════════════════════════════════════════
-   INIT
-════════════════════════════════════════════════ */
 function updateClock() {
-    document.getElementById('clock').textContent =
-        new Date().toLocaleTimeString('fr-FR',{timeZone:'Asia/Jerusalem',hour12:false});
+    document.getElementById('clock').textContent = new Date().toLocaleTimeString('fr-FR',{timeZone:'Asia/Jerusalem',hour12:false});
 }
 setInterval(updateClock,1000);
 updateClock();
 
-// Démarrage : On fetch les données réelles du worker !
+// Démarrage et rafraichissement automatique toutes les 60 secondes !
 fetchWorkerData();
+setInterval(fetchWorkerData, 60000);
+
 </script>
 </body>
 </html>
