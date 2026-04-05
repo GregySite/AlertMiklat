@@ -29,6 +29,7 @@
             pointer-events: none; z-index: 999;
         }
 
+        /* ── TOP BAR ── */
         .topbar {
             background: var(--surface); border-bottom: 2px solid var(--danger);
             padding: 10px 16px; display: flex; align-items: center;
@@ -41,12 +42,15 @@
         @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
         .topbar-time { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
 
+        /* ── MOBILE TABS ── */
         .tab-bar { display: none; background: var(--surface); border-bottom: 1px solid var(--border); }
         .tab-btn { flex: 1; padding: 12px; background: transparent; border: none; font-family: var(--display); font-weight: 700; font-size: 0.9rem; letter-spacing: 1px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s; }
         .tab-btn.active { color: white; border-bottom-color: var(--danger); }
 
+        /* ── LAYOUT ── */
         .layout { display: grid; grid-template-columns: 320px 1fr; height: calc(100vh - 53px); }
 
+        /* ── SIDEBAR ── */
         .sidebar { background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
         .sidebar-header { padding: 14px 18px; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 0.65rem; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; display: flex; justify-content: space-between; }
 
@@ -80,6 +84,15 @@
         .risk-medium   { background: rgba(255,184,0,0.2); color: var(--warning); border: 1px solid rgba(255,184,0,0.4); }
         .risk-low      { background: rgba(0,230,118,0.1); color: var(--safe); border: 1px solid rgba(0,230,118,0.3); }
 
+        /* ── NOUVEAUX ELEMENTS TRAJET (Sélecteurs) ── */
+        .route-selectors { padding: 15px 14px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; background: rgba(0,0,0,0.2); }
+        .route-select-wrapper label { font-family: var(--body); font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; display: block; text-transform: uppercase; font-weight: bold; }
+        .route-select { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 10px; color: white; font-family: var(--body); font-size: 0.95rem; outline: none; cursor: pointer; transition: border-color 0.2s; }
+        .route-select:focus { border-color: var(--danger); }
+        .btn-analyze { width: 100%; background: var(--danger); color: white; border: none; border-radius: 6px; padding: 12px; font-family: var(--display); font-size: 1.1rem; font-weight: 700; letter-spacing: 1px; cursor: pointer; transition: background 0.2s; text-transform: uppercase; margin-top: 4px; }
+        .btn-analyze:hover { background: #e02a2a; }
+
+        /* ── MAIN PANEL ── */
         .main { overflow-y: auto; padding: 20px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
         .empty-state { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); gap: 14px; text-align: center; }
         .empty-state .big-icon { font-size: 3rem; opacity: 0.3; }
@@ -164,7 +177,18 @@
         </div>
 
         <div id="route-controls" style="display:none; flex:1; flex-direction:column; overflow:hidden;">
-            <div style="padding:10px 14px; border-bottom:1px solid var(--border); font-family:var(--mono); font-size:0.65rem; color:var(--muted); letter-spacing:2px;">TRAJETS PRINCIPAUX</div>
+            <div class="route-selectors">
+                <div class="route-select-wrapper">
+                    <label>Point de départ</label>
+                    <select id="route-dep" class="route-select"></select>
+                </div>
+                <div class="route-select-wrapper">
+                    <label>Destination</label>
+                    <select id="route-arr" class="route-select"></select>
+                </div>
+                <button id="btn-analyze-route" class="btn-analyze">Analyser le trajet</button>
+            </div>
+            <div style="padding:10px 14px; border-bottom:1px solid var(--border); font-family:var(--mono); font-size:0.65rem; color:var(--muted); letter-spacing:2px; background:var(--surface);">HISTORIQUE DES RECHERCHES</div>
             <div class="route-list" id="route-list"></div>
         </div>
     </div>
@@ -186,7 +210,7 @@
    BASE DE DONNÉES ENRICHIE (Villes d'Israël)
 ════════════════════════════════════════════════ */
 const DB_CITIES = {
-    // === NORD ===
+    // NORD
     "Kiryat Shmona": { keys: ["קריית שמונה"], hist: 4200, weight: 1.9, zone: "Nord" },
     "Metula":        { keys: ["מטולה"], hist: 3100, weight: 1.8, zone: "Nord" },
     "Nahariya":      { keys: ["נהריה"], hist: 1200, weight: 1.5, zone: "Nord" },
@@ -195,11 +219,8 @@ const DB_CITIES = {
     "Acre":          { keys: ["עכו"], hist: 310, weight: 1.2, zone: "Nord" },
     "Tibériade":     { keys: ["טבריה"], hist: 430, weight: 1.2, zone: "Nord" },
     "Karmiel":       { keys: ["כרמיאל"], hist: 180, weight: 1.1, zone: "Nord" },
-    "Katzrin":       { keys: ["קצרין"], hist: 150, weight: 1.2, zone: "Nord" },
-    "Afula":         { keys: ["עפולה"], hist: 80, weight: 1.0, zone: "Nord" },
-    "Nazareth":      { keys: ["נצרת"], hist: 60, weight: 1.0, zone: "Nord" },
 
-    // === CENTRE (Gush Dan étendu) ===
+    // CENTRE
     "Tel Aviv":      { keys: ["תל אביב"], hist: 320, weight: 1.2, zone: "Centre" },
     "Jérusalem":     { keys: ["ירושלים - דרום", "ירושלים - מזרח", "ירושלים - מערב", "ירושלים - מרכז", "ירושלים - צפון", "ירושלים כולה"], hist: 580, weight: 1.3, zone: "Centre" },
     "Netanya":       { keys: ["נתניה"], hist: 210, weight: 1.1, zone: "Centre" },
@@ -211,9 +232,8 @@ const DB_CITIES = {
     "Ramat Gan":     { keys: ["רמת גן"], hist: 130, weight: 1.0, zone: "Centre" },
     "Herzliya":      { keys: ["הרצליה"], hist: 115, weight: 1.0, zone: "Centre" },
     "Modi'in":       { keys: ["מודיעין"], hist: 90, weight: 1.0, zone: "Centre" },
-    "Lod":           { keys: ["לוד"], hist: 85, weight: 1.0, zone: "Centre" },
 
-    // === SUD & GAZA BELT ===
+    // SUD & GAZA BELT
     "Sderot":        { keys: ["שדרות"], hist: 2100, weight: 1.6, zone: "Sud" },
     "Ashkelon":      { keys: ["אשקלון"], hist: 1900, weight: 1.5, zone: "Sud" },
     "Netivot":       { keys: ["נתיבות"], hist: 980, weight: 1.4, zone: "Sud" },
@@ -222,27 +242,52 @@ const DB_CITIES = {
     "Kiryat Gat":    { keys: ["קריית גת"], hist: 420, weight: 1.2, zone: "Sud" },
     "Be'er Sheva":   { keys: ["באר שבע"], hist: 150, weight: 1.1, zone: "Sud" },
     "Dimona":        { keys: ["דימונה"], hist: 80, weight: 1.0, zone: "Sud" },
-    "Arad":          { keys: ["ערד"], hist: 60, weight: 1.0, zone: "Sud" },
     "Eilat":         { keys: ["אילת"], hist: 45, weight: 1.0, zone: "Sud" },
-    "Gaza Environs": { keys: ["עוטף עזה"], hist: 4500, weight: 2.0, zone: "Sud" }
 };
 
 let LIVE_DATA = {};
 let HOURLY_DISTRIBUTION = {}; 
 
 /* ════════════════════════════════════════════════
-   TRAJETS ÉTENDUS
+   GÉNÉRATEUR DE TRAJETS STRATÉGIQUES (Aller + Retour auto)
 ════════════════════════════════════════════════ */
-const ROUTES = [
-    { id: "tlv-jlm", name: "Tel Aviv ⇄ Jérusalem", duration: 55, desc: "Route 1", segments: [{ city: "Tel Aviv", minutes: 15 }, { city: "Modi'in", minutes: 20 }, { city: "Jérusalem", minutes: 20 }] },
-    { id: "hfa-tlv", name: "Haïfa ⇄ Tel Aviv", duration: 70, desc: "Autoroute 2 (Côtière)", segments: [{ city: "Haïfa", minutes: 20 }, { city: "Netanya", minutes: 25 }, { city: "Herzliya", minutes: 10 }, { city: "Tel Aviv", minutes: 15 }] },
-    { id: "bsh-tlv", name: "Be'er Sheva ⇄ Tel Aviv", duration: 80, desc: "Autoroute 40", segments: [{ city: "Be'er Sheva", minutes: 20 }, { city: "Kiryat Gat", minutes: 20 }, { city: "Rehovot", minutes: 20 }, { city: "Tel Aviv", minutes: 20 }] },
-    { id: "tlv-eil", name: "Tel Aviv → Eilat", duration: 240, desc: "Route 40 / Arava", segments: [{ city: "Tel Aviv", minutes: 20 }, { city: "Be'er Sheva", minutes: 60 }, { city: "Dimona", minutes: 40 }, { city: "Eilat", minutes: 120 }] },
-    { id: "jlm-ksh", name: "Jérusalem → Kiryat Shmona", duration: 150, desc: "Vallée du Jourdain / Route 90", segments: [{ city: "Jérusalem", minutes: 30 }, { city: "Tibériade", minutes: 60 }, { city: "Kiryat Shmona", minutes: 60 }] },
-    { id: "ash-tlv", name: "Ashkelon ⇄ Tel Aviv", duration: 50, desc: "Autoroute 4", segments: [{ city: "Ashkelon", minutes: 15 }, { city: "Ashdod", minutes: 15 }, { city: "Rishon LeZion", minutes: 10 }, { city: "Tel Aviv", minutes: 10 }] },
-    { id: "sdr-bsh", name: "Sderot ⇄ Be'er Sheva", duration: 40, desc: "Route 25", segments: [{ city: "Sderot", minutes: 15 }, { city: "Netivot", minutes: 10 }, { city: "Be'er Sheva", minutes: 15 }] },
-    { id: "hfa-ksh", name: "Haïfa ⇄ Kiryat Shmona", duration: 90, desc: "Route 85 / 90", segments: [{ city: "Haïfa", minutes: 20 }, { city: "Acre", minutes: 10 }, { city: "Karmiel", minutes: 30 }, { city: "Kiryat Shmona", minutes: 30 }] },
+// On déclare uniquement l'aller. L'algorithme fera le retour tout seul !
+const BASE_ROUTES = [
+    // Le Hub Jérusalem (Demandé spécifiquement)
+    { id: "jlm-tlv", dep: "Jérusalem", arr: "Tel Aviv", duration: 55, desc: "Route 1", segments: [{ city: "Jérusalem", minutes: 25 }, { city: "Modi'in", minutes: 15 }, { city: "Tel Aviv", minutes: 15 }] },
+    { id: "jlm-hfa", dep: "Jérusalem", arr: "Haïfa", duration: 110, desc: "Route 6", segments: [{ city: "Jérusalem", minutes: 20 }, { city: "Modi'in", minutes: 20 }, { city: "Netanya", minutes: 30 }, { city: "Haïfa", minutes: 40 }] },
+    { id: "jlm-net", dep: "Jérusalem", arr: "Netanya", duration: 80, desc: "Route 1 + Route 6", segments: [{ city: "Jérusalem", minutes: 20 }, { city: "Modi'in", minutes: 20 }, { city: "Tel Aviv", minutes: 20 }, { city: "Netanya", minutes: 20 }] },
+    { id: "jlm-ashk", dep: "Jérusalem", arr: "Ashkelon", duration: 75, desc: "Route 1 + Route 4", segments: [{ city: "Jérusalem", minutes: 20 }, { city: "Modi'in", minutes: 15 }, { city: "Ashdod", minutes: 20 }, { city: "Ashkelon", minutes: 20 }] },
+    { id: "jlm-ashd", dep: "Jérusalem", arr: "Ashdod", duration: 60, desc: "Route 1 + Route 4", segments: [{ city: "Jérusalem", minutes: 20 }, { city: "Modi'in", minutes: 15 }, { city: "Rehovot", minutes: 10 }, { city: "Ashdod", minutes: 15 }] },
+    { id: "jlm-sdr", dep: "Jérusalem", arr: "Sderot", duration: 85, desc: "Route 35", segments: [{ city: "Jérusalem", minutes: 25 }, { city: "Kiryat Gat", minutes: 30 }, { city: "Sderot", minutes: 30 }] },
+    { id: "jlm-bsh", dep: "Jérusalem", arr: "Be'er Sheva", duration: 90, desc: "Route 60", segments: [{ city: "Jérusalem", minutes: 30 }, { city: "Kiryat Gat", minutes: 30 }, { city: "Be'er Sheva", minutes: 30 }] },
+    { id: "jlm-eil", dep: "Jérusalem", arr: "Eilat", duration: 250, desc: "Route 90", segments: [{ city: "Jérusalem", minutes: 40 }, { city: "Dimona", minutes: 60 }, { city: "Eilat", minutes: 150 }] },
+    { id: "jlm-ksh", dep: "Jérusalem", arr: "Kiryat Shmona", duration: 150, desc: "Vallée du Jourdain", segments: [{ city: "Jérusalem", minutes: 30 }, { city: "Tibériade", minutes: 60 }, { city: "Kiryat Shmona", minutes: 60 }] },
+    { id: "jlm-saf", dep: "Jérusalem", arr: "Safed", duration: 140, desc: "Vallée du Jourdain", segments: [{ city: "Jérusalem", minutes: 30 }, { city: "Tibériade", minutes: 60 }, { city: "Safed", minutes: 50 }] },
+    { id: "jlm-pet", dep: "Jérusalem", arr: "Petah Tikva", duration: 50, desc: "Route 443", segments: [{ city: "Jérusalem", minutes: 20 }, { city: "Modi'in", minutes: 15 }, { city: "Petah Tikva", minutes: 15 }] },
+    { id: "jlm-rish", dep: "Jérusalem", arr: "Rishon LeZion", duration: 55, desc: "Route 431", segments: [{ city: "Jérusalem", minutes: 20 }, { city: "Modi'in", minutes: 15 }, { city: "Rishon LeZion", minutes: 20 }] },
+    
+    // Autres grands axes
+    { id: "tlv-hfa", dep: "Tel Aviv", arr: "Haïfa", duration: 70, desc: "Autoroute 2 (Côtière)", segments: [{ city: "Tel Aviv", minutes: 15 }, { city: "Netanya", minutes: 25 }, { city: "Haïfa", minutes: 30 }] },
+    { id: "tlv-ashk", dep: "Tel Aviv", arr: "Ashkelon", duration: 50, desc: "Autoroute 4", segments: [{ city: "Tel Aviv", minutes: 10 }, { city: "Rishon LeZion", minutes: 10 }, { city: "Ashdod", minutes: 15 }, { city: "Ashkelon", minutes: 15 }] },
+    { id: "tlv-bsh", dep: "Tel Aviv", arr: "Be'er Sheva", duration: 80, desc: "Autoroute 40", segments: [{ city: "Tel Aviv", minutes: 20 }, { city: "Rehovot", minutes: 20 }, { city: "Kiryat Gat", minutes: 20 }, { city: "Be'er Sheva", minutes: 20 }] },
+    { id: "tlv-eil", dep: "Tel Aviv", arr: "Eilat", duration: 240, desc: "Route 40 / Arava", segments: [{ city: "Tel Aviv", minutes: 20 }, { city: "Be'er Sheva", minutes: 60 }, { city: "Dimona", minutes: 40 }, { city: "Eilat", minutes: 120 }] },
+    { id: "tlv-ksh", dep: "Tel Aviv", arr: "Kiryat Shmona", duration: 130, desc: "Route 6", segments: [{ city: "Tel Aviv", minutes: 20 }, { city: "Karmiel", minutes: 50 }, { city: "Kiryat Shmona", minutes: 60 }] },
+    { id: "hfa-ksh", dep: "Haïfa", arr: "Kiryat Shmona", duration: 90, desc: "Route 85 / 90", segments: [{ city: "Haïfa", minutes: 20 }, { city: "Acre", minutes: 10 }, { city: "Karmiel", minutes: 30 }, { city: "Kiryat Shmona", minutes: 30 }] }
 ];
+
+let ROUTES = [];
+// Génération automatique des retours pour avoir toutes les combinaisons !
+BASE_ROUTES.forEach(r => {
+    // Aller
+    ROUTES.push({ ...r, id: r.id+'-out', name: `${r.dep} → ${r.arr}` });
+    // Retour
+    ROUTES.push({
+        id: r.id+'-ret', dep: r.arr, arr: r.dep,
+        name: `${r.arr} → ${r.dep}`, duration: r.duration, desc: r.desc,
+        segments: [...r.segments].reverse() // Inversion de l'ordre de traversée
+    });
+});
 
 /* ════════════════════════════════════════════════
    ALGORITHMES D'ANALYSE (Score Pondéré)
@@ -260,10 +305,8 @@ function getRiskLevel(tension) {
     return             { label: '🟢 FAIBLE',       cls: 'risk-low', color: '#00e676' };
 }
 
-// Calcule la tension globale d'un trajet (Moyenne pondérée par le temps passé)
 function computeRouteTension(route) {
-    let totalTension = 0;
-    let totalMinutes = 0;
+    let totalTension = 0, totalMinutes = 0;
     route.segments.forEach(s => {
         const cityTension = LIVE_DATA[s.city] ? computeTensionIndex(LIVE_DATA[s.city]) : 0;
         totalTension += cityTension * s.minutes;
@@ -285,7 +328,6 @@ async function fetchWorkerData() {
             HOURLY_DISTRIBUTION[name] = new Array(24).fill(0);
         }
 
-        // On inclut l'alerte active dans l'historique récent pour les stats !
         let allEvents = data.history ? [...data.history] : [];
         if (data.active) allEvents.push(data.active);
 
@@ -312,7 +354,6 @@ async function fetchWorkerData() {
         document.getElementById('sync-status').style.color = "var(--safe)";
         
         renderList();
-        renderRouteList();
         
         if (activeCity && currentMode === 'city') selectCity(activeCity);
         else if (activeRoute && currentMode === 'route') renderRoute(ROUTES.find(r => r.id === activeRoute));
@@ -332,6 +373,7 @@ let activeZone    = 'Tous';
 let currentMode   = 'city';
 let trendChart    = null;
 let isMobile      = () => window.innerWidth <= 700;
+let searchedRoutes = []; // Historique des recherches de l'utilisateur
 
 function setMode(mode) {
     currentMode = mode;
@@ -341,16 +383,18 @@ function setMode(mode) {
     document.getElementById('route-controls').style.display = mode==='route' ? 'flex' : 'none';
 
     const es = document.getElementById('empty-state');
-    es.style.display = 'flex';
-    document.getElementById('analytics-content').style.display = 'none';
     
     if (mode === 'route') {
-        document.getElementById('empty-title').textContent = 'SÉLECTIONNEZ UN TRAJET';
-        document.getElementById('empty-sub').textContent   = 'pour évaluer l\'exposition par segment routier';
-        if (isMobile()) showTab('detail');
-        if (!activeRoute) activeRoute = ROUTES[0].id;
-        renderRoute(ROUTES.find(r => r.id === activeRoute));
+        // En mode Trajet, on n'affiche plus rien automatiquement !
+        es.style.display = 'flex';
+        document.getElementById('analytics-content').style.display = 'none';
+        document.getElementById('empty-title').textContent = 'ANALYSE DE TRAJET';
+        document.getElementById('empty-sub').textContent   = 'Utilisez le sélecteur pour définir votre départ et votre arrivée.';
+        if (isMobile()) showTab('list'); // On force à rester sur l'onglet Liste pour choisir
+        activeRoute = null; // On vide la mémoire
     } else {
+        es.style.display = 'flex';
+        document.getElementById('analytics-content').style.display = 'none';
         document.getElementById('empty-title').textContent = 'SÉLECTIONNEZ UNE ZONE';
         document.getElementById('empty-sub').textContent   = 'pour afficher l\'indice d\'exposition en direct';
     }
@@ -399,7 +443,7 @@ function renderList() {
             const tension = computeTensionIndex(d);
             const risk = getRiskLevel(tension);
             const item = document.createElement('div');
-            item.className = 'city-item' + (activeCity===name ? ' active' : '');
+            item.className = 'city-item' + (activeCity===name && currentMode==='city' ? ' active' : '');
             item.innerHTML = `
                 <div><div class="city-name">${name}</div><div class="city-zone">${d.zone}</div></div>
                 <span class="city-risk-badge ${risk.cls}">${risk.label.replace('TENSION ', '')}</span>`;
@@ -408,14 +452,55 @@ function renderList() {
         });
 }
 
+// GESTION DES SELECTEURS DE TRAJETS
+function initRouteDropdowns() {
+    const depSelect = document.getElementById('route-dep');
+    const arrSelect = document.getElementById('route-arr');
+    const btn = document.getElementById('btn-analyze-route');
+
+    // Récupère toutes les villes de départ possibles (sans doublons)
+    const departures = [...new Set(ROUTES.map(r => r.dep))].sort();
+    depSelect.innerHTML = departures.map(d => `<option value="${d}">${d}</option>`).join('');
+
+    depSelect.onchange = () => {
+        const selectedDep = depSelect.value;
+        // Trouve les arrivées possibles depuis ce départ
+        const arrivals = ROUTES.filter(r => r.dep === selectedDep).sort((a,b) => a.arr.localeCompare(b.arr));
+        arrSelect.innerHTML = arrivals.map(a => `<option value="${a.id}">${a.arr}</option>`).join('');
+    };
+
+    btn.onclick = () => {
+        const routeId = arrSelect.value;
+        const route = ROUTES.find(r => r.id === routeId);
+        if (route) {
+            // Sauvegarde dans l'historique des recherches
+            if (!searchedRoutes.includes(routeId)) searchedRoutes.unshift(routeId);
+            renderRouteList(); // Met à jour la liste en dessous
+            
+            renderRoute(route);
+            if (isMobile()) showTab('detail');
+        }
+    };
+
+    // Par défaut, on se met sur Jérusalem
+    depSelect.value = "Jérusalem";
+    if (depSelect.selectedIndex === -1) depSelect.selectedIndex = 0;
+    depSelect.onchange();
+}
+
 function renderRouteList() {
     const list = document.getElementById('route-list');
     list.innerHTML = '';
     
-    // On trie les routes par score de tension décroissant
-    const sortedRoutes = [...ROUTES].sort((a, b) => computeRouteTension(b) - computeRouteTension(a));
+    if (searchedRoutes.length === 0) {
+        list.innerHTML = `<div style="padding:20px; text-align:center; color:var(--muted); font-size:0.85rem; font-family:var(--body);">Aucune recherche récente. Utilisez les menus ci-dessus.</div>`;
+        return;
+    }
 
-    sortedRoutes.forEach(route => {
+    searchedRoutes.forEach(id => {
+        const route = ROUTES.find(r => r.id === id);
+        if(!route) return;
+        
         const routeTension = computeRouteTension(route);
         const rl = getRiskLevel(routeTension);
 
@@ -607,7 +692,7 @@ function updateClock() {
 setInterval(updateClock,1000);
 updateClock();
 
-// Démarrage et rafraichissement automatique toutes les 60 secondes !
+initRouteDropdowns();
 fetchWorkerData();
 setInterval(fetchWorkerData, 60000);
 
