@@ -2,9 +2,10 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Strike Analytics — Israel 2026</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>Strike Analytics — Live Israel</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --danger: #ff3a3a;
@@ -47,11 +48,11 @@
         .tab-btn.active { color: white; border-bottom-color: var(--danger); }
 
         /* ── LAYOUT ── */
-        .layout { display: grid; grid-template-columns: 300px 1fr; height: calc(100vh - 53px); }
+        .layout { display: grid; grid-template-columns: 320px 1fr; height: calc(100vh - 53px); }
 
         /* ── SIDEBAR ── */
         .sidebar { background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
-        .sidebar-header { padding: 14px 18px; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 0.65rem; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+        .sidebar-header { padding: 14px 18px; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 0.65rem; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; display: flex; justify-content: space-between; }
 
         .mode-switcher { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
         .mode-btn { flex: 1; padding: 9px 8px; background: transparent; border: none; border-right: 1px solid var(--border); font-family: var(--body); font-size: 0.8rem; font-weight: 600; color: var(--muted); cursor: pointer; transition: 0.2s; white-space: nowrap; }
@@ -62,44 +63,36 @@
         .search-box { padding: 10px 14px; border-bottom: 1px solid var(--border); }
         .search-box input { width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; color: var(--text); font-family: var(--body); font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
         .search-box input:focus { border-color: var(--danger); }
-        .search-box input::placeholder { color: var(--muted); }
 
         .zone-filter { padding: 8px 14px; border-bottom: 1px solid var(--border); display: flex; gap: 5px; flex-wrap: wrap; }
         .zone-btn { padding: 5px 11px; border-radius: 20px; font-size: 0.75rem; font-family: var(--body); cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--muted); transition: 0.2s; }
         .zone-btn.active, .zone-btn:hover { border-color: var(--danger); color: white; background: rgba(255,58,58,0.1); }
 
-        .city-list { overflow-y: auto; flex: 1; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
-        .city-item { padding: 13px 18px; cursor: pointer; border-bottom: 1px solid rgba(30,42,56,0.5); display: flex; align-items: center; justify-content: space-between; transition: background 0.15s; position: relative; overflow: hidden; }
-        .city-item::before { content: ''; position: absolute; left:0; top:0; bottom:0; width:3px; background: var(--danger); transform: scaleY(0); transition: transform 0.2s; }
-        .city-item:hover { background: rgba(255,58,58,0.05); }
-        .city-item:hover::before, .city-item.active::before { transform: scaleY(1); }
-        .city-item.active { background: rgba(255,58,58,0.08); }
-        .city-name { font-family: var(--display); font-weight: 700; font-size: 1.05rem; color: white; }
-        .city-zone { font-family: var(--body); font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+        .city-list, .route-list { overflow-y: auto; flex: 1; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+        .city-item, .route-list-item { padding: 13px 18px; cursor: pointer; border-bottom: 1px solid rgba(30,42,56,0.5); display: flex; align-items: center; justify-content: space-between; transition: background 0.15s; position: relative; overflow: hidden; }
+        .city-item::before, .route-list-item::before { content: ''; position: absolute; left:0; top:0; bottom:0; width:3px; background: var(--danger); transform: scaleY(0); transition: transform 0.2s; }
+        .city-item:hover, .route-list-item:hover { background: rgba(255,58,58,0.05); }
+        .city-item:hover::before, .city-item.active::before, .route-list-item:hover::before, .route-list-item.active::before { transform: scaleY(1); }
+        .city-item.active, .route-list-item.active { background: rgba(255,58,58,0.08); }
+        
+        .city-name, .route-list-name { font-family: var(--display); font-weight: 700; font-size: 1.05rem; color: white; }
+        .city-zone, .route-list-meta { font-family: var(--body); font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+        
         .city-risk-badge { font-family: var(--body); font-size: 0.72rem; padding: 4px 9px; border-radius: 4px; font-weight: 600; white-space: nowrap; }
         .risk-critical { background: rgba(255,58,58,0.2); color: var(--danger); border: 1px solid rgba(255,58,58,0.4); }
         .risk-high     { background: rgba(255,100,0,0.2); color: #ff6400; border: 1px solid rgba(255,100,0,0.4); }
         .risk-medium   { background: rgba(255,184,0,0.2); color: var(--warning); border: 1px solid rgba(255,184,0,0.4); }
         .risk-low      { background: rgba(0,230,118,0.1); color: var(--safe); border: 1px solid rgba(0,230,118,0.3); }
 
-        /* ── ROUTE LIST (sidebar in route mode) ── */
-        .route-list { overflow-y: auto; flex: 1; }
-        .route-list-item { padding: 14px 18px; cursor: pointer; border-bottom: 1px solid rgba(30,42,56,0.5); transition: background 0.15s; position: relative; }
-        .route-list-item::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--danger); transform:scaleY(0); transition:transform 0.2s; }
-        .route-list-item:hover { background: rgba(255,58,58,0.05); }
-        .route-list-item:hover::before, .route-list-item.active::before { transform: scaleY(1); }
-        .route-list-item.active { background: rgba(255,58,58,0.08); }
-        .route-list-name { font-family: var(--display); font-weight: 700; font-size: 1rem; color: white; }
-        .route-list-meta { font-family: var(--body); font-size: 0.72rem; color: var(--muted); margin-top: 3px; }
-
         /* ── MAIN PANEL ── */
         .main { overflow-y: auto; padding: 20px; scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
         .empty-state { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); gap: 14px; text-align: center; }
         .empty-state .big-icon { font-size: 3rem; opacity: 0.3; }
         .em-title { font-family: var(--display); font-size: 1.1rem; letter-spacing: 2px; }
-        .em-sub { font-size: 0.85rem; }
+        
+        .disclaimer-top { margin-bottom: 20px; padding: 12px 14px; background: rgba(255,58,58,0.05); border: 1px solid rgba(255,58,58,0.2); border-left: 4px solid var(--danger); border-radius: 6px; font-family: var(--body); font-size: 0.8rem; color: var(--text); line-height: 1.5; }
+        .disclaimer-top strong { color: white; }
 
-        /* City header */
         .city-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; padding-bottom: 18px; border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap; }
         .city-header-name { font-family: var(--display); font-weight: 900; font-size: 2rem; color: white; text-transform: uppercase; letter-spacing: 2px; line-height: 1; }
         .city-header-zone { font-family: var(--body); font-size: 0.8rem; color: var(--muted); margin-top: 5px; }
@@ -107,7 +100,6 @@
         .threat-label { font-family: var(--body); font-size: 0.72rem; color: var(--muted); text-transform: uppercase; }
         .threat-value { font-family: var(--display); font-weight: 900; font-size: 1.4rem; letter-spacing: 2px; margin-top: 4px; }
 
-        /* Stats grid */
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 18px; }
         .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; position: relative; overflow: hidden; }
         .stat-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; }
@@ -115,64 +107,27 @@
         .stat-card.accent-orange::after { background: #ff6400; }
         .stat-card.accent-yellow::after { background: var(--warning); }
         .stat-card.accent-green::after  { background: var(--safe); }
-        .stat-label { font-family: var(--body); font-size: 0.72rem; color: var(--muted); margin-bottom: 8px; }
+        .stat-label { font-family: var(--body); font-size: 0.72rem; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; font-weight: 700; }
         .stat-number { font-family: var(--display); font-weight: 900; font-size: 2rem; color: white; line-height: 1; }
         .stat-unit { font-family: var(--body); font-size: 0.72rem; color: var(--muted); margin-top: 3px; }
 
-        /* Section card */
         .section-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-bottom: 18px; }
-        .section-title { font-family: var(--body); font-size: 0.75rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+        .section-title { font-family: var(--body); font-size: 0.75rem; color: var(--text); letter-spacing: 1px; text-transform: uppercase; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
         .section-title::after { content:''; flex:1; height:1px; background: var(--border); }
 
-        /* Prob section */
-        .prob-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
-        .prob-title { font-family: var(--body); font-size: 0.85rem; color: var(--muted); line-height: 1.4; }
-        .prob-pct-24 { font-family: var(--display); font-weight: 900; font-size: 2rem; color: white; white-space: nowrap; }
+        .hourly-list, .departure-grid { display: flex; flex-direction: column; gap: 5px; }
+        .hour-row, .dep-row { display: grid; grid-template-columns: 80px 1fr 60px; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 7px; background: rgba(255,255,255,0.02); border: 1px solid transparent; transition: 0.2s; }
+        .hour-row:hover, .dep-row:hover { background: rgba(255,255,255,0.04); }
+        
+        .hour-window, .dep-hour { font-family: var(--mono); font-size: 0.8rem; color: var(--text); }
+        .hour-bar-track, .dep-bar-track { height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
+        .hour-bar-fill, .dep-bar-fill { height: 100%; border-radius: 4px; width: 0%; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+        .hour-val, .dep-val { font-family: var(--display); font-weight: 900; font-size: 1rem; text-align: right; }
 
-        /* Hourly rows */
-        .hourly-list { display: flex; flex-direction: column; gap: 5px; }
-        .hour-row { display: grid; grid-template-columns: 110px 1fr 52px; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 7px; background: rgba(255,255,255,0.02); border: 1px solid transparent; transition: border-color 0.2s, background 0.2s; }
-        .hour-row:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.08); }
-        .hour-row.peak-hour { border-color: rgba(255,58,58,0.35); background: rgba(255,58,58,0.06); }
-        .hour-row.safest-hour { border-color: rgba(0,230,118,0.35); background: rgba(0,230,118,0.05); }
-        .hour-window { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); white-space: nowrap; }
-        .hour-bar-track { height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
-        .hour-bar-fill { height: 100%; border-radius: 4px; width: 0%; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
-        .hour-val { font-family: var(--display); font-weight: 900; font-size: 1rem; text-align: right; white-space: nowrap; }
-
-        /* ── ROUTE DEPARTURE CHART ── */
-        .departure-grid { display: flex; flex-direction: column; gap: 5px; }
-        .dep-row { display: grid; grid-template-columns: 60px 1fr 60px 90px; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 7px; background: rgba(255,255,255,0.02); border: 1px solid transparent; cursor: default; transition: background 0.15s, border-color 0.15s; }
-        .dep-row:hover { background: rgba(255,255,255,0.04); }
-        .dep-row.best-time { border-color: rgba(0,230,118,0.4); background: rgba(0,230,118,0.06); }
-        .dep-row.worst-time { border-color: rgba(255,58,58,0.35); background: rgba(255,58,58,0.05); }
-        .dep-hour { font-family: var(--mono); font-size: 0.8rem; color: var(--text); font-weight: bold; }
-        .dep-bar-track { height: 10px; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden; }
-        .dep-bar-fill { height: 100%; border-radius: 5px; width: 0%; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
-        .dep-pct { font-family: var(--display); font-weight: 900; font-size: 0.95rem; text-align: right; }
-        .dep-tag { font-family: var(--body); font-size: 0.68rem; font-weight: 600; padding: 2px 7px; border-radius: 4px; text-align: center; }
-        .tag-best  { background: rgba(0,230,118,0.15); color: var(--safe); border: 1px solid rgba(0,230,118,0.3); }
-        .tag-worst { background: rgba(255,58,58,0.15); color: var(--danger); border: 1px solid rgba(255,58,58,0.3); }
-        .tag-ok    { background: rgba(255,184,0,0.1); color: var(--warning); border: 1px solid rgba(255,184,0,0.2); font-size: 0.6rem; }
-        .tag-empty { opacity: 0; }
-
-        /* Route zones strip */
         .zones-strip { display: flex; gap: 0; border-radius: 8px; overflow: hidden; margin-bottom: 16px; height: 32px; }
-        .zone-segment { display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.6rem; color: rgba(0,0,0,0.7); font-weight: bold; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 0 4px; }
+        .zone-segment { display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.65rem; color: rgba(0,0,0,0.8); font-weight: bold; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 0 4px; }
 
-        /* Chart */
-        .chart-wrap { position: relative; height: 190px; }
-
-        /* Hist card */
-        .hist-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-        .hist-number { font-family: var(--display); font-weight: 900; font-size: 2.6rem; color: white; line-height: 1; }
-        .hist-label  { font-family: var(--body); font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
-
-        .disclaimer { margin-top: 16px; padding: 12px 14px; background: rgba(255,184,0,0.05); border: 1px solid rgba(255,184,0,0.2); border-radius: 8px; font-family: var(--body); font-size: 0.75rem; color: var(--muted); line-height: 1.6; }
-
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        .chart-wrap { position: relative; height: 220px; width: 100%; }
 
         @media (max-width: 700px) {
             .topbar-time { display: none; }
@@ -180,43 +135,42 @@
             .layout { display: block; height: auto; }
             .sidebar { height: auto; border-right: none; }
             .sidebar.panel-hidden, .main.panel-hidden { display: none; }
-            .city-list { max-height: 55vh; }
-            .route-list { max-height: 55vh; }
+            .city-list, .route-list { max-height: 55vh; }
             .stats-grid { gap: 10px; }
             .city-header-name { font-size: 1.5rem; }
             .empty-state { min-height: 40vh; }
-            .hour-row { grid-template-columns: 90px 1fr 46px; }
-            .dep-row { grid-template-columns: 50px 1fr 50px 70px; gap: 6px; }
+            .hour-row, .dep-row { grid-template-columns: 70px 1fr 50px; }
         }
     </style>
 </head>
 <body>
 
 <div class="topbar">
-    <div class="topbar-title"><span>⚡</span> STRIKE ANALYTICS</div>
-    <div class="live-badge"><div class="live-dot"></div> EN DIRECT</div>
+    <div class="topbar-title"><span>⚡</span> TENSION ANALYTICS</div>
+    <div class="live-badge"><div class="live-dot"></div> WORKER CONNECTÉ</div>
     <div class="topbar-time" id="clock">--:--:--</div>
 </div>
 
 <div class="tab-bar">
-    <button class="tab-btn active" id="tab-list"   onclick="showTab('list')">📋 Villes / Trajets</button>
+    <button class="tab-btn active" id="tab-list"   onclick="showTab('list')">📋 Zones / Trajets</button>
     <button class="tab-btn"        id="tab-detail" onclick="showTab('detail')">📊 Analyse</button>
 </div>
 
 <div class="layout">
 
-    <!-- SIDEBAR -->
     <div class="sidebar" id="panel-list">
-        <div class="sidebar-header">— Zones de surveillance —</div>
+        <div class="sidebar-header">
+            <span>— Zones de surveillance —</span>
+            <span id="sync-status" style="color:var(--safe)">Synchronisé</span>
+        </div>
         <div style="padding:10px 14px; border-bottom:1px solid var(--border);">
             <div class="mode-switcher">
-                <button class="mode-btn active" id="mode-city-btn"  onclick="setMode('city')">📍 Ville</button>
-                <button class="mode-btn"        id="mode-route-btn" onclick="setMode('route')">🗺 Trajet routier</button>
+                <button class="mode-btn active" id="mode-city-btn"  onclick="setMode('city')">📍 Villes</button>
+                <button class="mode-btn"        id="mode-route-btn" onclick="setMode('route')">🗺 Trajets (Bêta)</button>
             </div>
         </div>
 
-        <!-- City mode controls -->
-        <div id="city-controls">
+        <div id="city-controls" style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
             <div class="search-box">
                 <input type="text" id="search" placeholder="🔍 Rechercher une ville..." oninput="renderList()">
             </div>
@@ -224,20 +178,19 @@
             <div class="city-list" id="city-list"></div>
         </div>
 
-        <!-- Route mode controls -->
         <div id="route-controls" style="display:none; flex:1; flex-direction:column; overflow:hidden;">
-            <div style="padding:10px 14px; border-bottom:1px solid var(--border); font-family:var(--mono); font-size:0.65rem; color:var(--muted); letter-spacing:2px;">TRAJETS PRINCIPAUX</div>
+            <div style="padding:10px 14px; border-bottom:1px solid var(--border); font-family:var(--mono); font-size:0.65rem; color:var(--muted); letter-spacing:2px;">TRAJETS STRATÉGIQUES</div>
             <div class="route-list" id="route-list"></div>
         </div>
     </div>
 
-    <!-- MAIN PANEL -->
     <div class="main panel-hidden" id="panel-detail">
         <div class="empty-state" id="empty-state">
             <div class="big-icon">🎯</div>
-            <div class="em-title" id="empty-title">SÉLECTIONNEZ UNE VILLE</div>
-            <div class="em-sub"   id="empty-sub">pour afficher l'analyse de risque</div>
+            <div class="em-title" id="empty-title">SÉLECTIONNEZ UNE ZONE</div>
+            <div class="em-sub"   id="empty-sub">pour afficher l'indice d'exposition en direct</div>
         </div>
+        
         <div id="analytics-content" style="display:none;"></div>
     </div>
 
@@ -245,226 +198,116 @@
 
 <script>
 /* ════════════════════════════════════════════════
-   DATA — zones individuelles
+   BASE DE DONNÉES STRUCTURELLE (Alliée au Cloudflare)
 ════════════════════════════════════════════════ */
-const DATA = {
-    "Kiryat Shmona":  { hist:4200, recent:14, weight:1.9, zone:"Nord" },
-    "Metula":         { hist:3100, recent:10, weight:1.8, zone:"Nord" },
-    "Nahariya":       { hist:1200, recent:6,  weight:1.5, zone:"Nord" },
-    "Haïfa":          { hist:850,  recent:5,  weight:1.4, zone:"Nord" },
-    "Tibériade":      { hist:430,  recent:3,  weight:1.2, zone:"Nord" },
-    "Safed":          { hist:620,  recent:4,  weight:1.3, zone:"Nord" },
-    "Acre":           { hist:310,  recent:2,  weight:1.2, zone:"Nord" },
-    "Carmiel":        { hist:180,  recent:1,  weight:1.1, zone:"Nord" },
-    "Ma'alot":        { hist:290,  recent:2,  weight:1.2, zone:"Nord" },
-    "Shlomi":         { hist:840,  recent:5,  weight:1.4, zone:"Nord" },
-    "Tel Aviv":       { hist:320,  recent:2,  weight:1.2, zone:"Centre" },
-    "Jérusalem":      { hist:580,  recent:3,  weight:1.3, zone:"Centre" },
-    "Netanya":        { hist:210,  recent:1,  weight:1.1, zone:"Centre" },
-    "Petah Tikva":    { hist:175,  recent:1,  weight:1.1, zone:"Centre" },
-    "Rishon LeZion":  { hist:190,  recent:1,  weight:1.1, zone:"Centre" },
-    "Holon":          { hist:155,  recent:1,  weight:1.1, zone:"Centre" },
-    "Bat Yam":        { hist:140,  recent:1,  weight:1.0, zone:"Centre" },
-    "Ramat Gan":      { hist:130,  recent:0,  weight:1.0, zone:"Centre" },
-    "Modi'in":        { hist:90,   recent:0,  weight:1.0, zone:"Centre" },
-    "Herzliya":       { hist:115,  recent:0,  weight:1.0, zone:"Centre" },
-    "Kfar Saba":      { hist:100,  recent:0,  weight:1.0, zone:"Centre" },
-    "Ra'anana":       { hist:95,   recent:0,  weight:1.0, zone:"Centre" },
-    "Rehovot":        { hist:160,  recent:1,  weight:1.1, zone:"Centre" },
-    "Ashkelon":       { hist:1900, recent:5,  weight:1.5, zone:"Sud" },
-    "Sderot":         { hist:2100, recent:6,  weight:1.6, zone:"Sud" },
-    "Be'er Sheva":    { hist:150,  recent:1,  weight:1.1, zone:"Sud" },
-    "Netivot":        { hist:980,  recent:4,  weight:1.4, zone:"Sud" },
-    "Ofakim":         { hist:760,  recent:3,  weight:1.3, zone:"Sud" },
-    "Kiryat Gat":     { hist:420,  recent:2,  weight:1.2, zone:"Sud" },
-    "Dimona":         { hist:80,   recent:0,  weight:1.0, zone:"Sud" },
-    "Eilat":          { hist:45,   recent:0,  weight:1.0, zone:"Sud" },
-    "Arad":           { hist:60,   recent:0,  weight:1.0, zone:"Sud" },
-    "Ashdod":         { hist:680,  recent:3,  weight:1.3, zone:"Sud" },
-    "Kibbutz Beeri":  { hist:3800, recent:12, weight:1.9, zone:"Gaza Belt" },
-    "Nir Oz":         { hist:3500, recent:11, weight:1.9, zone:"Gaza Belt" },
-    "Kfar Aza":       { hist:3200, recent:10, weight:1.8, zone:"Gaza Belt" },
-    "Kibbutz Nir Am": { hist:2800, recent:9,  weight:1.7, zone:"Gaza Belt" },
-    "Yad Mordechai":  { hist:1600, recent:6,  weight:1.5, zone:"Gaza Belt" },
-    "Kibbutz Re'im":  { hist:2400, recent:8,  weight:1.7, zone:"Gaza Belt" },
-    "Nahal Oz":       { hist:2100, recent:7,  weight:1.6, zone:"Gaza Belt" },
-    "Ariel":          { hist:120,  recent:1,  weight:1.1, zone:"Est" },
-    "Ma'ale Adumim":  { hist:95,   recent:1,  weight:1.1, zone:"Est" },
-    "Gush Etzion":    { hist:210,  recent:2,  weight:1.2, zone:"Est" },
-    "Kiryat Arba":    { hist:180,  recent:1,  weight:1.1, zone:"Est" },
-    "Efrat":          { hist:140,  recent:1,  weight:1.1, zone:"Est" },
+// L'API nous donne le "recent", cette DB nous donne le contexte historique (depuis 2006)
+const DB_CITIES = {
+    "Sderot":        { keys: ["שדרות"], hist: 2100, weight: 1.6, zone: "Sud" },
+    "Kiryat Shmona": { keys: ["קריית שמונה"], hist: 4200, weight: 1.9, zone: "Nord" },
+    "Ashkelon":      { keys: ["אשקלון"], hist: 1900, weight: 1.5, zone: "Sud" },
+    "Tel Aviv":      { keys: ["תל אביב"], hist: 320, weight: 1.2, zone: "Centre" },
+    "Jérusalem":     { keys: ["ירושלים - דרום", "ירושלים - מזרח", "ירושלים - מערב", "ירושלים - מרכז", "ירושלים - צפון", "ירושלים כולה"], hist: 580, weight: 1.3, zone: "Centre" },
+    "Haïfa":         { keys: ["חיפה"], hist: 850, weight: 1.4, zone: "Nord" },
+    "Metula":        { keys: ["מטולה"], hist: 3100, weight: 1.8, zone: "Nord" },
+    "Ashdod":        { keys: ["אשדוד"], hist: 680, weight: 1.3, zone: "Sud" },
+    "Netanya":       { keys: ["נתניה"], hist: 210, weight: 1.1, zone: "Centre" },
+    "Be'er Sheva":   { keys: ["באר שבע"], hist: 150, weight: 1.1, zone: "Sud" },
+    "Eilat":         { keys: ["אילת"], hist: 45, weight: 1.0, zone: "Sud" },
+    "Nahariya":      { keys: ["נהריה"], hist: 1200, weight: 1.5, zone: "Nord" },
+    "Safed":         { keys: ["צפת"], hist: 620, weight: 1.3, zone: "Nord" },
+    "Modi'in":       { keys: ["מודיעין"], hist: 90, weight: 1.0, zone: "Centre" },
+    "Netivot":       { keys: ["נתיבות"], hist: 980, weight: 1.4, zone: "Sud" },
+    "Acre":          { keys: ["עכו"], hist: 310, weight: 1.2, zone: "Nord" }
 };
 
+// Injection des données Live (remplies par le Fetch)
+let LIVE_DATA = {};
+let HOURLY_DISTRIBUTION = {}; // { "Sderot": [0, 0, 5, 1, 0...] } (24 cases)
+
 /* ════════════════════════════════════════════════
-   TRAJETS ROUTIERS
-   Chaque segment = { city, minutes }
-   → temps réel passé dans la zone de cette ville
+   TRAJETS
 ════════════════════════════════════════════════ */
 const ROUTES = [
-    {
-        id: "jlm-tlv",
-        name: "Jérusalem → Tel Aviv",
-        duration: 55,
-        desc: "Route 1 · ~55 min",
-        segments: [
-            { city: "Jérusalem",     minutes: 15 },
-            { city: "Modi'in",       minutes: 20 },
-            { city: "Rishon LeZion", minutes: 10 },
-            { city: "Tel Aviv",      minutes: 10 },
-        ]
-    },
-    {
-        id: "jlm-net",
-        name: "Jérusalem → Netanya",
-        duration: 90,
-        desc: "Route 1 + Autoroute 6 · ~90 min",
-        segments: [
-            { city: "Jérusalem",  minutes: 15 },
-            { city: "Modi'in",    minutes: 20 },
-            { city: "Tel Aviv",   minutes: 15 },
-            { city: "Herzliya",   minutes: 15 },
-            { city: "Netanya",    minutes: 25 },
-        ]
-    },
-    {
-        id: "tlv-hfa",
-        name: "Tel Aviv → Haïfa",
-        duration: 65,
-        desc: "Autoroute 2 (côtière) · ~65 min",
-        segments: [
-            { city: "Tel Aviv",  minutes: 10 },
-            { city: "Herzliya", minutes: 10 },
-            { city: "Netanya",  minutes: 20 },
-            { city: "Haïfa",    minutes: 25 },
-        ]
-    },
-    {
-        id: "bsh-tlv",
-        name: "Be'er Sheva → Tel Aviv",
-        duration: 75,
-        desc: "Autoroute 40 · ~75 min",
-        segments: [
-            { city: "Be'er Sheva",   minutes: 15 },
-            { city: "Kiryat Gat",    minutes: 20 },
-            { city: "Rehovot",       minutes: 20 },
-            { city: "Rishon LeZion", minutes: 10 },
-            { city: "Tel Aviv",      minutes: 10 },
-        ]
-    },
-    {
-        id: "sdr-tlv",
-        name: "Sderot → Tel Aviv",
-        duration: 80,
-        desc: "Route 232 + Autoroute 40 · ~80 min",
-        segments: [
-            { city: "Sderot",        minutes: 10 },
-            { city: "Ashkelon",      minutes: 20 },
-            { city: "Ashdod",        minutes: 20 },
-            { city: "Rehovot",       minutes: 15 },
-            { city: "Tel Aviv",      minutes: 15 },
-        ]
-    },
-    {
-        id: "hfa-ksh",
-        name: "Haïfa → Kiryat Shmona",
-        duration: 90,
-        desc: "Route 90 (vallée du Jourdain) · ~90 min",
-        segments: [
-            { city: "Haïfa",          minutes: 15 },
-            { city: "Acre",           minutes: 15 },
-            { city: "Nahariya",       minutes: 15 },
-            { city: "Shlomi",         minutes: 15 },
-            { city: "Kiryat Shmona",  minutes: 30 },
-        ]
-    },
-    {
-        id: "jlm-bsh",
-        name: "Jérusalem → Be'er Sheva",
-        duration: 70,
-        desc: "Route 60 · ~70 min",
-        segments: [
-            { city: "Jérusalem",   minutes: 15 },
-            { city: "Gush Etzion", minutes: 15 },
-            { city: "Kiryat Gat",  minutes: 20 },
-            { city: "Be'er Sheva", minutes: 20 },
-        ]
-    },
-    {
-        id: "tlv-eil",
-        name: "Tel Aviv → Eilat",
-        duration: 240,
-        desc: "Autoroute 6 + Route 40 · ~4h",
-        segments: [
-            { city: "Tel Aviv",    minutes: 15 },
-            { city: "Rehovot",     minutes: 20 },
-            { city: "Be'er Sheva", minutes: 50 },
-            { city: "Dimona",      minutes: 40 },
-            { city: "Arad",        minutes: 45 },
-            { city: "Eilat",       minutes: 30 },
-        ]
-    },
+    { id: "jlm-tlv", name: "Jérusalem → Tel Aviv", duration: 55, desc: "Route 1", segments: [{ city: "Jérusalem", minutes: 25 }, { city: "Modi'in", minutes: 15 }, { city: "Tel Aviv", minutes: 15 }] },
+    { id: "hfa-tlv", name: "Haïfa → Tel Aviv", duration: 70, desc: "Autoroute 2 (Côtière)", segments: [{ city: "Haïfa", minutes: 20 }, { city: "Netanya", minutes: 30 }, { city: "Tel Aviv", minutes: 20 }] },
+    { id: "bsh-tlv", name: "Be'er Sheva → Tel Aviv", duration: 80, desc: "Autoroute 40", segments: [{ city: "Be'er Sheva", minutes: 20 }, { city: "Ashkelon", minutes: 30 }, { city: "Tel Aviv", minutes: 30 }] },
+    { id: "jlm-ksh", name: "Jérusalem → Kiryat Shmona", duration: 150, desc: "Vallée du Jourdain", segments: [{ city: "Jérusalem", minutes: 30 }, { city: "Tibériade", minutes: 60 }, { city: "Kiryat Shmona", minutes: 60 }] }
 ];
 
 /* ════════════════════════════════════════════════
-   CORE MATH
+   FONCTIONS MÉTIER (Analyse, pas prédiction)
 ════════════════════════════════════════════════ */
-function computeScore(d) { return ((d.hist / 800) + (d.recent * 0.8)) * d.weight; }
-function computeProb(score) { return (1 - Math.exp(-score)) * 100; }
-function marginalProb(lambdaH, h) {
-    return (Math.exp(-lambdaH * (h-1)) - Math.exp(-lambdaH * h)) * 100;
+// Calcule un score de tension de 0 à 100
+function computeTensionIndex(cityData) { 
+    if (!cityData) return 0;
+    // Poids majeur sur le direct (24h) + Poids mineur sur l'historique
+    const score = (cityData.hist / 200) + (cityData.recent * 15);
+    return Math.min(100, score * cityData.weight); 
 }
 
-/**
- * Compute route risk for a given departure hour (0-23).
- * For each segment we calculate: what is the probability that at least
- * one strike falls in that city WHILE the traveler is there?
- * P(strike in segment) = 1 - exp(-λ_city * duration_in_hours)
- * Route risk = 1 - ∏(1 - P_segment)   [at least one event anywhere]
- */
-function routeRiskAtDeparture(route, depHour) {
-    let pSafe = 1; // probability of NO event on the whole route
-    let elapsed = 0; // minutes elapsed since departure
+function getRiskLevel(tension) {
+    if (tension >= 75) return { label: '🔴 TENSION CRITIQUE', cls: 'risk-critical', color: '#ff3a3a' };
+    if (tension >= 40) return { label: '🟠 TENSION ÉLEVÉE',   cls: 'risk-high', color: '#ff6400' };
+    if (tension >= 15) return { label: '🟡 TENSION MODÉRÉE',  cls: 'risk-medium', color: '#ffb800' };
+    return             { label: '🟢 TENSION FAIBLE',    cls: 'risk-low', color: '#00e676' };
+}
 
-    for (const seg of route.segments) {
-        const durationH = seg.minutes / 60;
-        const cityData  = DATA[seg.city];
-        if (!cityData) { elapsed += seg.minutes; continue; }
-        const lambdaDay = computeScore(cityData);
-        const lambdaH   = lambdaDay / 24;
-        // Prob of NO strike in this segment
-        const pSegSafe = Math.exp(-lambdaH * durationH);
-        pSafe *= pSegSafe;
-        elapsed += seg.minutes;
+/* ════════════════════════════════════════════════
+   SYNCHRONISATION CLOUDFLARE WORKER
+════════════════════════════════════════════════ */
+async function fetchWorkerData() {
+    try {
+        const res = await fetch('https://miklat-v2.gregyman.workers.dev/');
+        const data = await res.json();
+        
+        // Initialisation de l'objet combiné
+        for (const [name, info] of Object.entries(DB_CITIES)) {
+            LIVE_DATA[name] = { ...info, recent: 0 };
+            HOURLY_DISTRIBUTION[name] = new Array(24).fill(0);
+        }
+
+        const now = Math.floor(Date.now() / 1000);
+        
+        // Parcours de l'historique réel des 24h
+        if (data.history && Array.isArray(data.history)) {
+            data.history.forEach(ev => {
+                if (ev.cat === 13 || ev.cat === 14 || ev.cat > 100) return; // Ignore Sortie, Pré, Exercices
+                
+                // Trouve la ville correspondante
+                let targetCity = null;
+                for (const [name, info] of Object.entries(DB_CITIES)) {
+                    if (info.keys.some(k => ev.cities.includes(k))) { targetCity = name; break; }
+                }
+                
+                if (targetCity) {
+                    LIVE_DATA[targetCity].recent++;
+                    
+                    // Calcul de l'heure locale d'Israël de l'impact
+                    const evDate = new Date(ev.time * 1000);
+                    const hour = evDate.getHours();
+                    HOURLY_DISTRIBUTION[targetCity][hour]++;
+                }
+            });
+        }
+        
+        document.getElementById('sync-status').textContent = "Connecté (Live 24h)";
+        document.getElementById('sync-status').style.color = "var(--safe)";
+        
+        renderList();
+        renderRouteList();
+        
+        // Rafraîchit l'affichage si une ville est déjà sélectionnée
+        if (activeCity) selectCity(activeCity);
+        else if (activeRoute) renderRoute(ROUTES.find(r => r.id === activeRoute));
+
+    } catch(e) {
+        document.getElementById('sync-status').textContent = "Données hors-ligne";
+        document.getElementById('sync-status').style.color = "var(--danger)";
     }
-
-    return (1 - pSafe) * 100;
 }
 
 /* ════════════════════════════════════════════════
-   HELPERS
-════════════════════════════════════════════════ */
-function getRiskLevel(prob) {
-    if (prob >= 85) return { label: '🔴 CRITIQUE', cls: 'risk-critical' };
-    if (prob >= 65) return { label: '🟠 ÉLEVÉ',    cls: 'risk-high' };
-    if (prob >= 40) return { label: '🟡 MODÉRÉ',   cls: 'risk-medium' };
-    return                 { label: '🟢 FAIBLE',   cls: 'risk-low' };
-}
-function getHourColor(p) {
-    if (p >= 12) return '#ff3a3a';
-    if (p >= 7)  return '#ff6400';
-    if (p >= 3)  return '#ffb800';
-    return '#00e676';
-}
-function getRiskColor(p) {
-    if (p >= 50) return '#ff3a3a';
-    if (p >= 30) return '#ff6400';
-    if (p >= 15) return '#ffb800';
-    return '#00e676';
-}
-function pad(n) { return String(n).padStart(2,'0'); }
-
-/* ════════════════════════════════════════════════
-   STATE + MODE
+   UI STATE & RENDER
 ════════════════════════════════════════════════ */
 let activeCity    = null;
 let activeRoute   = null;
@@ -477,27 +320,24 @@ function setMode(mode) {
     currentMode = mode;
     document.getElementById('mode-city-btn').classList.toggle('active',  mode==='city');
     document.getElementById('mode-route-btn').classList.toggle('active', mode==='route');
-    document.getElementById('city-controls').style.display  = mode==='city'  ? '' : 'none';
+    document.getElementById('city-controls').style.display  = mode==='city'  ? 'flex' : 'none';
     document.getElementById('route-controls').style.display = mode==='route' ? 'flex' : 'none';
 
     const es = document.getElementById('empty-state');
     es.style.display = 'flex';
     document.getElementById('analytics-content').style.display = 'none';
+    
     if (mode === 'route') {
         document.getElementById('empty-title').textContent = 'SÉLECTIONNEZ UN TRAJET';
-        document.getElementById('empty-sub').textContent   = 'pour voir les meilleurs horaires de départ';
+        document.getElementById('empty-sub').textContent   = 'pour évaluer l\'exposition par segment routier';
         if (isMobile()) showTab('detail');
-        // immediately show first route
         renderRoute(ROUTES[0]);
     } else {
-        document.getElementById('empty-title').textContent = 'SÉLECTIONNEZ UNE VILLE';
-        document.getElementById('empty-sub').textContent   = 'pour afficher l\'analyse de risque';
+        document.getElementById('empty-title').textContent = 'SÉLECTIONNEZ UNE ZONE';
+        document.getElementById('empty-sub').textContent   = 'pour afficher l\'indice d\'exposition en direct';
     }
 }
 
-/* ════════════════════════════════════════════════
-   MOBILE TABS
-════════════════════════════════════════════════ */
 function showTab(tab) {
     const lp = document.getElementById('panel-list');
     const dp = document.getElementById('panel-detail');
@@ -506,19 +346,15 @@ function showTab(tab) {
     tab==='list' ? (lp.classList.remove('panel-hidden'), dp.classList.add('panel-hidden'))
                  : (lp.classList.add('panel-hidden'),    dp.classList.remove('panel-hidden'));
 }
-function syncPanels() {
+window.addEventListener('resize', () => {
     if (!isMobile()) {
         document.getElementById('panel-list').classList.remove('panel-hidden');
         document.getElementById('panel-detail').classList.remove('panel-hidden');
     }
-}
-window.addEventListener('resize', syncPanels);
-syncPanels();
+});
 
-/* ════════════════════════════════════════════════
-   ZONE BUTTONS
-════════════════════════════════════════════════ */
-const zones = ['Tous', ...new Set(Object.values(DATA).map(d=>d.zone))];
+// Zones dynamiques
+const zones = ['Tous', ...new Set(Object.values(DB_CITIES).map(d=>d.zone))];
 const zoneFilter = document.getElementById('zone-filter');
 zones.forEach(z => {
     const btn = document.createElement('button');
@@ -533,301 +369,228 @@ zones.forEach(z => {
     zoneFilter.appendChild(btn);
 });
 
-/* ════════════════════════════════════════════════
-   CITY LIST
-════════════════════════════════════════════════ */
 function renderList() {
+    if(Object.keys(LIVE_DATA).length === 0) return;
     const q    = document.getElementById('search').value.toLowerCase();
     const list = document.getElementById('city-list');
     list.innerHTML = '';
-    Object.entries(DATA)
+    
+    Object.entries(LIVE_DATA)
         .filter(([name,d]) => (activeZone==='Tous' || d.zone===activeZone) && name.toLowerCase().includes(q))
-        .sort((a,b) => computeProb(computeScore(b[1])) - computeProb(computeScore(a[1])))
+        .sort((a,b) => computeTensionIndex(b[1]) - computeTensionIndex(a[1]))
         .forEach(([name,d]) => {
-            const prob = computeProb(computeScore(d));
-            const risk = getRiskLevel(prob);
+            const tension = computeTensionIndex(d);
+            const risk = getRiskLevel(tension);
             const item = document.createElement('div');
             item.className = 'city-item' + (activeCity===name ? ' active' : '');
             item.innerHTML = `
                 <div><div class="city-name">${name}</div><div class="city-zone">${d.zone}</div></div>
-                <span class="city-risk-badge ${risk.cls}">${risk.label}</span>`;
+                <span class="city-risk-badge ${risk.cls}">${risk.label.split(' ')[1]}</span>`;
             item.onclick = () => { selectCity(name); if(isMobile()) showTab('detail'); };
             list.appendChild(item);
         });
 }
 
-/* ════════════════════════════════════════════════
-   ROUTE LIST
-════════════════════════════════════════════════ */
 function renderRouteList() {
     const list = document.getElementById('route-list');
     list.innerHTML = '';
     ROUTES.forEach(route => {
-        const risks = Array.from({length:24}, (_,h) => routeRiskAtDeparture(route, h));
-        const minRisk = Math.min(...risks);
+        // Score simple basé sur les villes traversées
+        let maxTension = 0;
+        route.segments.forEach(s => {
+            if(LIVE_DATA[s.city]) maxTension = Math.max(maxTension, computeTensionIndex(LIVE_DATA[s.city]));
+        });
+        const rl = getRiskLevel(maxTension);
+
         const item = document.createElement('div');
         item.className = 'route-list-item' + (activeRoute===route.id ? ' active' : '');
         item.innerHTML = `
             <div class="route-list-name">${route.name}</div>
-            <div class="route-list-meta">${route.desc} · Risque min : <span style="color:var(--safe);font-weight:700;">${minRisk.toFixed(1)}%</span></div>`;
+            <div class="route-list-meta">${route.desc} · Point critique : <span style="color:${rl.color};font-weight:700;">${rl.label.split(' ')[1]}</span></div>`;
         item.onclick = () => { renderRoute(route); if(isMobile()) showTab('detail'); };
         list.appendChild(item);
     });
 }
 
 /* ════════════════════════════════════════════════
-   CITY DETAIL
+   CITY DETAIL (Analyse Data)
 ════════════════════════════════════════════════ */
 function selectCity(name) {
     activeCity = name;
     renderList();
-    const d       = DATA[name];
-    const score   = computeScore(d);
-    const prob    = computeProb(score);
-    const risk    = getRiskLevel(prob);
-    const interval = score > 0 ? (24 / score) : null;
+    const d       = LIVE_DATA[name];
+    const tension = computeTensionIndex(d);
+    const risk    = getRiskLevel(tension);
 
     document.getElementById('empty-state').style.display = 'none';
     const content = document.getElementById('analytics-content');
     content.style.display = 'block';
 
     content.innerHTML = `
+        <div class="disclaimer-top">
+            <strong>⚠️ Outil d'Analyse Statistique et Historique</strong><br>
+            Les données affichées reflètent l'intensité des événements passés (base de données et Cloudflare 24h). La guerre ne répondant pas aux lois statistiques aléatoires, cet écran ne prédit pas l'avenir. Consultez le Pikud HaOref en cas d'alerte.
+        </div>
+
         <div class="city-header">
             <div>
                 <div class="city-header-name">${name}</div>
-                <div class="city-header-zone">Zone ${d.zone} · Analyse de risque active</div>
+                <div class="city-header-zone">Zone géographique : ${d.zone}</div>
             </div>
             <div class="threat-level-display">
-                <div class="threat-label">Niveau de risque</div>
+                <div class="threat-label">Indice d'Exposition</div>
                 <div class="threat-value ${risk.cls}">${risk.label}</div>
             </div>
         </div>
 
         <div class="stats-grid">
             <div class="stat-card accent-red">
-                <div class="stat-label">Tirs attendus par jour</div>
-                <div class="stat-number">${score.toFixed(1)}</div>
-                <div class="stat-unit">estimation statistique</div>
+                <div class="stat-label">Alertes (24 dernières heures)</div>
+                <div class="stat-number">${d.recent}</div>
+                <div class="stat-unit">Source : API Temps Réel</div>
             </div>
             <div class="stat-card accent-orange">
-                <div class="stat-label">Intervalle moyen</div>
-                <div class="stat-number">${interval && interval<48 ? interval.toFixed(1)+'h' : '—'}</div>
-                <div class="stat-unit">${interval && interval<48 ? 'entre deux tirs' : 'risque faible'}</div>
+                <div class="stat-label">Indice de Tension</div>
+                <div class="stat-number">${tension.toFixed(0)} <span style="font-size:1rem">/ 100</span></div>
+                <div class="stat-unit">Calcul analytique</div>
             </div>
             <div class="stat-card accent-yellow">
-                <div class="stat-label">Tirs ces 7 derniers jours</div>
-                <div class="stat-number">${d.recent}</div>
-                <div class="stat-unit">données récentes</div>
+                <div class="stat-label">Historique Cumulé</div>
+                <div class="stat-number">${d.hist.toLocaleString('fr-FR')}</div>
+                <div class="stat-unit">Depuis 2006</div>
             </div>
             <div class="stat-card accent-green">
-                <div class="stat-label">Facteur de proximité</div>
+                <div class="stat-label">Facteur Frontalier</div>
                 <div class="stat-number">×${d.weight.toFixed(1)}</div>
-                <div class="stat-unit">selon la zone géographique</div>
+                <div class="stat-unit">Proximité des zones de conflit</div>
             </div>
         </div>
 
         <div class="section-card">
-            <div class="prob-header">
-                <div class="prob-title">
-                    Chance qu'un tir survienne <strong>pendant</strong> chaque créneau d'une heure
-                    <br><span style="font-size:0.72rem;opacity:0.55;">🔴 encadré = créneau le plus à risque</span>
-                </div>
-                <div class="prob-pct-24">${prob.toFixed(1)}<span style="font-size:1.1rem;color:var(--muted)">% sur 24h</span></div>
-            </div>
-            <div class="hourly-list" id="hourly-list"></div>
-        </div>
-
-        <div class="section-card">
-            <div class="section-title">Évolution de l'indice de risque sur 7 jours</div>
+            <div class="section-title">Distribution des alertes (Réalité des dernières 24h)</div>
             <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
-        </div>
-
-        <div class="hist-card">
-            <div>
-                <div class="hist-number">${d.hist.toLocaleString('fr-FR')}</div>
-                <div class="hist-label">Tirs recensés depuis 2006 (base historique)</div>
-            </div>
-            <div style="flex:1;min-width:80px;height:4px;background:var(--border);border-radius:2px;position:relative;overflow:hidden;">
-                <div style="position:absolute;inset:0;background:var(--danger);border-radius:2px;width:${Math.min(d.hist/42,100)}%;"></div>
-            </div>
-        </div>
-        <div class="disclaimer">
-            ⚠️ Modèle statistique (loi de Poisson). Pas une alerte officielle.<br>
-            En cas d'alerte : Pikud HaOref — פיקוד העורף
         </div>`;
 
-    buildHourlyRows(document.getElementById('hourly-list'), score);
-    renderTrendChart(score);
-}
-
-function buildHourlyRows(container, score) {
-    const lambdaH   = score / 24;
-    const marginals = Array.from({length:24}, (_,i) => marginalProb(lambdaH, i+1));
-    const peakVal   = Math.max(...marginals);
-
-    for (let h=1; h<=24; h++) {
-        const p     = marginals[h-1];
-        const color = getHourColor(p);
-        const isPeak = p >= peakVal * 0.92;
-        const row   = document.createElement('div');
-        row.className = 'hour-row' + (isPeak ? ' peak-hour' : '');
-        row.innerHTML = `
-            <div class="hour-window">${pad(h-1)}h — ${pad(h)}h</div>
-            <div class="hour-bar-track"><div class="hour-bar-fill" data-pct="${Math.min(p*5,100)}" style="background:${color};"></div></div>
-            <div class="hour-val" style="color:${color};">${p.toFixed(1)}%</div>`;
-        container.appendChild(row);
-    }
-    setTimeout(() => container.querySelectorAll('.hour-bar-fill').forEach(b => b.style.width=b.dataset.pct+'%'), 80);
+    render24hChart(name);
 }
 
 /* ════════════════════════════════════════════════
-   ROUTE DETAIL — meilleure heure de départ
+   ROUTE DETAIL (Analyse par segment)
 ════════════════════════════════════════════════ */
 function renderRoute(route) {
     activeRoute = route.id;
     renderRouteList();
 
-    // Compute risk for all 24 departure hours
-    const risks = Array.from({length:24}, (_,h) => routeRiskAtDeparture(route, h));
-    const maxRisk  = Math.max(...risks);
-    const minRisk  = Math.min(...risks);
-    const bestHour = risks.indexOf(minRisk);
-    const worstHour= risks.indexOf(maxRisk);
-
     document.getElementById('empty-state').style.display = 'none';
     const content = document.getElementById('analytics-content');
     content.style.display = 'block';
 
-    // Build zones strip colors
     const totalMin = route.segments.reduce((s,sg)=>s+sg.minutes,0);
+    
+    // Évaluation du point le plus critique de la route
+    let maxTension = 0;
+    route.segments.forEach(s => {
+        if(LIVE_DATA[s.city]) maxTension = Math.max(maxTension, computeTensionIndex(LIVE_DATA[s.city]));
+    });
+    const routeRisk = getRiskLevel(maxTension);
+
     const stripHTML = route.segments.map(seg => {
         const pct = (seg.minutes / totalMin * 100).toFixed(1);
-        const sc  = DATA[seg.city] ? computeScore(DATA[seg.city]) : 0;
-        const p   = computeProb(sc);
-        let bg = p>=85?'#ff3a3a':p>=65?'#ff6400':p>=40?'#ffb800':'#00e676';
-        return `<div class="zone-segment" style="width:${pct}%;background:${bg};" title="${seg.city} (${seg.minutes} min)">${seg.city}</div>`;
+        const t = LIVE_DATA[seg.city] ? computeTensionIndex(LIVE_DATA[seg.city]) : 0;
+        const rl = getRiskLevel(t);
+        return `<div class="zone-segment" style="width:${pct}%;background:${rl.color}; color:#fff;" title="${seg.city} (${seg.minutes} min)">${seg.city}</div>`;
     }).join('');
 
     content.innerHTML = `
+        <div class="disclaimer-top">
+            <strong>⚠️ Évaluation d'Exposition Routière</strong><br>
+            Cet outil segmente le trajet pour identifier les zones où le niveau de tension actuel (dernières 24h) est le plus critique. Il ne garantit pas la sécurité d'un trajet à une heure donnée.
+        </div>
+
         <div class="city-header">
             <div>
-                <div class="city-header-name" style="font-size:1.4rem;">${route.name}</div>
-                <div class="city-header-zone">${route.desc}</div>
+                <div class="city-header-name" style="font-size:1.6rem;">${route.name}</div>
+                <div class="city-header-zone">${route.desc} · Trajet de ${route.duration} minutes</div>
             </div>
             <div class="threat-level-display">
-                <div class="threat-label">Meilleur départ</div>
-                <div class="threat-value" style="color:var(--safe);">${pad(bestHour)}h00</div>
-            </div>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card accent-green">
-                <div class="stat-label">✅ Meilleure heure de départ</div>
-                <div class="stat-number" style="color:var(--safe);">${pad(bestHour)}h00</div>
-                <div class="stat-unit">Risque trajet : ${minRisk.toFixed(1)}%</div>
-            </div>
-            <div class="stat-card accent-red">
-                <div class="stat-label">🚫 Heure à éviter</div>
-                <div class="stat-number" style="color:var(--danger);">${pad(worstHour)}h00</div>
-                <div class="stat-unit">Risque trajet : ${maxRisk.toFixed(1)}%</div>
-            </div>
-            <div class="stat-card accent-orange">
-                <div class="stat-label">Durée du trajet</div>
-                <div class="stat-number">${route.duration}</div>
-                <div class="stat-unit">minutes</div>
-            </div>
-            <div class="stat-card accent-yellow">
-                <div class="stat-label">Zones traversées</div>
-                <div class="stat-number">${route.segments.length}</div>
-                <div class="stat-unit">zones de risque différentes</div>
+                <div class="threat-label">Segment le plus exposé</div>
+                <div class="threat-value" style="color:${routeRisk.color};">${routeRisk.label.split(' ')[1]}</div>
             </div>
         </div>
 
         <div class="section-card">
-            <div class="section-title">Zones traversées — niveau de risque par segment</div>
-            <div class="zones-strip">${stripHTML}</div>
-            <div style="display:flex;gap:16px;flex-wrap:wrap;font-family:var(--body);font-size:0.72rem;color:var(--muted);">
+            <div class="section-title">Cartographie du trajet par niveau de tension (24h)</div>
+            <div class="zones-strip" style="height: 40px;">${stripHTML}</div>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top: 16px;">
                 ${route.segments.map(seg=>{
-                    const sc = DATA[seg.city] ? computeScore(DATA[seg.city]) : 0;
-                    const p  = computeProb(sc);
-                    const rl = getRiskLevel(p);
-                    return `<span><strong style="color:white">${seg.city}</strong> ${seg.minutes} min · ${rl.label}</span>`;
+                    const t = LIVE_DATA[seg.city] ? computeTensionIndex(LIVE_DATA[seg.city]) : 0;
+                    const rl = getRiskLevel(t);
+                    const recentHits = LIVE_DATA[seg.city] ? LIVE_DATA[seg.city].recent : 0;
+                    return `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding: 10px; background: rgba(255,255,255,0.02); border-radius: 8px;">
+                        <div>
+                            <strong style="color:white; font-size:1.1rem;">${seg.city}</strong>
+                            <span style="color:var(--muted); font-size:0.8rem; margin-left:8px;">Durée : ${seg.minutes} min</span>
+                        </div>
+                        <div style="text-align:right;">
+                            <span class="city-risk-badge" style="background:${rl.color}22; color:${rl.color}; border: 1px solid ${rl.color}55;">${rl.label}</span>
+                            <div style="font-size:0.7rem; color:var(--muted); margin-top:4px;">${recentHits} alerte(s) en 24h</div>
+                        </div>
+                    </div>`;
                 }).join('')}
             </div>
-        </div>
-
-        <div class="section-card">
-            <div class="prob-header">
-                <div class="prob-title">
-                    <strong>Risque total du trajet selon l'heure de départ</strong><br>
-                    <span style="font-size:0.72rem;opacity:0.6;">Probabilité qu'au moins un tir survienne quelque part sur la route pendant votre trajet</span>
-                </div>
-            </div>
-            <div class="departure-grid" id="dep-grid"></div>
-        </div>
-
-        <div class="disclaimer">
-            ⚠️ Le risque représente la probabilité qu'un tir survienne dans l'une des zones traversées pendant le temps où vous y circulez. Modèle statistique — pas une alerte officielle.<br>
-            En cas d'alerte réelle : Pikud HaOref — פיקוד העורף
         </div>`;
-
-    // Build departure grid
-    const depGrid = document.getElementById('dep-grid');
-    risks.forEach((risk, h) => {
-        const color  = getRiskColor(risk);
-        const isBest  = h === bestHour;
-        const isWorst = h === worstHour;
-        const barPct  = (risk / maxRisk * 100).toFixed(1);
-        const tag     = isBest  ? `<span class="dep-tag tag-best">✅ Meilleur</span>`
-                      : isWorst ? `<span class="dep-tag tag-worst">🚫 Éviter</span>`
-                      : risk <= minRisk * 1.3 ? `<span class="dep-tag tag-ok">👍 Bon</span>`
-                      : `<span class="dep-tag tag-empty">—</span>`;
-        const row = document.createElement('div');
-        row.className = 'dep-row' + (isBest?' best-time':isWorst?' worst-time':'');
-        row.innerHTML = `
-            <div class="dep-hour">${pad(h)}h00</div>
-            <div class="dep-bar-track"><div class="dep-bar-fill" data-pct="${barPct}" style="background:${color};"></div></div>
-            <div class="dep-pct" style="color:${color};">${risk.toFixed(1)}%</div>
-            ${tag}`;
-        depGrid.appendChild(row);
-    });
-    setTimeout(() => depGrid.querySelectorAll('.dep-bar-fill').forEach(b => b.style.width=b.dataset.pct+'%'), 80);
 }
 
 /* ════════════════════════════════════════════════
-   TREND CHART
+   CHART 24H REELLE
 ════════════════════════════════════════════════ */
-function renderTrendChart(score) {
+function render24hChart(cityName) {
     setTimeout(() => {
         const ctx = document.getElementById('trendChart');
         if (!ctx) return;
         if (trendChart) trendChart.destroy();
-        const labels    = ['J−3','J−2','J−1','Auj.','J+1','J+2','J+3'];
-        const trendData = Array.from({length:7}, () => parseFloat((score*(0.6+Math.random()*0.8)).toFixed(2)));
-        const ptColors  = labels.map((_,i) => i<3?'rgba(255,58,58,0.8)':'rgba(255,184,0,0.8)');
+        
+        const labels = Array.from({length:24}, (_,i) => i+'h');
+        let data = HOURLY_DISTRIBUTION[cityName] || new Array(24).fill(0);
+        
+        // Si 0 alerte aujourd'hui, on montre une courbe plate au lieu de rien (UX)
+        const hasData = data.some(v => v > 0);
+        
         trendChart = new Chart(ctx, {
-            type: 'line',
-            data: { labels, datasets:[{
-                label:'Indice de risque', data:trendData,
-                borderColor:'#ff3a3a', backgroundColor:'rgba(255,58,58,0.07)',
-                pointBackgroundColor:ptColors, pointBorderColor:ptColors,
-                pointRadius:5, pointHoverRadius:7, fill:true, tension:0.4, borderWidth:2,
-            }]},
+            type: 'bar',
+            data: { 
+                labels, 
+                datasets:[{
+                    label: 'Alertes recensées', 
+                    data: data,
+                    backgroundColor: hasData ? 'rgba(255,58,58,0.8)' : 'rgba(74, 85, 104, 0.3)',
+                    borderRadius: 4
+                }]
+            },
             options: {
-                responsive:true, maintainAspectRatio:false,
-                plugins:{
-                    legend:{display:false},
-                    tooltip:{backgroundColor:'#161b22',borderColor:'#30363d',borderWidth:1,titleColor:'#c8d6e5',bodyColor:'#ff3a3a',
-                        titleFont:{family:'Barlow',size:12}, bodyFont:{family:'Share Tech Mono',size:13},
-                        callbacks:{label:c=>' Indice : '+c.parsed.y}}
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { 
+                        backgroundColor:'#161b22', borderColor:'#30363d', borderWidth:1, 
+                        titleColor:'#c8d6e5', bodyColor:'#ff3a3a',
+                        titleFont:{family:'Barlow',size:13}, bodyFont:{family:'Barlow',size:14, weight:'bold'},
+                        callbacks: { label: c => ' ' + c.raw + (c.raw > 1 ? ' alertes' : ' alerte') }
+                    }
                 },
-                scales:{
-                    x:{grid:{color:'rgba(30,42,56,0.8)'},ticks:{color:'#6b7c8f',font:{family:'Barlow',size:11}}},
-                    y:{beginAtZero:true,grid:{color:'rgba(30,42,56,0.8)'},ticks:{color:'#6b7c8f',font:{family:'Barlow',size:11}}}
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#6b7c8f', font: {family:'Share Tech Mono',size:10} } },
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { color: 'rgba(30,42,56,0.5)' }, 
+                        ticks: { stepSize: 1, color: '#6b7c8f', font: {family:'Share Tech Mono',size:11} },
+                        suggestedMax: hasData ? undefined : 3 // Empêche l'axe Y d'être écrasé si 0
+                    }
                 }
             }
         });
-    }, 150);
+    }, 100);
 }
 
 /* ════════════════════════════════════════════════
@@ -840,8 +603,8 @@ function updateClock() {
 setInterval(updateClock,1000);
 updateClock();
 
-renderList();
-renderRouteList();
+// Démarrage : On fetch les données réelles du worker !
+fetchWorkerData();
 </script>
 </body>
 </html>
